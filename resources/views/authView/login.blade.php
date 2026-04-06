@@ -15,7 +15,7 @@
                 <p>Doesn't have an account? <a href="/register" class="text-blue-600 mt-2">Register here!</a></p>
                 <button class="transform hover:transition-transform duration-150 hover:scale-110 hover:bg-blue-400 active:transition-transform active:scale-90 cursor-pointer rounded-3xl bg-blue-300 w-32 py-2 mt-7">Sign In</button>
                 @if($errors->first())
-                    <div class="text-center text-red-400 mt-2">
+                    <div  class="text-center text-red-400 mt-2">
                         {{ $errors->first() }}
                     </div>
                 @elseif(session('success'))
