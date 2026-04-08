@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite('resources/css/app.css')
 
-    <title>@yield('title', 'Kelompok11')</title>
+    <title>@yield('title', 'SnackFlow')</title>
     @stack('parti')
 </head>
 
-<body class="bg-slate-200 min-h-screen">
+<body class="bg-slate-200 min-h-screen overflow-hidden">
 
     @yield('content')
 
