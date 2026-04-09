@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name')->default('Monager');
             $table->string('email')->nullable()->unique();
             $table->string('google_id')->nullable()->unique();
-            $table->string('username')->unique();
             $table->string('password')->nullable();
             $table->string('avatar')->nullable();
             $table->rememberToken();

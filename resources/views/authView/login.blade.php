@@ -10,7 +10,7 @@
             <form action="/login" method="post">
                 @csrf
                 <div class="flex flex-col items-center justify-center">
-                <input autocomplete="off" type="text" placeholder="Username/Email" value="{{ old('username') }}" class="border border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="username">
+                <input autocomplete="off" type="email" placeholder="Username/Email" value="{{ old('username') }}" class="border border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="username">
                 <input autocomplete="off" type="password" placeholder="Password" class="border mt-4 border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="password">
                 <p>Don't have an account? <a href="/" class="text-blue-600 mt-2">Register here!</a></p>
                 <button class="transform hover:transition-transform duration-150 hover:scale-110 hover:bg-blue-400 active:transition-transform active:scale-90 cursor-pointer rounded-3xl bg-blue-300 w-32 py-2 mt-7">Sign In</button>
@@ -25,7 +25,7 @@
                 @endif
                 </div>
             </form>
-            <a href="/auth/google/redirect" class="flex items-center justify-center bg-white border border-gray-300 rounded-lg px-4 py-2 mt-4 hover:scale-110 hover:transition-transform transform duration-150 active:scale-90 hover:bg-gray-100 shadow">
+            <a href="{{ route('google.login') }}" class="flex items-center justify-center bg-white border border-gray-300 rounded-lg px-4 py-2 mt-4 hover:scale-110 hover:transition-transform transform duration-150 active:scale-90 hover:bg-gray-100 shadow">
                 <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png" class="w-6 h-6 mr-2" alt="Google Logo">
                 <span class="font-medium text-gray-700">Sign in with Google</span>
             </a>

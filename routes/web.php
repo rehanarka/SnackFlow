@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\LocationController;
 
 Route::get('/', function () {
     return view('registrasi');
@@ -17,3 +16,10 @@ route::get('/maps', function(){
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/auth/google', [AuthController::class, 'redirect'])->name('google.login');
+Route::get('/auth/google/callback', [AuthController::class, 'callback']);
+
+Route::get('/dashboard', function(){
+    return view('dashboard.dashboardUser');
+});

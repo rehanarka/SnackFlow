@@ -42,4 +42,29 @@ class AuthController extends Controller
             'username' => 'Login failed. Please check your username and password.',
         ])->onlyInput('username');
     }
+    public function redirect()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+    public function callback(Request $request)
+    {
+        $googleUser = Socialite::driver('google')->user();
+        $availUser = User::where('email', $googleUser->getEmail())->first();
+        if ($availUser){
+            if (! $availUser->google_id){
+                $availUser->google_id = $googleUser->getId();
+                $availUser->save();
+            }
+        } else {
+            $availUser = User::create([
+                'email' => $googleUser->getEmail(),
+                'google_id' => $googleUser->getId(),
+                'name' => $googleUser->getName(),
+                'avatar' => $googleUser->getAvatar(),
+                'password' => Hash::make(Str::random(24)),
+            ]);
+        }
+        Auth::login($availUser);
+        return redirect('/dashboard');
+    }
 }
