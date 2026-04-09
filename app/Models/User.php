@@ -22,8 +22,11 @@ class User extends Authenticatable
         'password',
         'avatar',
         'otp',
+        'otp_expired_at',
     ];
-
+    protected $casts = [
+        'otp_expired_at' => 'datetime',
+    ];
     protected $hidden = [
         'password',
         'remember token',

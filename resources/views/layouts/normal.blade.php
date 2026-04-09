@@ -9,7 +9,7 @@
     @stack('parti')
 </head>
 
-<body class="bg-slate-200 min-h-screen overflow-hidden">
+<body class="min-h-screen overflow-hidden">
 
     @yield('content')
 

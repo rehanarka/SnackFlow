@@ -9,11 +9,14 @@
             <h1 class="font-bold text-5xl  pb-5">LOGIN</h1>
             <form action="/login" method="post">
                 @csrf
-                <div class="flex flex-col items-center justify-center">
-                <input autocomplete="off" type="email" placeholder="Username/Email" value="{{ old('username') }}" class="border border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="username">
+                <div class="flex flex-col">
+                <input autocomplete="off" type="email" placeholder="email@example.com" value="{{ old('username') }}" class="border border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="username">
                 <input autocomplete="off" type="password" placeholder="Password" class="border mt-4 border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="password">
-                <p>Don't have an account? <a href="/" class="text-blue-600 mt-2">Register here!</a></p>
-                <button class="transform hover:transition-transform duration-150 hover:scale-110 hover:bg-blue-400 active:transition-transform active:scale-90 cursor-pointer rounded-3xl bg-blue-300 w-32 py-2 mt-7">Sign In</button>
+                <a href="/send-email" class="text-start text-blue-600 hover:text-blue-900 active:text-blue-600">Lupa Password?</a>
+                <div class="flex justify-center items-center">
+                    <button class="text-center transform hover:transition-transform duration-150 hover:scale-110 hover:bg-blue-400 active:transition-transform active:scale-90 cursor-pointer rounded-3xl bg-blue-300 w-32 py-2 mt-2">Sign In</button>
+                </div>
+                <p class="text-center mt-2">Don't have an account? <a href="/" class="text-blue-600 mt-2 hover:text-blue-900 active:text-blue-600">Register here!</a></p>
                 @if($errors->first())
                     <div  class="text-center text-red-400 mt-2">
                         {{ $errors->first() }}

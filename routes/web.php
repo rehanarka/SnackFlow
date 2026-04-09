@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ResetPasswordController;
 
 Route::get('/', function () {
     return view('registrasi');
@@ -20,6 +21,15 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/auth/google', [AuthController::class, 'redirect'])->name('google.login');
 Route::get('/auth/google/callback', [AuthController::class, 'callback']);
 
+Route::get('/otp', function(){
+    return view('resetPassword.sendOtp');
+});
 Route::get('/dashboard', function(){
     return view('dashboard.dashboardUser');
 });
+
+Route::get('/send-email', function(){
+    return view('resetPassword.sendEmail');
+});
+
+Route::post('/send-email', [ResetPasswordController::class, 'sendOtp']);
