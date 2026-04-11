@@ -14,14 +14,11 @@
                         <span class="absolute inset-y-0 left-0 flex items-center justify-center ml-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4 text-blue-400 pointer-events-none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></span>
                     </div>
                 </div>
-                @if (session('success'))
-                    <p class="text-green-500 text-center text-sm">{{ session('success') }}</p>
-                @endif
                 @if ($errors->has('email'))
-                    <p class="text-red-500 text-center text-sm">{{ $errors->first('email') }}</p>
+                    <p class="text-red-500 text-center text-sm mt-3">{{ $errors->first('email') }}</p>
                 @endif
                     <div class="flex justify-center items-center">
-                        <button  type="submit" class="bg-blue-500 text-white p-2 rounded mt-10"> Kirim Link Reset</button>
+                        <button  type="submit" class="bg-blue-500 hover:cursor-pointer transition duration-300 hover:scale-110 hover:bg-blue-700 active:scale-90 active:bg-blue-500 text-white p-2 rounded mt-10"> Kirim Link Reset</button>
                     </div>
                 </form>
             </div>
