@@ -10,7 +10,7 @@
             <form action="/login" method="post">
                 @csrf
                 <div class="flex flex-col">
-                <input autocomplete="off" type="email" placeholder="email@example.com" value="{{ old('username') }}" class="border border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="username">
+                <input autocomplete="off" type="email" placeholder="email@example.com" value="{{ old('email ') }}" class="border border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="email">
                 <input autocomplete="off" type="password" placeholder="Password" class="border mt-4 border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="password">
                 <a href="/send-email" class="text-start text-blue-600 hover:text-blue-900 active:text-blue-600">Lupa Password?</a>
                 <div class="flex justify-center items-center">

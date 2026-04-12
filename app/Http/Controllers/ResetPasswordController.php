@@ -65,7 +65,6 @@ class ResetPasswordController extends Controller
             ->withInput($request->only('email'));
         }
         $user->otp_expired_at = now();
-        session()->forget('email');
         $user->otp = null;
         $user->save();
         return redirect('/resetPassword');
@@ -84,5 +83,27 @@ class ResetPasswordController extends Controller
             $waktuSisa = max(0, (int) $waktuSisa);
         }
         return view('resetPassword.SendOtp', ['countdown' => $waktuSisa]);
+    }
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|min:6',
+            'passwordConfirm' => 'required|same:password',
+        ],
+        [
+            'password.required' => 'Password tidak boleh kosong.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'passwordConfirm.required' => 'Konfirmasi password tidak boleh kosong.',
+            'passwordConfirm.same' => 'Konfirmasi password tidak cocok.'
+        ]);
+        $email = session('email');
+        if (!$email){
+            return redirect('/send-email');
+        }
+        $user = User::where('email', $email)->first();
+        $user->password = Hash::make($request->password);
+        $user->save();
+        session()->forget('email');
+        return redirect('login')->with('success', 'Password berhasil diubah.');
     }
 }

@@ -18,12 +18,20 @@ class AuthController extends Controller
             'name' => 'required',
             'email' => 'required|unique:users,email',
             'password' => 'required|min:6',
+        ],
+        [
+            'name.required' => 'Nama tidak boleh kosong.',
+            'email.required' => 'Email tidak boleh kosong.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Password tidak boleh kosong.',
+            'password.min' => 'Password minimal 6 karakter.',
         ]);
 
         User::create([
             'email' => $request->email,
             'name' => $request->name,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'role' => 'user',
         ]);
         return redirect('/')->with('success', 'Registration successful. Please Login.');
     }
@@ -33,15 +41,25 @@ class AuthController extends Controller
         $pengecekan = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
+        ],
+        [
+            'email.required' => 'Email tidak boleh kosong.',
+            'email.email' => 'Email tidak valid.',
+            'password.required' => 'Password tidak boleh kosong.',
         ]);
 
         if (Auth::attempt($pengecekan)){
             $request->session()->regenerate();
-            return redirect()->intended('/maps');
+            $user = Auth::user();
+            if ($user->role === 'admin'){
+                return redirect()->route('dashboard.dashboardAdmin');
+            }
+            else{
+                return redirect()->route('dashboard.dashboardUser');
+            }
         }
-
         return back()->withErrors([
-            'email' => 'Login failed. Please check your email and password.',
+            'email' => 'Login gagal, pastikan email dan password anda benar.',
         ])->onlyInput('email');
     }
     public function redirect()
@@ -64,6 +82,7 @@ class AuthController extends Controller
                 'name' => $googleUser->getName(),
                 'avatar' => $googleUser->getAvatar(),
                 'password' => Hash::make(Str::random(24)),
+                'role' => 'user',
             ]);
         }
         Auth::login($availUser);

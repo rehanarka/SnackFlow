@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+    <div class="bg-slate-50 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h1 class="text-2xl font-bold mb-4">Verify OTP</h1>
         <p class="mb-6">
             Masukan kode OTP yang telah dikirim ke email Anda:
@@ -13,7 +13,7 @@
             @csrf
             <input type="hidden" name="email" value="{{ old('email', session('email')) }}">
             <div class="mb-4">
-                <input type="text" maxlength="6" name="otp" value="{{ old('otp') }}" placeholder="Masukan OTP" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <input type="text" maxlength="6" name="otp" value="{{ old('otp') }}" placeholder="Masukan OTP" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
             <button type="submit" class="w-full hover:cursor-pointer hover:scale-110 active:scale-90 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 active:bg-blue-500">Verify OTP</button>
