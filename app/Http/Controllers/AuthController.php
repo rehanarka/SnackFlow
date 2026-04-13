@@ -52,10 +52,10 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
             if ($user->role === 'admin'){
-                return redirect()->route('dashboard.dashboardAdmin');
+                return redirect()->route('admin.dashboard');
             }
             else{
-                return redirect()->route('dashboard.dashboardUser');
+                return redirect()->route('user.dashboard');
             }
         }
         return back()->withErrors([
@@ -86,6 +86,11 @@ class AuthController extends Controller
             ]);
         }
         Auth::login($availUser);
-        return redirect('/dashboard');
+        if ($availUser->role === 'admin'){
+            return redirect()->route('admin.dashboard');
+        }
+        else{
+            return redirect()->route('user.dashboard');
+        }
     }
 }

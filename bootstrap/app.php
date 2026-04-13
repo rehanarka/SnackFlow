@@ -14,7 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
         'otp.access' => \App\Http\Middleware\OtpAccess::class,
-    ]);
+        'RoleLogin' => \App\Http\Middleware\RoleLogin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
