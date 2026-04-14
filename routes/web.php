@@ -13,6 +13,7 @@ Route::get('/login', function(){
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
     
 Route::get('/auth/google', [AuthController::class, 'redirect'])->name('google.login');
 Route::get('/auth/google/callback', [AuthController::class, 'callback']);
@@ -24,14 +25,14 @@ Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
         })->name('admin.dashboard');
     Route::post('/katalog/tambah', [KatalogController::class, 'tambahProduk'])->name('admin.katalog.tambah');
     Route::get('/katalog', [KatalogController::class, 'viewKatalog'])->name('admin.katalog');
+    Route::put('/katalog/update/{id}', [KatalogController::class, 'updateProduk'])->name('admin.katalog.update');
+    Route::delete('/katalog/hapus/{id}', [KatalogController::class, 'hapusProduk'])->name('admin.katalog.hapus');
 });
 Route::middleware(['auth'])->prefix('user')->group(function(){
         Route::get('/dashboard', function(){
             return view('dashboard.dashboardUser');
         })->name('user.dashboard');
-        Route::get('/katalog', function(){
-            return view('katalog.katalogUser');
-        })->name('user.katalog');
+        Route::get('/katalog', [KatalogController::class, 'viewKatalogUser'])->name('user.katalog');
     });
 
 Route::get('/send-email', function(){return view('resetPassword.sendEmail');});
