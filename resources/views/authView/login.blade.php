@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="">
-        <a href="{{ route('user.katalog') }}" class="w-20 h-10 bg-blue-300 absolute top-10 right-10">Lihat</a>
         <img src="/images/Background.jpeg" alt="Background" class="absolute top-0 left-0 w-full h-full object-cover opacity-50 -z-10">
         <img src="/images/Logo.png" alt="Logo" class="absolute -left-12 -top-15 w-[18rem]">
         <div class="flex flex-col justify-center items-center h-screen gap-4">

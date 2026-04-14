@@ -21,6 +21,7 @@ class User extends Authenticatable
         'username',
         'password',
         'avatar',
+        'no_telp',
         'role',
         'otp',
         'otp_expired_at',

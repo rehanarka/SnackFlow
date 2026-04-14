@@ -7,9 +7,9 @@
             <button type="button" id="closeAddProductModal" class="text-gray-500 hover:text-black text-xl hover:cursor-pointer">&times;</button>
         </div>
 
-        <form action="{{ route('admin.katalog.tambah') }}" method="POST" enctype="multipart/form-data" class="px-6 py-5 space-y-4">
+        <form action="{{ route('admin.katalog.tambah') }}" method="POST" enctype="multipart/form-data" autocomplete="off" class="px-6 py-5 space-y-4">
             @csrf
-            <x-katalog.form-produk-fields prefix="add" :nama-produk="old('nama_produk')" :kategori="old('kategori')" :harga="old('harga')" :stok="old('stok')" :deskripsi="old('deskripsi')" />
+            <x-katalog.form-produk-fields prefix="add" :nama-produk="old('nama_produk')" :harga="old('harga')" :stok="old('stok')" :deskripsi="old('deskripsi')" />
 
             <div class="flex justify-end gap-2 pt-2">
                 <button type="button" id="cancelAddProductModal" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition hover:scale-105 hover:cursor-pointer">Batal</button>

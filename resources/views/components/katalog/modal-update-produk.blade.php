@@ -7,7 +7,7 @@
             <button type="button" id="closeUpdateProductModal" class="text-gray-500 hover:text-black text-xl hover:cursor-pointer">&times;</button>
         </div>
 
-        <form id="updateProductForm" action="" method="POST" enctype="multipart/form-data" class="px-6 py-5 space-y-4">
+        <form id="updateProductForm" action="" method="POST" enctype="multipart/form-data" autocomplete="off" class="px-6 py-5 space-y-4">
             @csrf
             @method('PUT')
             <x-katalog.form-produk-fields prefix="update" />

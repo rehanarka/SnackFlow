@@ -14,7 +14,7 @@
     <p class="text-xs text-gray-500">Stok : {{ $produk->stok }}</p>
 
     <div class="flex gap-2 mt-2">
-        <button type="button" class="updateProductBtn flex-1 px-3 py-1 bg-green-300 text-white rounded-lg hover:bg-green-600 transition duration-300 hover:scale-105 hover:cursor-pointer border-2 border-green-400" data-id="{{ $produk->id }}" data-nama="{{ $produk->nama_produk }}" data-kategori="{{ $produk->kategori }}" data-harga="{{ $produk->harga }}" data-stok="{{ $produk->stok }}" data-deskripsi="{{ $produk->deskripsi }}">Edit</button>
+        <button type="button" class="updateProductBtn flex-1 px-3 py-1 bg-green-300 text-white rounded-lg hover:bg-green-600 transition duration-300 hover:scale-105 hover:cursor-pointer border-2 border-green-400" data-id="{{ $produk->id }}" data-nama="{{ $produk->nama_produk }}" data-harga="{{ $produk->harga }}" data-stok="{{ $produk->stok }}" data-deskripsi="{{ $produk->deskripsi }}">Edit</button>
         <button type="button" class="hapusProductBtn flex-1 px-3 py-1 bg-red-300 text-white rounded-lg hover:bg-red-600 transition duration-300 hover:scale-105 hover:cursor-pointer border-2 border-red-400" data-id="{{ $produk->id }}" data-nama="{{ $produk->nama_produk }}">Hapus</button>
     </div>
 </div>

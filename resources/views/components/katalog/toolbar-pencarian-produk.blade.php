@@ -16,7 +16,7 @@
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m1.85-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
                 </svg>
             </span>
-            <input id="cariProdukInput" type="text" placeholder="Cari nama atau kategori produk..." class="w-full rounded-2xl border border-slate-200 bg-white/90 py-3 pl-12 pr-4 text-slate-700 shadow-sm outline-none transition duration-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200">
+            <input autocomplete="off" id="cariProdukInput" type="text" placeholder="Cari nama atau kategori produk..." class="w-full rounded-2xl border border-slate-200 bg-white/90 py-3 pl-12 pr-4 text-slate-700 shadow-sm outline-none transition duration-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200">
         </div>
     </div>
 

@@ -23,6 +23,10 @@ Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
     Route::get('/dashboard', function(){
         return view('dashboard.dashboardAdmin');
         })->name('admin.dashboard');
+    Route::get('/profile', function(){
+        return view('profile.profile');
+        })->name('admin.profile');
+    Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('admin.profile.update');
     Route::post('/katalog/tambah', [KatalogController::class, 'tambahProduk'])->name('admin.katalog.tambah');
     Route::get('/katalog', [KatalogController::class, 'viewKatalog'])->name('admin.katalog');
     Route::put('/katalog/update/{id}', [KatalogController::class, 'updateProduk'])->name('admin.katalog.update');
@@ -32,6 +36,10 @@ Route::middleware(['auth'])->prefix('user')->group(function(){
         Route::get('/dashboard', function(){
             return view('dashboard.dashboardUser');
         })->name('user.dashboard');
+        Route::get('/profile', function(){
+            return view('profile.profile');
+        })->name('user.profile');
+        Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');
         Route::get('/katalog', [KatalogController::class, 'viewKatalogUser'])->name('user.katalog');
     });
 

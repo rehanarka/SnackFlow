@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 
@@ -101,5 +102,38 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'no_telp' => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'name.required' => 'Nama tidak boleh kosong.',
+            'email.required' => 'Email tidak boleh kosong.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan akun lain.',
+            'no_telp.max' => 'Nomor telepon maksimal 20 karakter.',
+            'avatar.image' => 'Foto profile harus berupa gambar.',
+            'avatar.mimes' => 'Foto profile harus berformat JPG, JPEG, PNG, atau WEBP.',
+            'avatar.max' => 'Foto profile tidak boleh lebih dari 2MB.',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            if (!empty($user->avatar) && !filter_var($user->avatar, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $validated['avatar'] = $request->file('avatar')->store('avatar', 'public');
+        }
+
+        $user->update($validated);
+
+        return back()->with('success', 'Profile berhasil diperbarui.');
     }
 }

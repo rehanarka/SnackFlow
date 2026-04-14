@@ -1,6 +1,7 @@
 @php
     $user = auth()->user();
     $avatarUrl = '/images/avatar-default.png';
+    $profileRoute = route(($user->role === 'admin' ? 'admin' : 'user') . '.profile');
 
     if (!empty($user->avatar)) {
         $avatarUrl = filter_var($user->avatar, FILTER_VALIDATE_URL) ? $user->avatar : asset('storage/' . $user->avatar);
@@ -62,21 +63,18 @@
                     <div class="space-y-3 px-5 py-4">
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Profile</p>
-                            <p class="mt-2 text-sm text-slate-700">Masuk sebagai <span class="font-semibold text-slate-900">{{ $user->name }}</span>. Kelola sesi akunmu dengan aman sebelum meninggalkan dashboard.</p>
+                            <p class="mt-2 text-sm text-slate-700">Masuk sebagai <span class="font-semibold text-slate-900">{{ $user->name }}</span>. Kelola sesi akunmu sepenuhnya difitur profile.</p>
                         </div>
 
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="flex w-full items-center justify-between rounded-2xl bg-red-500 px-4 py-3 text-left text-white shadow-lg shadow-red-200 transition duration-300 hover:-translate-y-0.5 hover:bg-red-600">
-                                <span>
-                                    <span class="block text-sm font-semibold">Logout</span>
-                                    <span class="block text-xs text-red-100">Keluar dari sesi akun ini</span>
-                                </span>
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H4m12 0-3-3m3 3-3 3m4-9h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1"/>
-                                </svg>
-                            </button>
-                        </form>
+                        <a href="{{ $profileRoute }}" class="flex w-full items-center justify-between rounded-2xl bg-sky-500 px-4 py-3 text-left text-white shadow-lg shadow-sky-200 transition duration-300 hover:-translate-y-0.5 hover:bg-sky-600">
+                            <span>
+                                <span class="block text-sm font-semibold">Profile</span>
+                                <span class="block text-xs text-sky-100">Buka halaman detail akun anda</span>
+                            </span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7h5m0 0v5m0-5-6 6M8 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-2"/>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>

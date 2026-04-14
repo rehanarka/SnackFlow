@@ -15,7 +15,6 @@ const updateButtons = document.querySelectorAll('.updateProductBtn');
 const hapusButtons = document.querySelectorAll('.hapusProductBtn');
 
 const updateNama = document.getElementById('update_nama_produk');
-const updateKategori = document.getElementById('update_kategori');
 const updateHarga = document.getElementById('update_harga');
 const updateStok = document.getElementById('update_stok');
 const updateDeskripsi = document.getElementById('update_deskripsi');
@@ -160,7 +159,6 @@ if (addProductBtn && addProductModal && updateProductModal) {
 
             updateProductForm.action = `/admin/katalog/update/${id}`;
             updateNama.value = this.dataset.nama || '';
-            updateKategori.value = this.dataset.kategori || '';
             updateHarga.value = this.dataset.harga || '';
             updateStok.value = this.dataset.stok || '';
             updateDeskripsi.value = this.dataset.deskripsi || '';

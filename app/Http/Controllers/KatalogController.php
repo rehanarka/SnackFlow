@@ -14,7 +14,7 @@ class KatalogController extends Controller
             'nama_produk' => 'required',
             'harga' => 'required|numeric',
             'stok' => 'required|integer',
-            'kategori' => 'required',
+            'deskripsi' => 'nullable|string',
             'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ],
         [
@@ -23,7 +23,6 @@ class KatalogController extends Controller
             'harga.numeric' => 'Harga produk harus berupa angka.',
             'stok.required' => 'Stok produk tidak boleh kosong.',
             'stok.integer' => 'Stok produk harus berupa angka bulat.',
-            'kategori.required' => 'Kategori produk tidak boleh kosong.',
             'foto.required' => 'Harap tambahkan foto produk.',
             'foto.image' => 'Foto produk harus berupa gambar.',
             'foto.mimes' => 'Foto produk harus berupa file JPEG, PNG, JPG, atau GIF.',
@@ -49,7 +48,6 @@ class KatalogController extends Controller
 
     $validated = $request->validate([
         'nama_produk' => 'required|string|max:255',
-        'kategori' => 'nullable|string|max:255',
         'harga' => 'required|numeric',
         'stok' => 'required|integer',
         'deskripsi' => 'nullable|string',
