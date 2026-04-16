@@ -18,6 +18,7 @@ if (profileToggle && profileDropdown) {
                 profileDropdown.classList.add('hidden');
             }
         }, 200);
+        
     }
 
     function toggleDropdown() {

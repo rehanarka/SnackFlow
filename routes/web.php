@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\KatalogController;
 
@@ -41,6 +42,15 @@ Route::middleware(['auth'])->prefix('user')->group(function(){
         })->name('user.profile');
         Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');
         Route::get('/katalog', [KatalogController::class, 'viewKatalogUser'])->name('user.katalog');
+        Route::get('/checkout', [CheckoutController::class, 'index'])->name('user.checkout');
+        Route::get('/checkout/destination-autocomplete', [CheckoutController::class, 'autocompleteDestination'])->name('user.checkout.destination.autocomplete');
+        Route::post('/checkout/rates', [CheckoutController::class, 'rates'])->name('user.checkout.rates');
+        Route::post('/checkout/shipping', [CheckoutController::class, 'selectShipping'])->name('user.checkout.shipping');
+        Route::post('/checkout/proceed', [CheckoutController::class, 'proceedToPayment'])->name('user.checkout.proceed');
+        Route::get('/checkout/payment/{transaksi}', [CheckoutController::class, 'payment'])->name('user.checkout.payment');
+        Route::post('/keranjang', [KatalogController::class, 'tambahKeKeranjang'])->name('user.keranjang.tambah');
+        Route::patch('/keranjang/{id}', [KatalogController::class, 'updateJumlahKeranjang'])->name('user.keranjang.update');
+        Route::delete('/keranjang/{id}', [KatalogController::class, 'hapusDariKeranjang'])->name('user.keranjang.hapus');
     });
 
 Route::get('/send-email', function(){return view('resetPassword.sendEmail');});

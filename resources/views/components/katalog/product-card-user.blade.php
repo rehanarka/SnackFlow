@@ -1,6 +1,15 @@
 @props(['produk'])
 
-<div class="productCard bg-white overflow-hidden rounded-2xl border border-gray-200 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl" data-search="{{ \Illuminate\Support\Str::lower(trim($produk->nama_produk . ' ' . ($produk->kategori ?? ''))) }}" data-stok="{{ $produk->stok }}">
+<div
+    class="productCard bg-white overflow-hidden rounded-2xl border border-gray-200 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:cursor-pointer"
+    data-search="{{ \Illuminate\Support\Str::lower(trim($produk->nama_produk . ' ' . ($produk->kategori ?? ''))) }}"
+    data-stok="{{ $produk->stok }}"
+    data-nama="{{ $produk->nama_produk }}"
+    data-harga="{{ number_format($produk->harga, 0, ',', '.') }}"
+    data-deskripsi="{{ $produk->deskripsi ?: 'Belum ada deskripsi produk.' }}"
+    data-berat="{{ number_format($produk->berat ?? 0, 0, ',', '.') }}"
+    data-foto="{{ $produk->foto ? asset('storage/' . $produk->foto) : '' }}"
+>
     @if ($produk->foto)
         <img src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama_produk }}" class="h-48 w-full object-cover rounded-t-2xl">
     @else
@@ -15,6 +24,7 @@
         <p class="text-xs text-gray-500">Stok : {{ $produk->stok }}</p>
         <span class="rounded-full {{ $produk->stok > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500' }} px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">{{ $produk->stok > 0 ? 'Siap Dipesan' : 'Stok Habis' }}</span>
     </div>
+    
 
     <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-3">
         <div class="flex items-center justify-between gap-3">
@@ -28,7 +38,12 @@
         </div>
 
         <div class="mt-4 grid grid-cols-2 gap-3">
-            <button type="button" class="w-full rounded-2xl border border-slate-300 bg-white px-2 py-1 text-sm font-semibold text-slate-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-100 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" {{ $produk->stok < 1 ? 'disabled' : '' }}>Tambah ke Keranjang</button>
+            <form action="{{ route('user.keranjang.tambah') }}" method="POST">
+                @csrf
+                <input type="hidden" name="id_produk" value="{{ $produk->id }}">
+                <input type="hidden" name="jumlah_produk" value="{{ $produk->stok > 0 ? 1 : 0 }}" class="quantityInput">
+                <button type="submit" class="w-full rounded-2xl border border-slate-300 bg-white px-2 py-1 text-sm font-semibold text-slate-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-100 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" {{ $produk->stok < 1 ? 'disabled' : '' }}>Masukkan Keranjang</button>
+            </form>
             <button type="button" class="w-full rounded-2xl bg-blue-900 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none" {{ $produk->stok < 1 ? 'disabled' : '' }}>Checkout</button>
         </div>
     </div>

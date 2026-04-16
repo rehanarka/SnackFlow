@@ -21,7 +21,7 @@ class ResetPasswordController extends Controller
 
         $user = User::where('email', $request->email)->first();
         if (!$user){
-            return back()->withErrors(['email' => 'Akun anda tidak ditemukan.'])->onlyInput('email');
+            return back()->withErrors(['email' => 'Akun tidak ditemukan.'])->onlyInput('email');
         }
         
         $otp = random_int(100000, 999999);

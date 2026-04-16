@@ -3,6 +3,7 @@
     'namaProduk' => '',
     'harga' => '',
     'stok' => '',
+    'berat' => '',
     'deskripsi' => '',
 ])
 
@@ -19,6 +20,11 @@
 <div>
     <label for="{{ $prefix }}_stok" class="block mb-1 text-sm font-medium text-gray-700">Stok</label>
     <input type="number" id="{{ $prefix }}_stok" name="stok" value="{{ $stok }}" autocomplete="off" class="[appearance:textfield] w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" placeholder="Masukkan stok" required>
+</div>
+
+<div>
+    <label for="{{ $prefix }}_berat" class="block mb-1 text-sm font-medium text-gray-700">Berat (gram)</label>
+    <input type="number" id="{{ $prefix }}_berat" name="berat" value="{{ $berat }}" autocomplete="off" class="[appearance:textfield] w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" placeholder="Masukkan berat produk" required>
 </div>
 
 <div>

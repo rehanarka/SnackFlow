@@ -17,6 +17,7 @@ const hapusButtons = document.querySelectorAll('.hapusProductBtn');
 const updateNama = document.getElementById('update_nama_produk');
 const updateHarga = document.getElementById('update_harga');
 const updateStok = document.getElementById('update_stok');
+const updateBerat = document.getElementById('update_berat');
 const updateDeskripsi = document.getElementById('update_deskripsi');
 const hapusProductModal = document.getElementById('hapusProductModal');
 const hapusModalOverlay = document.getElementById('hapusModalOverlay');
@@ -31,6 +32,21 @@ const closePeringatanProdukModal = document.getElementById('closePeringatanProdu
 const cariProdukInput = document.getElementById('cariProdukInput');
 const produkCards = document.querySelectorAll('.productCard');
 const hasilPencarianKosong = document.getElementById('hasilPencarianKosong');
+const openCartButton = document.getElementById('openCartButton');
+const cartModal = document.getElementById('cartModal');
+const cartModalOverlay = document.getElementById('cartModalOverlay');
+const cartModalPanel = document.getElementById('cartModalPanel');
+const closeCartModal = document.getElementById('closeCartModal');
+const productDetailModal = document.getElementById('productDetailModal');
+const productDetailOverlay = document.getElementById('productDetailOverlay');
+const productDetailPanel = document.getElementById('productDetailPanel');
+const closeProductDetailModal = document.getElementById('closeProductDetailModal');
+const productDetailImage = document.getElementById('productDetailImage');
+const productDetailName = document.getElementById('productDetailName');
+const productDetailPrice = document.getElementById('productDetailPrice');
+const productDetailStock = document.getElementById('productDetailStock');
+const productDetailWeight = document.getElementById('productDetailWeight');
+const productDetailDescription = document.getElementById('productDetailDescription');
 
 produkCards.forEach((card) => {
     const minusButton = card.querySelector('.quantityMinusBtn');
@@ -45,8 +61,12 @@ produkCards.forEach((card) => {
 
     function updateQuantity(nextValue) {
         const quantity = Math.min(Math.max(nextValue, stok > 0 ? 1 : 0), stok);
+        const quantityInput = card.querySelector('.quantityInput');
 
         quantityValue.textContent = String(quantity);
+        if (quantityInput) {
+            quantityInput.value = String(quantity);
+        }
         minusButton.disabled = quantity <= 1;
         plusButton.disabled = quantity >= stok || stok < 1;
     }
@@ -61,6 +81,82 @@ produkCards.forEach((card) => {
         updateQuantity(Number(quantityValue.textContent || 1) - 1);
     });
 });
+
+if (
+    productDetailModal &&
+    productDetailOverlay &&
+    productDetailPanel &&
+    closeProductDetailModal &&
+    productDetailImage &&
+    productDetailName &&
+    productDetailPrice &&
+    productDetailStock &&
+    productDetailWeight &&
+    productDetailDescription
+) {
+    const openProductDetailModal = (card) => {
+        const fallbackImage =
+            'data:image/svg+xml;charset=UTF-8,' +
+            encodeURIComponent(`
+                <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+                    <rect width="100%" height="100%" fill="#e2e8f0"/>
+                    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="28">
+                        No Image
+                    </text>
+                </svg>
+            `);
+
+        productDetailImage.src = card.dataset.foto || fallbackImage;
+        productDetailName.textContent = card.dataset.nama || 'Produk';
+        productDetailPrice.textContent = `Rp ${card.dataset.harga || '0'}`;
+        productDetailStock.textContent = `${card.dataset.stok || '0'} item`;
+        productDetailWeight.textContent = `${card.dataset.berat || '0'} gram`;
+        productDetailDescription.textContent = card.dataset.deskripsi || 'Belum ada deskripsi produk.';
+
+        productDetailModal.classList.remove('hidden');
+
+        requestAnimationFrame(() => {
+            productDetailOverlay.classList.remove('opacity-0');
+            productDetailOverlay.classList.add('opacity-100');
+            productDetailPanel.classList.remove('opacity-0', 'scale-95');
+            productDetailPanel.classList.add('opacity-100', 'scale-100');
+        });
+    };
+
+    const closeProductModal = () => {
+        productDetailOverlay.classList.remove('opacity-100');
+        productDetailOverlay.classList.add('opacity-0');
+        productDetailPanel.classList.remove('opacity-100', 'scale-100');
+        productDetailPanel.classList.add('opacity-0', 'scale-95');
+
+        setTimeout(() => {
+            productDetailModal.classList.add('hidden');
+        }, 300);
+    };
+
+    produkCards.forEach((card) => {
+        card.addEventListener('click', (event) => {
+            if (event.target.closest('button, form, a, input')) {
+                return;
+            }
+
+            openProductDetailModal(card);
+        });
+    });
+
+    closeProductDetailModal.addEventListener('click', closeProductModal);
+    productDetailModal.addEventListener('click', (event) => {
+        if (event.target === productDetailModal || event.target === productDetailOverlay) {
+            closeProductModal();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !productDetailModal.classList.contains('hidden')) {
+            closeProductModal();
+        }
+    });
+}
 
 if (cariProdukInput && produkCards.length) {
     cariProdukInput.addEventListener('input', function () {
@@ -80,6 +176,39 @@ if (cariProdukInput && produkCards.length) {
 
         if (hasilPencarianKosong) {
             hasilPencarianKosong.classList.toggle('hidden', jumlahTampil !== 0 || keyword === '');
+        }
+    });
+}
+
+if (openCartButton && cartModal && cartModalOverlay && cartModalPanel) {
+    function openCartModal() {
+        cartModal.classList.remove('hidden');
+
+        requestAnimationFrame(() => {
+            cartModalOverlay.classList.remove('opacity-0');
+            cartModalOverlay.classList.add('opacity-100');
+            cartModalPanel.classList.remove('translate-x-full');
+            cartModalPanel.classList.add('translate-x-0');
+        });
+    }
+
+    function closeCartDrawer() {
+        cartModalOverlay.classList.remove('opacity-100');
+        cartModalOverlay.classList.add('opacity-0');
+        cartModalPanel.classList.remove('translate-x-0');
+        cartModalPanel.classList.add('translate-x-full');
+
+        setTimeout(() => {
+            cartModal.classList.add('hidden');
+        }, 300);
+    }
+
+    openCartButton.addEventListener('click', openCartModal);
+    closeCartModal?.addEventListener('click', closeCartDrawer);
+
+    cartModal.addEventListener('click', (event) => {
+        if (event.target === cartModal || event.target === cartModalOverlay) {
+            closeCartDrawer();
         }
     });
 }
@@ -161,6 +290,7 @@ if (addProductBtn && addProductModal && updateProductModal) {
             updateNama.value = this.dataset.nama || '';
             updateHarga.value = this.dataset.harga || '';
             updateStok.value = this.dataset.stok || '';
+            updateBerat.value = this.dataset.berat || '';
             updateDeskripsi.value = this.dataset.deskripsi || '';
 
             openUpdateModal();
