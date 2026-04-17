@@ -3,8 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\KatalogController;
+use App\Http\Controllers\TransaksiController;
 
 Route::get('/', function () {
     return view('registrasi');
@@ -32,6 +34,10 @@ Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
     Route::get('/katalog', [KatalogController::class, 'viewKatalog'])->name('admin.katalog');
     Route::put('/katalog/update/{id}', [KatalogController::class, 'updateProduk'])->name('admin.katalog.update');
     Route::delete('/katalog/hapus/{id}', [KatalogController::class, 'hapusProduk'])->name('admin.katalog.hapus');
+    Route::get('/transaksi', [TransaksiController::class, 'adminIndex'])->name('admin.transaksi');
+    Route::get('/transaksi/{transaksi}', [TransaksiController::class, 'adminShow'])->name('admin.transaksi.show');
+    Route::post('/transaksi/{transaksi}/approve', [TransaksiController::class, 'approveByAdmin'])->name('admin.transaksi.approve');
+    Route::post('/transaksi/{transaksi}/reject', [TransaksiController::class, 'rejectByAdmin'])->name('admin.transaksi.reject');
 });
 Route::middleware(['auth'])->prefix('user')->group(function(){
         Route::get('/dashboard', function(){
@@ -48,9 +54,11 @@ Route::middleware(['auth'])->prefix('user')->group(function(){
         Route::post('/checkout/shipping', [CheckoutController::class, 'selectShipping'])->name('user.checkout.shipping');
         Route::post('/checkout/proceed', [CheckoutController::class, 'proceedToPayment'])->name('user.checkout.proceed');
         Route::get('/checkout/payment/{transaksi}', [CheckoutController::class, 'payment'])->name('user.checkout.payment');
+        Route::post('/checkout/payment/{transaksi}/refresh-status', [CheckoutController::class, 'refreshPaymentStatus'])->name('user.checkout.payment.refresh-status');
         Route::post('/keranjang', [KatalogController::class, 'tambahKeKeranjang'])->name('user.keranjang.tambah');
         Route::patch('/keranjang/{id}', [KatalogController::class, 'updateJumlahKeranjang'])->name('user.keranjang.update');
         Route::delete('/keranjang/{id}', [KatalogController::class, 'hapusDariKeranjang'])->name('user.keranjang.hapus');
+        Route::get('/transaksi', [TransaksiController::class, 'index'])->name('user.transaksi');
     });
 
 Route::get('/send-email', function(){return view('resetPassword.sendEmail');});

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailTransaksi;
 use App\Models\Transaksi;
+use App\Services\MidtransService;
 use App\Services\RajaOngkirService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -212,7 +213,7 @@ class CheckoutController extends Controller
         ]);
         $request->session()->forget('rajaongkir_rates');
 
-        return redirect()->route('user.checkout')->with('success', 'Kurir berhasil dipilih. Lanjutkan dengan tombol Checkout untuk masuk ke halaman pembayaran.');
+        return redirect()->route('user.checkout')->with('success', 'Kurir berhasil dipilih. Lanjutkan dengan tombol Checkout untuk mengirim pesanan ke admin.');
     }
 
     public function proceedToPayment(Request $request)
@@ -251,7 +252,7 @@ class CheckoutController extends Controller
                 'kurir' => $selectedShipping['kurir'],
                 'service_pengiriman' => $selectedShipping['service_pengiriman'],
                 'estimasi_pengiriman' => $selectedShipping['estimasi_pengiriman'] ?? '-',
-                'status_pesanan' => 'menunggu_pembayaran',
+                'status_pesanan' => 'Menunggu Konfirmasi',
                 'status_pembayaran' => 'pending',
             ]);
 
@@ -277,17 +278,68 @@ class CheckoutController extends Controller
             'rajaongkir_rates',
         ]);
 
-        return redirect()->route('user.checkout.payment', $transaksi);
+        return redirect()
+            ->route('user.katalog')
+            ->with('checkout_success', [
+                'transaction_id' => $transaksi->id,
+                'message' => 'Pesanan berhasil dibuat dan sekarang menunggu konfirmasi dari admin.',
+            ]);
     }
 
-    public function payment(Request $request, Transaksi $transaksi)
+    public function payment(Request $request, Transaksi $transaksi, MidtransService $midtransService)
     {
         abort_unless($transaksi->id_user === $request->user()->id, 404);
 
-        $transaksi->load(['detailTransaksi.produk']);
+        $transaksi->load(['detailTransaksi.produk', 'user']);
+        $snapToken = null;
+        $snapRedirectUrl = null;
+        $paymentError = null;
+
+        if ($transaksi->status_pesanan === 'Menunggu Pembayaran') {
+            try {
+                $snapTransaction = $midtransService->createOrGetSnapTransaction($transaksi);
+                $snapToken = $snapTransaction['token'] ?? null;
+                $snapRedirectUrl = $snapTransaction['redirect_url'] ?? null;
+                $transaksi->refresh();
+            } catch (Throwable $th) {
+                $paymentError = $th->getMessage();
+            }
+        }
 
         return view('transactions.payment', [
             'transaksi' => $transaksi,
+            'snapToken' => $snapToken,
+            'snapRedirectUrl' => $snapRedirectUrl,
+            'midtransClientKey' => config('services.midtrans.client_key'),
+            'midtransSnapScriptUrl' => $midtransService->getSnapScriptUrl(),
+            'paymentError' => $paymentError,
         ]);
+    }
+
+    public function refreshPaymentStatus(Request $request, Transaksi $transaksi, MidtransService $midtransService)
+    {
+        abort_unless($transaksi->id_user === $request->user()->id, 404);
+
+        if ($transaksi->status_pesanan !== 'Menunggu Pembayaran') {
+            return redirect()
+                ->route('user.checkout.payment', $transaksi)
+                ->withErrors([
+                    'checkout' => 'Pembayaran belum bisa dilakukan sebelum pesanan diterima admin.',
+                ]);
+        }
+
+        try {
+            $midtransService->syncTransactionStatus($transaksi);
+
+            return redirect()
+                ->route('user.checkout.payment', $transaksi)
+                ->with('success', 'Status pembayaran berhasil diperbarui dari Midtrans.');
+        } catch (Throwable $th) {
+            return redirect()
+                ->route('user.checkout.payment', $transaksi)
+                ->withErrors([
+                    'checkout' => 'Gagal memperbarui status pembayaran: ' . $th->getMessage(),
+                ]);
+        }
     }
 }

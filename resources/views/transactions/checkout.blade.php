@@ -313,9 +313,9 @@
         const selectedShippingService = document.getElementById('selectedShippingService');
         const selectedShippingEstimate = document.getElementById('selectedShippingEstimate');
         const selectedShippingCost = document.getElementById('selectedShippingCost');
-        const endpoint = @json(route('user.checkout.destination.autocomplete'));
-        const ratesEndpoint = @json(route('user.checkout.rates'));
-        const shippingEndpoint = @json(route('user.checkout.shipping'));
+        const endpoint = @json(route('user.checkout.destination.autocomplete', [], false));
+        const ratesEndpoint = @json(route('user.checkout.rates', [], false));
+        const shippingEndpoint = @json(route('user.checkout.shipping', [], false));
         const csrfToken = @json(csrf_token());
         const initialRates = @json($rajaongkirRates);
 
