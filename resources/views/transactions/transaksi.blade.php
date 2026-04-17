@@ -1,7 +1,6 @@
 @extends('layouts.sidebar')
 
 @section('content')
-<<<<<<< HEAD
 @php
     use Illuminate\Support\Str;
 
@@ -117,7 +116,4 @@
     </section>
 </div>
 @endsection
-=======
-    d
 @endsection
->>>>>>> a0857944c1323bf5d692780605c3767ea29deef2
