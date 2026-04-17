@@ -51,6 +51,8 @@ Route::middleware(['auth'])->prefix('user')->group(function(){
         Route::post('/keranjang', [KatalogController::class, 'tambahKeKeranjang'])->name('user.keranjang.tambah');
         Route::patch('/keranjang/{id}', [KatalogController::class, 'updateJumlahKeranjang'])->name('user.keranjang.update');
         Route::delete('/keranjang/{id}', [KatalogController::class, 'hapusDariKeranjang'])->name('user.keranjang.hapus');
+        Route::get('/transaksi', function(){
+            return view('transactions.transaksi');})->name('user.transaksi');
     });
 
 Route::get('/send-email', function(){return view('resetPassword.sendEmail');});
