@@ -67,7 +67,7 @@
                 <span class="rounded-full bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">Editable</span>
             </div>
 
-            <form action="{{ $updateProfileRoute }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <form action="{{ $updateProfileRoute }}" method="POST" enctype="multipart/form-data" class="space-y-3">
                 @csrf
                 @method('PATCH')
 
@@ -102,6 +102,9 @@
                     @error('no_telp')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
+                </div>
+                <div>
+                    <a href="/send-email" class="text-sm text-sky-600 hover:text-sky-800 mt-10">Edit Password</a>
                 </div>
 
                 <button type="submit" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800">Simpan Perubahan</button>

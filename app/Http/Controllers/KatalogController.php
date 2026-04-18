@@ -95,6 +95,7 @@ class KatalogController extends Controller
         $keranjangItems = auth()->user()->keranjang()->with('produk')->latest()->get();
         $cartCount = $keranjangItems->sum('jumlah_produk');
 
+        
         return view('katalog.katalogUser', compact('produks', 'keranjangItems', 'cartCount'));
     }
 
@@ -103,6 +104,7 @@ class KatalogController extends Controller
         $validated = $request->validate([
             'id_produk' => 'required|exists:katalog_produks,id',
             'jumlah_produk' => 'required|integer|min:1',
+            'redirect_to_checkout' => 'nullable',
         ], [
             'jumlah_produk.required' => 'Jumlah produk harus diisi.',
             'jumlah_produk.integer' => 'Jumlah produk harus berupa angka bulat.',
@@ -134,6 +136,10 @@ class KatalogController extends Controller
             return back()->withErrors([
                 'keranjang' => $exception->getMessage(),
             ])->withInput();
+        }
+
+        if ($request->boolean('redirect_to_checkout')) {
+            return redirect()->route('user.checkout')->with('success', 'Produk langsung masuk ke checkout sesuai jumlah yang dipilih.');
         }
 
         return back()->with('success', 'Produk berhasil dimasukkan ke keranjang.');

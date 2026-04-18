@@ -43,7 +43,7 @@
                     Lihat Riwayat Pesanan
                 </a>
                 <button type="button" id="closeCheckoutSuccessModal" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-slate-800 hover:cursor-pointer">
-                    Kembali ke Katalog
+                    Oke
                 </button>
             </div>
         </div>

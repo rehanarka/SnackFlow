@@ -42,9 +42,15 @@
                 @csrf
                 <input type="hidden" name="id_produk" value="{{ $produk->id }}">
                 <input type="hidden" name="jumlah_produk" value="{{ $produk->stok > 0 ? 1 : 0 }}" class="quantityInput">
-                <button type="submit" class="w-full rounded-2xl border border-slate-300 bg-white px-2 py-1 text-sm font-semibold text-slate-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-100 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" {{ $produk->stok < 1 ? 'disabled' : '' }}>Masukkan Keranjang</button>
+                <button type="submit" class="w-full rounded-2xl border border-slate-300 bg-white px-2 py-1 text-sm font-semibold text-slate-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-100 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" {{ $produk->stok < 1 ? 'disabled' : '' }}>Add to Cart</button>
             </form>
-            <button type="button" class="w-full rounded-2xl bg-blue-900 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none" {{ $produk->stok < 1 ? 'disabled' : '' }}>Checkout</button>
+            <form action="{{ route('user.keranjang.tambah') }}" method="POST">
+                @csrf
+                <input type="hidden" name="id_produk" value="{{ $produk->id }}">
+                <input type="hidden" name="jumlah_produk" value="{{ $produk->stok > 0 ? 1 : 0 }}" class="quantityInput">
+                <input type="hidden" name="redirect_to_checkout" value="1">
+                <button type="submit" class="w-full rounded-2xl bg-blue-900 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none" {{ $produk->stok < 1 ? 'disabled' : '' }}>Checkout</button>
+            </form>
         </div>
     </div>
 </div>

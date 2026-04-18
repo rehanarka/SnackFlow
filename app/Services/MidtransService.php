@@ -183,12 +183,12 @@ class MidtransService
                 $statusPesanan = 'Menunggu Verifikasi';
             } else {
                 $statusPembayaran = 'paid';
-                $statusPesanan = 'Menunggu Konfirmasi';
+                $statusPesanan = 'Diproses';
                 $paidAt = now();
             }
         } elseif ($transactionStatus === 'settlement') {
             $statusPembayaran = 'paid';
-            $statusPesanan = 'Menunggu Konfirmasi';
+            $statusPesanan = 'Diproses';
             $paidAt = now();
         } elseif ($transactionStatus === 'pending') {
             $statusPembayaran = 'pending';

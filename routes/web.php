@@ -23,12 +23,8 @@ Route::get('/auth/google/callback', [AuthController::class, 'callback']);
 
     
 Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
-    Route::get('/dashboard', function(){
-        return view('dashboard.dashboardAdmin');
-        })->name('admin.dashboard');
-    Route::get('/profile', function(){
-        return view('profile.profile');
-        })->name('admin.profile');
+    Route::get('/dashboard', function(){return view('dashboard.dashboardAdmin');})->name('admin.dashboard');
+    Route::get('/profile', function(){return view('profile.profile');})->name('admin.profile');
     Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('admin.profile.update');
     Route::post('/katalog/tambah', [KatalogController::class, 'tambahProduk'])->name('admin.katalog.tambah');
     Route::get('/katalog', [KatalogController::class, 'viewKatalog'])->name('admin.katalog');
@@ -40,12 +36,8 @@ Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
     Route::post('/transaksi/{transaksi}/reject', [TransaksiController::class, 'rejectByAdmin'])->name('admin.transaksi.reject');
 });
 Route::middleware(['auth'])->prefix('user')->group(function(){
-        Route::get('/dashboard', function(){
-            return view('dashboard.dashboardUser');
-        })->name('user.dashboard');
-        Route::get('/profile', function(){
-            return view('profile.profile');
-        })->name('user.profile');
+        Route::get('/dashboard', function(){return view('dashboard.dashboardUser');})->name('user.dashboard');
+        Route::get('/profile', function(){return view('profile.profile');})->name('user.profile');
         Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');
         Route::get('/katalog', [KatalogController::class, 'viewKatalogUser'])->name('user.katalog');
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('user.checkout');
@@ -58,10 +50,7 @@ Route::middleware(['auth'])->prefix('user')->group(function(){
         Route::post('/keranjang', [KatalogController::class, 'tambahKeKeranjang'])->name('user.keranjang.tambah');
         Route::patch('/keranjang/{id}', [KatalogController::class, 'updateJumlahKeranjang'])->name('user.keranjang.update');
         Route::delete('/keranjang/{id}', [KatalogController::class, 'hapusDariKeranjang'])->name('user.keranjang.hapus');
-
         Route::get('/transaksi', [TransaksiController::class, 'index'])->name('user.transaksi');
-        Route::get('/transaksi', function(){
-            return view('transactions.transaksi');})->name('user.transaksi');
     });
 
 Route::get('/send-email', function(){return view('resetPassword.sendEmail');});

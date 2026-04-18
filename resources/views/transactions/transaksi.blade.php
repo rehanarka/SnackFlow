@@ -24,8 +24,8 @@
     ];
 @endphp
 
-<div class="space-y-6">
-    <section class="rounded-[2rem] border border-slate-200/80 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.12),_transparent_30%),linear-gradient(135deg,_#ffffff_0%,_#f8fbff_55%,_#eef5ff_100%)] px-8 py-8 shadow-xl shadow-sky-100/50">
+<div class="space-y-4 -mt-5">
+    <section class="rounded-4xl border border-slate-200/80 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.12),_transparent_30%),linear-gradient(135deg,_#ffffff_0%,_#f8fbff_55%,_#eef5ff_100%)] px-3 py-7 shadow-xl shadow-sky-100/50">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Transaksi Saya</p>
@@ -115,5 +115,4 @@
         @endif
     </section>
 </div>
-@endsection
 @endsection
