@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('katalog_produks', function (Blueprint $table) {
+        Schema::create('katalog_produk', function (Blueprint $table) {
             $table->id();
             $table->string('nama_produk');
             $table->string('kategori')->nullable();
@@ -19,7 +19,6 @@ return new class extends Migration
             $table->integer('stok')->default(0);
             $table->text('deskripsi')->nullable();
             $table->string('foto_produk')->nullable();
-            $table->timestamps();
         });
     }
 

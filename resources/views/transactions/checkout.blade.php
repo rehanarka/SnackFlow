@@ -4,8 +4,8 @@
 @php
     $user = auth()->user();
     $oldTujuanPengiriman = old('tujuan_pengiriman', $selectedDestination['label'] ?? '');
-    $namaPenerima = old('nama_penerima', $checkoutForm['nama_penerima'] ?? $user->name);
-    $noTelpPenerima = old('no_telp_penerima', $checkoutForm['no_telp_penerima'] ?? $user->no_telp);
+    $namaPenerima = old('nama_penerima', $checkoutForm['nama_penerima'] ?? $user->nama_lengkap);
+    $noTelpPenerima = old('no_telp_penerima', $checkoutForm['no_telp_penerima'] ?? $user->no_telepon);
     $alamatPenerima = old('alamat_penerima', $checkoutForm['alamat_penerima'] ?? '');
 @endphp
 
@@ -45,8 +45,8 @@
                             <div class="space-y-4">
                                 @foreach ($keranjangItems as $item)
                                     <div class="flex gap-4 rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm shadow-slate-100/70">
-                                        @if ($item->produk?->foto)
-                                            <img src="{{ asset('storage/' . $item->produk->foto) }}" alt="{{ $item->produk->nama_produk }}" class="h-24 w-24 rounded-2xl object-cover">
+                                        @if ($item->produk?->foto_produk)
+                                            <img src="{{ asset('storage/' . $item->produk->foto_produk) }}" alt="{{ $item->produk->nama_produk }}" class="h-24 w-24 rounded-2xl object-cover">
                                         @else
                                             <div class="flex h-24 w-24 items-center justify-center rounded-2xl bg-slate-200 text-xs font-semibold text-slate-500">No Image</div>
                                         @endif
@@ -110,7 +110,7 @@
                                 <div id="shippingOptionsSection" class="{{ !empty($rajaongkirRates) ? '' : 'hidden ' }}overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/95 shadow-xl shadow-sky-100/40 backdrop-blur">
                         <div class="border-b border-slate-200 px-6 py-5">
                             <h2 class="text-lg font-semibold text-slate-900">Opsi Pengiriman</h2>
-                            <p class="mt-1 text-sm text-slate-500">Pilihan layanan sudah siap. Buka modal untuk melihat semua kurir dengan tampilan yang lebih lega.</p>
+                            <p class="mt-1 text-sm text-slate-500">Pilihan layanan JNE Reguler sudah siap. Buka modal untuk melihat opsi yang tersedia dengan tampilan yang lebih lega.</p>
                         </div>
 
                         <div class="space-y-4 px-6 py-5">
@@ -129,14 +129,14 @@
                                     </div>
                                 </div>
 
-                            <button type="button" id="openShippingOptionsModal" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:scale-105 hover:cursor-pointer transition duration-300">Lihat Pilihan Kurir</button>
-                            <p class="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium text-sky-700">Klik salah satu layanan kurir, lalu lanjutkan dengan tombol Checkout untuk masuk ke halaman pembayaran.</p>
+                            <button type="button" id="openShippingOptionsModal" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:scale-105 hover:cursor-pointer transition duration-300">Lihat Opsi JNE Reguler</button>
+                            <p class="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium text-sky-700">Klik layanan JNE Reguler yang tersedia, lalu lanjutkan dengan tombol Checkout untuk masuk ke halaman pembayaran.</p>
                         </div>
                     </div>
 
                 <div id="shippingEmptyState" class="{{ empty($rajaongkirRates) && $selectedDestination ? '' : 'hidden ' }}rounded-[2rem] border border-dashed border-slate-300 bg-white/90 px-6 py-8 text-center shadow-xl shadow-slate-100/70 backdrop-blur">
-                        <h2 class="text-lg font-semibold text-slate-900">Pilihan Kurir Belum Muncul</h2>
-                        <p id="shippingEmptyStateText" class="mt-2 text-sm text-slate-500">Setelah klik `Cek Ongkir`, layanan pengiriman akan tampil di panel sebelah kanan. Kalau tetap kosong, biasanya memang tidak ada layanan yang tersedia untuk kombinasi origin, tujuan, atau berat paket saat ini.</p>
+                        <h2 class="text-lg font-semibold text-slate-900">Opsi JNE Reguler Belum Muncul</h2>
+                        <p id="shippingEmptyStateText" class="mt-2 text-sm text-slate-500">Setelah klik `Cek Ongkir`, layanan JNE Reguler akan tampil di panel sebelah kanan. Kalau tetap kosong, biasanya memang tidak ada layanan yang tersedia untuk kombinasi origin, tujuan, atau berat paket saat ini.</p>
                     </div>
             </section>
 
@@ -175,6 +175,10 @@
                             <input type="hidden" id="selected_destination_id" name="selected_destination_id" value="{{ $selectedDestination['id'] ?? '' }}">
                             <input type="hidden" id="selected_destination_label" name="selected_destination_label" value="{{ $selectedDestination['label'] ?? '' }}">
                             <input type="hidden" id="selected_destination_postal_code" name="selected_destination_postal_code" value="{{ $selectedDestination['postal_code'] ?? '' }}">
+                            <input type="hidden" id="selected_destination_province" name="selected_destination_province" value="{{ $selectedDestination['province_name'] ?? '' }}">
+                            <input type="hidden" id="selected_destination_city" name="selected_destination_city" value="{{ $selectedDestination['city_name'] ?? '' }}">
+                            <input type="hidden" id="selected_destination_district" name="selected_destination_district" value="{{ $selectedDestination['district_name'] ?? '' }}">
+                            <input type="hidden" id="selected_destination_subdistrict" name="selected_destination_subdistrict" value="{{ $selectedDestination['subdistrict_name'] ?? '' }}">
                             <input type="hidden" name="tujuan_pengiriman" value="{{ $oldTujuanPengiriman }}">
 
                             <div>
@@ -207,7 +211,7 @@
 
                             <div class="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 px-4 py-4">
                                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Alur Checkout</p>
-                                <p class="mt-2 text-sm text-slate-500">Alur Checkout, isi data tujuan pengiriman, cek ongkir, lalu pilih kurir. Setelah itu klik tombol Checkout untuk membuat transaksi dan masuk ke lanjut ke pembayaran.</p>
+                                <p class="mt-2 text-sm text-slate-500">Alur checkout: isi data tujuan pengiriman, cek ongkir, lalu pilih layanan JNE Reguler. Setelah itu klik tombol Checkout untuk membuat transaksi dan lanjut ke pembayaran.</p>
                             </div>
 
                             <button type="submit" id="checkOngkirButton" class="w-full rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-700 shadow-sm transition duration-300 hover:scale-105 hover:cursor-pointer hover:-translate-y-0.5 hover:bg-sky-100 {{ $keranjangItems->count() ? '' : 'cursor-not-allowed opacity-50' }}" {{ $keranjangItems->count() ? '' : 'disabled' }}>Cek Ongkir</button>
@@ -236,8 +240,8 @@
             <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Opsi Pengiriman</p>
-                    <h2 class="mt-2 text-2xl font-bold text-slate-900">Pilih Kurir yang Paling Cocok</h2>
-                    <p class="mt-1 text-sm text-slate-500">Bandingkan biaya, layanan, dan estimasi tanpa bikin halaman checkout penuh.</p>
+                    <h2 class="mt-2 text-2xl font-bold text-slate-900">Pilih Layanan JNE Reguler</h2>
+                    <p class="mt-1 text-sm text-slate-500">Lihat biaya dan estimasi pengiriman JNE Reguler tanpa bikin halaman checkout penuh.</p>
                 </div>
                 <button type="button" id="closeShippingOptionsModal" class="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600 transition duration-300 hover:bg-slate-200 hover:scale-105 hover:cursor-pointer transition duration-300">Tutup</button>
             </div>
@@ -294,6 +298,10 @@
         const destinationIdInput = document.getElementById('selected_destination_id');
         const destinationLabelInput = document.getElementById('selected_destination_label');
         const destinationPostalCodeInput = document.getElementById('selected_destination_postal_code');
+        const destinationProvinceInput = document.getElementById('selected_destination_province');
+        const destinationCityInput = document.getElementById('selected_destination_city');
+        const destinationDistrictInput = document.getElementById('selected_destination_district');
+        const destinationSubdistrictInput = document.getElementById('selected_destination_subdistrict');
         const selectedDestinationCard = document.getElementById('selectedDestinationCard');
         const selectedDestinationLabel = document.getElementById('selectedDestinationLabel');
         const selectedDestinationPostalCode = document.getElementById('selectedDestinationPostalCode');
@@ -319,7 +327,7 @@
         const csrfToken = @json(csrf_token());
         const initialRates = @json($rajaongkirRates);
 
-        if (!input || !list || !helpText || !destinationIdInput || !destinationLabelInput || !destinationPostalCodeInput || !ratesForm || !checkOngkirButton) {
+        if (!input || !list || !helpText || !destinationIdInput || !destinationLabelInput || !destinationPostalCodeInput || !destinationProvinceInput || !destinationCityInput || !destinationDistrictInput || !destinationSubdistrictInput || !ratesForm || !checkOngkirButton) {
             return;
         }
 
@@ -336,6 +344,10 @@
             destinationIdInput.value = destination.id;
             destinationLabelInput.value = destination.label;
             destinationPostalCodeInput.value = destination.postal_code || '';
+            destinationProvinceInput.value = destination.province_name || '';
+            destinationCityInput.value = destination.city_name || '';
+            destinationDistrictInput.value = destination.district_name || '';
+            destinationSubdistrictInput.value = destination.subdistrict_name || '';
             helpText.textContent = destination.postal_code
                 ? `Tujuan dipilih: ${destination.label} (${destination.postal_code})`
                 : `Tujuan dipilih: ${destination.label}`;
@@ -443,6 +455,10 @@
                             data-destination-id="${item.id}"
                             data-destination-label="${item.label.replace(/"/g, '&quot;')}"
                             data-destination-postal="${(item.postal_code || '').replace(/"/g, '&quot;')}"
+                            data-destination-province="${(item.province_name || '').replace(/"/g, '&quot;')}"
+                            data-destination-city="${(item.city_name || '').replace(/"/g, '&quot;')}"
+                            data-destination-district="${(item.district_name || '').replace(/"/g, '&quot;')}"
+                            data-destination-subdistrict="${(item.subdistrict_name || '').replace(/"/g, '&quot;')}"
                         >
                             <span class="block text-sm font-semibold text-slate-900">${item.label}</span>
                             ${postal}
@@ -459,6 +475,10 @@
                         id: button.dataset.destinationId,
                         label: button.dataset.destinationLabel,
                         postal_code: button.dataset.destinationPostal,
+                        province_name: button.dataset.destinationProvince,
+                        city_name: button.dataset.destinationCity,
+                        district_name: button.dataset.destinationDistrict,
+                        subdistrict_name: button.dataset.destinationSubdistrict,
                     });
                 });
             });
@@ -471,6 +491,10 @@
             destinationIdInput.value = '';
             destinationLabelInput.value = '';
             destinationPostalCodeInput.value = '';
+            destinationProvinceInput.value = '';
+            destinationCityInput.value = '';
+            destinationDistrictInput.value = '';
+            destinationSubdistrictInput.value = '';
             if (selectedDestinationCard) {
                 selectedDestinationCard.classList.add('hidden');
             }

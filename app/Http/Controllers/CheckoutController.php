@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailTransaksi;
+use App\Models\Kabupaten;
+use App\Models\Kecamatan;
+use App\Models\KodePos;
+use App\Models\Penerima;
+use App\Models\Provinsi;
 use App\Models\Transaksi;
 use App\Services\MidtransService;
 use App\Services\RajaOngkirService;
@@ -16,15 +21,45 @@ class CheckoutController extends Controller
     {
     }
 
+    private function filterJneRegularRates(array $rates): array
+    {
+        return collect($rates)
+            ->filter(function ($rate) {
+                if (!is_array($rate)) {
+                    return false;
+                }
+
+                $code = strtolower((string) ($rate['code'] ?? $rate['courier'] ?? ''));
+                $service = strtoupper((string) ($rate['service'] ?? $rate['service_name'] ?? ''));
+
+                return $code === 'jne' && $service === 'REG';
+            })
+            ->values()
+            ->all();
+    }
+
     public function index(Request $request)
     {
-        $keranjangItems = $request->user()->keranjang()->with('produk')->latest()->get();
+        $keranjangItems = $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
         $subtotal = $keranjangItems->sum(fn ($item) => ($item->produk->harga ?? 0) * $item->jumlah_produk);
         $totalBerat = $keranjangItems->sum(fn ($item) => ($item->produk->berat ?? 0) * $item->jumlah_produk);
-        $rajaongkirRates = session('rajaongkir_rates', []);
+        $rajaongkirRates = $this->filterJneRegularRates(session('rajaongkir_rates', []));
         $selectedDestination = session('rajaongkir_selected_destination');
         $selectedShipping = session('rajaongkir_selected_shipping');
         $checkoutForm = session('checkout_form', []);
+
+        if ($rajaongkirRates !== session('rajaongkir_rates', [])) {
+            $request->session()->put('rajaongkir_rates', $rajaongkirRates);
+        }
+
+        $selectedShippingCode = strtolower((string) ($selectedShipping['code'] ?? $selectedShipping['courier_code'] ?? 'jne'));
+        $selectedShippingService = strtoupper((string) ($selectedShipping['service_pengiriman'] ?? $selectedShipping['service'] ?? ''));
+
+        if ($selectedShipping && !($selectedShippingCode === 'jne' && $selectedShippingService === 'REG')) {
+            $selectedShipping = null;
+            $request->session()->forget('rajaongkir_selected_shipping');
+        }
+
         $estimatedTotal = $subtotal + (int) ($selectedShipping['ongkir'] ?? 0);
         $originLocation = null;
 
@@ -49,7 +84,7 @@ class CheckoutController extends Controller
 
     public function rates(Request $request)
     {
-        $keranjangItems = $request->user()->keranjang()->with('produk')->latest()->get();
+        $keranjangItems = $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
 
         if ($keranjangItems->isEmpty()) {
             $message = 'Keranjang masih kosong. Tambahkan produk terlebih dahulu sebelum cek ongkir.';
@@ -70,6 +105,10 @@ class CheckoutController extends Controller
             'selected_destination_id' => 'required',
             'selected_destination_label' => 'required|string',
             'selected_destination_postal_code' => 'nullable|string|max:10',
+            'selected_destination_province' => 'nullable|string|max:255',
+            'selected_destination_city' => 'nullable|string|max:255',
+            'selected_destination_district' => 'nullable|string|max:255',
+            'selected_destination_subdistrict' => 'nullable|string|max:255',
         ], [
             'nama_penerima.required' => 'Nama penerima wajib diisi.',
             'no_telp_penerima.required' => 'No. telp penerima wajib diisi.',
@@ -82,6 +121,10 @@ class CheckoutController extends Controller
             'id' => $validated['selected_destination_id'],
             'label' => $validated['selected_destination_label'],
             'postal_code' => $validated['selected_destination_postal_code'] ?? null,
+            'province_name' => $validated['selected_destination_province'] ?? null,
+            'city_name' => $validated['selected_destination_city'] ?? null,
+            'district_name' => $validated['selected_destination_district'] ?? null,
+            'subdistrict_name' => $validated['selected_destination_subdistrict'] ?? null,
         ];
 
         $request->session()->put('checkout_form', [
@@ -92,7 +135,9 @@ class CheckoutController extends Controller
         $request->session()->put('rajaongkir_selected_destination', $selectedDestination);
 
         try {
-            $rates = $this->rajaOngkirService->calculateDomesticCost((int) $selectedDestination['id'], $keranjangItems);
+            $rates = $this->filterJneRegularRates(
+                $this->rajaOngkirService->calculateDomesticCost((int) $selectedDestination['id'], $keranjangItems)
+            );
         } catch (Throwable $th) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => $th->getMessage()], 422);
@@ -160,6 +205,10 @@ class CheckoutController extends Controller
                 'id' => $destination['id'] ?? null,
                 'label' => $label,
                 'postal_code' => $destination['zip_code'] ?? ($destination['postal_code'] ?? ''),
+                'province_name' => $destination['province_name'] ?? null,
+                'city_name' => $destination['city_name'] ?? null,
+                'district_name' => $destination['district_name'] ?? null,
+                'subdistrict_name' => $destination['subdistrict_name'] ?? null,
             ];
         })->filter(fn ($destination) => !empty($destination['id']) && !empty($destination['label']))
             ->values()
@@ -185,7 +234,7 @@ class CheckoutController extends Controller
 
         $checkoutForm = $request->session()->get('checkout_form');
         $selectedDestination = $request->session()->get('rajaongkir_selected_destination');
-        $keranjangItems = $request->user()->keranjang()->with('produk')->latest()->get();
+        $keranjangItems = $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
 
         if (!$checkoutForm) {
             return redirect()->route('user.checkout')->withErrors([
@@ -221,7 +270,7 @@ class CheckoutController extends Controller
         $checkoutForm = $request->session()->get('checkout_form');
         $selectedDestination = $request->session()->get('rajaongkir_selected_destination');
         $selectedShipping = $request->session()->get('rajaongkir_selected_shipping');
-        $keranjangItems = $request->user()->keranjang()->with('produk')->latest()->get();
+        $keranjangItems = $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
 
         if (!$checkoutForm || !$selectedDestination || !$selectedShipping) {
             return redirect()->route('user.checkout')->withErrors([
@@ -238,28 +287,70 @@ class CheckoutController extends Controller
         $subtotal = $keranjangItems->sum(fn ($item) => ($item->produk->harga ?? 0) * $item->jumlah_produk);
 
         $transaksi = DB::transaction(function () use ($request, $checkoutForm, $selectedDestination, $selectedShipping, $keranjangItems, $subtotal) {
-            $transaksi = Transaksi::create([
-                'id_user' => $request->user()->id,
+            $kodePos = null;
+            $provinsi = null;
+            $kabupaten = null;
+            $kecamatan = null;
+
+            if (!empty($selectedDestination['postal_code'])) {
+                $kodePos = KodePos::firstOrCreate([
+                    'nomor_kode_pos' => $selectedDestination['postal_code'],
+                ]);
+            }
+
+            if (!empty($selectedDestination['province_name'])) {
+                $provinsi = Provinsi::firstOrCreate([
+                    'nama_provinsi' => $selectedDestination['province_name'],
+                ]);
+            }
+
+            if ($provinsi && !empty($selectedDestination['city_name'])) {
+                $kabupaten = Kabupaten::firstOrCreate([
+                    'provinsi_id' => $provinsi->id,
+                    'nama_kabupaten' => $selectedDestination['city_name'],
+                ]);
+            }
+
+            $namaKecamatan = $selectedDestination['district_name'] ?? $selectedDestination['subdistrict_name'] ?? null;
+
+            if ($kabupaten && !empty($namaKecamatan)) {
+                $kecamatan = Kecamatan::firstOrCreate([
+                    'kabupaten_id' => $kabupaten->id,
+                    'nama_kecamatan' => $namaKecamatan,
+                ], [
+                    'kode_pos_id' => $kodePos?->id,
+                ]);
+
+                if ($kodePos && !$kecamatan->kode_pos_id) {
+                    $kecamatan->update([
+                        'kode_pos_id' => $kodePos->id,
+                    ]);
+                }
+            }
+
+            $penerima = Penerima::firstOrCreate([
+                'provinsi_id' => $provinsi?->id,
+                'kabupaten_id' => $kabupaten?->id,
+                'kecamatan_id' => $kecamatan?->id,
+                'kode_pos_id' => $kodePos?->id,
                 'nama_penerima' => $checkoutForm['nama_penerima'],
                 'no_telp_penerima' => $checkoutForm['no_telp_penerima'],
-                'alamat_penerima' => $checkoutForm['alamat_penerima'],
-                'kode_pos_penerima' => $selectedDestination['postal_code'] ?? null,
-                'rajaongkir_destination_id' => $selectedDestination['id'] ?? null,
-                'rajaongkir_destination_label' => $selectedDestination['label'] ?? null,
-                'subtotal' => $subtotal,
+                'detail_alamat' => $checkoutForm['alamat_penerima'],
+            ]);
+
+            $transaksi = Transaksi::create([
+                'user_id' => $request->user()->id,
+                'penerima_id' => $penerima->id,
                 'ongkir' => $selectedShipping['ongkir'],
-                'total_bayar' => $subtotal + $selectedShipping['ongkir'],
-                'kurir' => $selectedShipping['kurir'],
-                'service_pengiriman' => $selectedShipping['service_pengiriman'],
-                'estimasi_pengiriman' => $selectedShipping['estimasi_pengiriman'] ?? '-',
-                'status_pesanan' => 'Menunggu Konfirmasi',
+                'tanggal_transaksi' => now(),
+                'status_transaksi' => 'Menunggu Konfirmasi',
                 'status_pembayaran' => 'pending',
             ]);
 
             foreach ($keranjangItems as $item) {
                 DetailTransaksi::create([
-                    'id_transaksi' => $transaksi->id,
-                    'id_produk' => $item->id_produk,
+                    'transaksi_id' => $transaksi->id,
+                    'produk_id' => $item->produk_id,
                     'jumlah_produk' => $item->jumlah_produk,
                     'harga_produk' => $item->produk->harga ?? 0,
                     'subtotal_produk' => ($item->produk->harga ?? 0) * $item->jumlah_produk,
@@ -267,6 +358,7 @@ class CheckoutController extends Controller
             }
 
             $request->user()->keranjang()->delete();
+            $request->user()->keranjangUtama()->delete();
 
             return $transaksi->fresh(['detailTransaksi.produk']);
         });
@@ -288,14 +380,14 @@ class CheckoutController extends Controller
 
     public function payment(Request $request, Transaksi $transaksi, MidtransService $midtransService)
     {
-        abort_unless($transaksi->id_user === $request->user()->id, 404);
+        abort_unless($transaksi->user_id === $request->user()->id, 404);
 
         $transaksi->load(['detailTransaksi.produk', 'user']);
         $snapToken = null;
         $snapRedirectUrl = null;
         $paymentError = null;
 
-        if ($transaksi->status_pesanan === 'Menunggu Pembayaran') {
+        if ($transaksi->status_pesanan === 'Dikonfirmasi') {
             try {
                 $snapTransaction = $midtransService->createOrGetSnapTransaction($transaksi);
                 $snapToken = $snapTransaction['token'] ?? null;
@@ -318,13 +410,13 @@ class CheckoutController extends Controller
 
     public function refreshPaymentStatus(Request $request, Transaksi $transaksi, MidtransService $midtransService)
     {
-        abort_unless($transaksi->id_user === $request->user()->id, 404);
+        abort_unless($transaksi->user_id === $request->user()->id, 404);
 
-        if ($transaksi->status_pesanan !== 'Menunggu Pembayaran') {
+        if ($transaksi->status_pesanan !== 'Dikonfirmasi') {
             return redirect()
                 ->route('user.checkout.payment', $transaksi)
                 ->withErrors([
-                    'checkout' => 'Pembayaran belum bisa dilakukan sebelum pesanan diterima admin.',
+                    'checkout' => 'Pembayaran belum bisa dilakukan sebelum pesanan dikonfirmasi admin.',
                 ]);
         }
 

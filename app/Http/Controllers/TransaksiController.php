@@ -11,14 +11,16 @@ class TransaksiController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $transaksi = Transaksi::where('id_user', $user->id)
+        $transaksi = Transaksi::with('metodePembayaran')
+            ->where('user_id', $user->id)
             ->when($request->filled('start_date'), function ($query) use ($request) {
-                $query->whereDate('created_at', '>=', $request->string('start_date')->toString());
+                $query->whereDate('tanggal_transaksi', '>=', $request->string('start_date')->toString());
             })
             ->when($request->filled('end_date'), function ($query) use ($request) {
-                $query->whereDate('created_at', '<=', $request->string('end_date')->toString());
+                $query->whereDate('tanggal_transaksi', '<=', $request->string('end_date')->toString());
             })
-            ->latest()
+            ->orderByDesc('tanggal_transaksi')
+            ->orderByDesc('id')
             ->get();
 
         $filters = [
@@ -31,17 +33,18 @@ class TransaksiController extends Controller
 
     public function adminIndex(Request $request)
     {
-        $transaksi = Transaksi::with('user')
+        $transaksi = Transaksi::with(['user', 'metodePembayaran'])
             ->when($request->filled('start_date'), function ($query) use ($request) {
-                $query->whereDate('created_at', '>=', $request->string('start_date')->toString());
+                $query->whereDate('tanggal_transaksi', '>=', $request->string('start_date')->toString());
             })
             ->when($request->filled('end_date'), function ($query) use ($request) {
-                $query->whereDate('created_at', '<=', $request->string('end_date')->toString());
+                $query->whereDate('tanggal_transaksi', '<=', $request->string('end_date')->toString());
             })
             ->when($request->filled('status'), function ($query) use ($request) {
-                $query->where('status_pesanan', $request->string('status')->toString());
+                $query->where('status_transaksi', $request->string('status')->toString());
             })
-            ->latest()
+            ->orderByDesc('tanggal_transaksi')
+            ->orderByDesc('id')
             ->get();
 
         $filters = [
@@ -55,7 +58,7 @@ class TransaksiController extends Controller
 
     public function adminShow(Transaksi $transaksi)
     {
-        $transaksi->load(['detailTransaksi.produk', 'user']);
+        $transaksi->load(['detailTransaksi.produk', 'user', 'metodePembayaran']);
 
         return view('transactions.payment', [
             'transaksi' => $transaksi,
@@ -70,23 +73,23 @@ class TransaksiController extends Controller
 
     public function approveByAdmin(Transaksi $transaksi)
     {
-        if ($transaksi->status_pesanan !== 'Menunggu Konfirmasi') {
+        if ($transaksi->status_transaksi !== 'Menunggu Konfirmasi') {
             return back()->withErrors([
-                'checkout' => 'Pesanan sudah diterima.',
+                'checkout' => 'Pesanan ini sudah diproses admin.',
             ]);
         }
 
         $transaksi->update([
-            'status_pesanan' => 'Menunggu Pembayaran',
-            'alasan_penolakan' => null,
+            'status_transaksi' => 'Dikonfirmasi',
+            'catatan_admin' => null,
         ]);
 
-        return back()->with('success', 'Pesanan berhasil diterima. User sekarang bisa melanjutkan ke pembayaran.');
+        return back()->with('success', 'Pesanan berhasil dikonfirmasi. User sekarang bisa melanjutkan ke pembayaran.');
     }
 
     public function rejectByAdmin(Request $request, Transaksi $transaksi)
     {
-        if ($transaksi->status_pesanan !== 'Menunggu Konfirmasi') {
+        if ($transaksi->status_transaksi !== 'Menunggu Konfirmasi') {
             return back()->withErrors([
                 'checkout' => 'Pesanan ini sudah tidak berada di tahap konfirmasi admin.',
             ]);
@@ -95,15 +98,32 @@ class TransaksiController extends Controller
         $validated = $request->validate([
             'alasan_penolakan' => 'required|string|max:1000',
         ], [
-            'alasan_penolakan.required' => 'Alasan penolakan wajib diisi.',
+            'alasan_penolakan.required' => 'Alasan pembatalan wajib diisi.',
         ]);
 
         $transaksi->update([
-            'status_pesanan' => 'Ditolak',
+            'status_transaksi' => 'Dibatalkan',
             'status_pembayaran' => 'dibatalkan',
-            'alasan_penolakan' => $validated['alasan_penolakan'],
+            'catatan_admin' => $validated['alasan_penolakan'],
         ]);
 
-        return back()->with('success', 'Pesanan berhasil ditolak dan alasan penolakan sudah disimpan.');
+        return back()->with('success', 'Pesanan berhasil dibatalkan dan alasan pembatalan sudah disimpan.');
+    }
+
+    public function markAsReceived(Request $request, Transaksi $transaksi)
+    {
+        abort_unless($transaksi->user_id === $request->user()->id, 404);
+
+        if ($transaksi->status_transaksi !== 'Diproses') {
+            return back()->withErrors([
+                'checkout' => 'Pesanan belum bisa diselesaikan sekarang.',
+            ]);
+        }
+
+        $transaksi->update([
+            'status_transaksi' => 'Selesai',
+        ]);
+
+        return back()->with('success', 'Pesanan berhasil dikonfirmasi diterima.');
     }
 }

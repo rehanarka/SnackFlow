@@ -8,18 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('detail_transaksi', function (Blueprint $table) {
+        Schema::create('detail_keranjang', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaksi_id')->constrained('transaksi')->cascadeOnDelete();
+            $table->foreignId('keranjang_id')->constrained('keranjang')->cascadeOnDelete();
             $table->foreignId('produk_id')->constrained('katalog_produk')->cascadeOnDelete();
             $table->unsignedInteger('jumlah_produk');
-            $table->unsignedBigInteger('harga_produk');
-            $table->unsignedBigInteger('subtotal_produk');
+
+            $table->unique(['keranjang_id', 'produk_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('detail_transaksi');
+        Schema::dropIfExists('detail_keranjang');
     }
 };

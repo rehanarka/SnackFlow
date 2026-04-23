@@ -6,21 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Keranjang extends Model
 {
+    public $timestamps = false;
+
     protected $table = 'keranjang';
 
     protected $fillable = [
-        'id_user',
-        'id_produk',
-        'jumlah_produk',
+        'user_id',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function produk()
+    public function detailKeranjang()
     {
-        return $this->belongsTo(KatalogProduk::class, 'id_produk');
+        return $this->hasMany(DetailKeranjang::class, 'keranjang_id');
     }
 }

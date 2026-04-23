@@ -28,8 +28,8 @@
 </div>
 
 <div>
-    <label for="{{ $prefix }}_foto" class="block mb-1 text-sm font-medium text-gray-700">Foto Produk</label>
-    <input type="file" id="{{ $prefix }}_foto" name="foto" accept="image/*" autocomplete="off" class="w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-3 file:rounded file:border-0 file:bg-blue-100 file:px-3 file:py-1 file:text-blue-700">
+    <label for="{{ $prefix }}_foto_produk" class="block mb-1 text-sm font-medium text-gray-700">Foto Produk</label>
+    <input type="file" id="{{ $prefix }}_foto_produk" name="foto_produk" accept="image/*" autocomplete="off" class="w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-3 file:rounded file:border-0 file:bg-blue-100 file:px-3 file:py-1 file:text-blue-700">
 </div>
 
 <div>

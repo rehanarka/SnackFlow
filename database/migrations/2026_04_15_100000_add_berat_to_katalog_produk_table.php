@@ -8,14 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('katalog_produks', function (Blueprint $table) {
+        Schema::table('katalog_produk', function (Blueprint $table) {
             $table->unsignedInteger('berat')->default(0)->after('stok');
         });
     }
 
     public function down(): void
     {
-        Schema::table('katalog_produks', function (Blueprint $table) {
+        Schema::table('katalog_produk', function (Blueprint $table) {
             $table->dropColumn('berat');
         });
     }

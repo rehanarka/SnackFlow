@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailKeranjang;
 use Illuminate\Http\Request;
 use App\Models\Keranjang;
 use App\Models\KatalogProduk;
@@ -19,7 +20,7 @@ class KatalogController extends Controller
             'stok' => 'required|integer',
             'berat' => 'required|integer|min:1',
             'deskripsi' => 'nullable|string',
-            'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'foto_produk' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ],
         [
             'nama_produk.required' => 'Nama produk tidak boleh kosong.',
@@ -30,10 +31,10 @@ class KatalogController extends Controller
             'berat.required' => 'Berat produk tidak boleh kosong.',
             'berat.integer' => 'Berat produk harus berupa angka bulat.',
             'berat.min' => 'Berat produk minimal 1 gram.',
-            'foto.required' => 'Harap tambahkan foto produk.',
-            'foto.image' => 'Foto produk harus berupa gambar.',
-            'foto.mimes' => 'Foto produk harus berupa file JPEG, PNG, JPG, atau GIF.',
-            'foto.max' => 'Foto produk tidak boleh lebih dari 2MB.',
+            'foto_produk.required' => 'Harap tambahkan foto produk.',
+            'foto_produk.image' => 'Foto produk harus berupa gambar.',
+            'foto_produk.mimes' => 'Foto produk harus berupa file JPEG, PNG, JPG, atau GIF.',
+            'foto_produk.max' => 'Foto produk tidak boleh lebih dari 2MB.',
         ]);
 
         $namaProdukSudahAda = KatalogProduk::whereRaw('LOWER(nama_produk) = ?', [strtolower($data['nama_produk'])])->exists();
@@ -42,8 +43,8 @@ class KatalogController extends Controller
             return back()->withInput()->with('popup_peringatan', 'Produk dengan nama tersebut sudah tersedia. Silakan gunakan nama produk lain.');
         }
 
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('produk', 'public');
+        if ($request->hasFile('foto_produk')) {
+            $data['foto_produk'] = $request->file('foto_produk')->store('produk', 'public');
         }
         KatalogProduk::create($data);
         return back()->with('success', 'Produk berhasil ditambahkan.');
@@ -59,11 +60,11 @@ class KatalogController extends Controller
         'stok' => 'required|integer',
         'berat' => 'required|integer|min:1',
         'deskripsi' => 'nullable|string',
-        'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
+        'foto_produk' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
     ]);
 
-    if ($request->hasFile('foto')) {
-        $validated['foto'] = $request->file('foto')->store('produk', 'public');
+    if ($request->hasFile('foto_produk')) {
+        $validated['foto_produk'] = $request->file('foto_produk')->store('produk', 'public');
     }
 
     $produk->update($validated);
@@ -75,8 +76,8 @@ class KatalogController extends Controller
     {
         $produk = KatalogProduk::findOrFail($id);
 
-        if ($produk->foto) {
-            Storage::disk('public')->delete($produk->foto);
+        if ($produk->foto_produk) {
+            Storage::disk('public')->delete($produk->foto_produk);
         }
 
         $produk->delete();
@@ -85,14 +86,14 @@ class KatalogController extends Controller
     }
     public function viewKatalog()
     {
-        $produks = KatalogProduk::latest()->get();
+        $produks = KatalogProduk::orderByDesc('id')->get();
         return view('katalog.katalogAdmin', compact('produks'));
     }
 
     public function viewKatalogUser()
     {
-        $produks = KatalogProduk::latest()->get();
-        $keranjangItems = auth()->user()->keranjang()->with('produk')->latest()->get();
+        $produks = KatalogProduk::orderByDesc('id')->get();
+        $keranjangItems = auth()->user()->keranjang()->with('produk')->orderByDesc('id')->get();
         $cartCount = $keranjangItems->sum('jumlah_produk');
 
         
@@ -102,7 +103,7 @@ class KatalogController extends Controller
     public function tambahKeKeranjang(Request $request)
     {
         $validated = $request->validate([
-            'id_produk' => 'required|exists:katalog_produks,id',
+            'produk_id' => 'required|exists:katalog_produk,id',
             'jumlah_produk' => 'required|integer|min:1',
             'redirect_to_checkout' => 'nullable',
         ], [
@@ -113,9 +114,13 @@ class KatalogController extends Controller
 
         try {
             DB::transaction(function () use ($validated) {
-                $produk = KatalogProduk::lockForUpdate()->findOrFail($validated['id_produk']);
-                $keranjangItem = Keranjang::where('id_user', auth()->id())
-                    ->where('id_produk', $validated['id_produk'])
+                $produk = KatalogProduk::lockForUpdate()->findOrFail($validated['produk_id']);
+                $keranjang = Keranjang::firstOrCreate([
+                    'user_id' => auth()->id(),
+                ]);
+
+                $keranjangItem = DetailKeranjang::where('keranjang_id', $keranjang->id)
+                    ->where('produk_id', $validated['produk_id'])
                     ->lockForUpdate()
                     ->first();
 
@@ -125,8 +130,8 @@ class KatalogController extends Controller
 
                 $jumlahBaru = ($keranjangItem?->jumlah_produk ?? 0) + $validated['jumlah_produk'];
 
-                Keranjang::updateOrCreate(
-                    ['id_user' => auth()->id(), 'id_produk' => $validated['id_produk']],
+                DetailKeranjang::updateOrCreate(
+                    ['keranjang_id' => $keranjang->id, 'produk_id' => $validated['produk_id']],
                     ['jumlah_produk' => $jumlahBaru]
                 );
 
@@ -148,14 +153,19 @@ class KatalogController extends Controller
     public function hapusDariKeranjang($id)
     {
         DB::transaction(function () use ($id) {
-            $item = Keranjang::where('id_user', auth()->id())->lockForUpdate()->findOrFail($id);
-            $produk = KatalogProduk::lockForUpdate()->find($item->id_produk);
+            $keranjang = Keranjang::where('user_id', auth()->id())->firstOrFail();
+            $item = DetailKeranjang::where('keranjang_id', $keranjang->id)->lockForUpdate()->findOrFail($id);
+            $produk = KatalogProduk::lockForUpdate()->find($item->produk_id);
 
             if ($produk) {
                 $produk->increment('stok', $item->jumlah_produk);
             }
 
             $item->delete();
+
+            if (!DetailKeranjang::where('keranjang_id', $keranjang->id)->exists()) {
+                $keranjang->delete();
+            }
         });
 
         return back()->with('success', 'Produk berhasil dihapus dari keranjang.');
@@ -173,10 +183,11 @@ class KatalogController extends Controller
 
         try {
             DB::transaction(function () use ($id, $validated) {
-                $item = Keranjang::where('id_user', auth()->id())
+                $keranjang = Keranjang::where('user_id', auth()->id())->firstOrFail();
+                $item = DetailKeranjang::where('keranjang_id', $keranjang->id)
                     ->lockForUpdate()
                     ->findOrFail($id);
-                $produk = KatalogProduk::lockForUpdate()->findOrFail($item->id_produk);
+                $produk = KatalogProduk::lockForUpdate()->findOrFail($item->produk_id);
                 $jumlahLama = (int) $item->jumlah_produk;
                 $jumlahBaru = (int) $validated['jumlah_produk'];
                 $selisih = $jumlahBaru - $jumlahLama;

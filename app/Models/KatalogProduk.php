@@ -6,22 +6,27 @@ use Illuminate\Database\Eloquent\Model;
 
 class KatalogProduk extends Model
 {
+    public $timestamps = false;
+
+    protected $table = 'katalog_produk';
+
     protected $fillable = [
         'nama_produk',
+        'kategori',
         'harga',
         'stok',
         'berat',
         'deskripsi',
-        'foto',
+        'foto_produk',
     ];
 
     public function keranjang()
     {
-        return $this->hasMany(Keranjang::class, 'id_produk');
+        return $this->hasMany(DetailKeranjang::class, 'produk_id');
     }
 
     public function detailTransaksi()
     {
-        return $this->hasMany(DetailTransaksi::class, 'id_produk');
+        return $this->hasMany(DetailTransaksi::class, 'produk_id');
     }
 }

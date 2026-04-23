@@ -8,26 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('transaksis', function (Blueprint $table) {
+        Schema::create('transaksi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')->constrained('users')->cascadeOnDelete();
-            $table->string('nama_penerima');
-            $table->string('no_telp_penerima');
-            $table->text('alamat_penerima');
-            $table->unsignedBigInteger('subtotal')->default(0);
-            $table->unsignedBigInteger('ongkir')->default(0);
-            $table->unsignedBigInteger('total_bayar')->default(0);
-            $table->string('kurir')->nullable();
-            $table->string('service_pengiriman')->nullable();
-            $table->string('estimasi_pengiriman')->nullable();
-            $table->string('status_pesanan')->default('draft');
+            $table->foreignId('user_id')->constrained('user')->cascadeOnDelete();
+            $table->timestamp('tanggal_transaksi')->nullable();
+            $table->string('status_transaksi')->default('draft');
             $table->string('status_pembayaran')->default('pending');
-            $table->timestamps();
+            $table->text('catatan_admin')->nullable();
+            $table->string('resi')->nullable();
+            $table->unsignedBigInteger('ongkir')->default(0);
+            $table->string('midtrans_order_id')->nullable()->unique();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('transaksis');
+        Schema::dropIfExists('transaksi');
     }
 };

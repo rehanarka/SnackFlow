@@ -35,8 +35,8 @@
                         @foreach ($keranjangItems as $item)
                             <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
                                 <div class="flex gap-4">
-                                    @if ($item->produk?->foto)
-                                        <img src="{{ asset('storage/' . $item->produk->foto) }}" alt="{{ $item->produk->nama_produk }}" class="h-20 w-20 rounded-2xl object-cover">
+                                    @if ($item->produk?->foto_produk)
+                                        <img src="{{ asset('storage/' . $item->produk->foto_produk) }}" alt="{{ $item->produk->nama_produk }}" class="h-20 w-20 rounded-2xl object-cover">
                                     @else
                                         <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-200 text-xs font-semibold text-slate-500">No Image</div>
                                     @endif

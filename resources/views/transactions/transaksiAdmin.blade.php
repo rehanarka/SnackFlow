@@ -15,12 +15,11 @@
     ];
 
     $statusClasses = [
-        'Menunggu Pembayaran' => 'bg-amber-50 text-amber-700 ring-amber-200',
         'Menunggu Konfirmasi' => 'bg-sky-50 text-sky-700 ring-sky-200',
+        'Dikonfirmasi' => 'bg-amber-50 text-amber-700 ring-amber-200',
         'Diproses' => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
         'Dibatalkan' => 'bg-rose-50 text-rose-700 ring-rose-200',
-        'Ditolak' => 'bg-rose-50 text-rose-700 ring-rose-200',
-        'Menunggu Verifikasi' => 'bg-violet-50 text-violet-700 ring-violet-200',
+        'Selesai' => 'bg-slate-100 text-slate-700 ring-slate-200',
     ];
 @endphp
 
@@ -42,7 +41,7 @@
             <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Transaksi Admin</p>
                 <h1 class="mt-3 text-3xl font-bold text-slate-900">Kelola Pesanan Masuk</h1>
-                <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Lihat semua transaksi, cek detail pesanan, lalu terima atau tolak pesanan yang masih menunggu konfirmasi.</p>
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Lihat semua transaksi, cek detail pesanan, lalu konfirmasi atau batalkan pesanan yang masih menunggu konfirmasi.</p>
             </div>
 
             <form action="{{ route('admin.transaksi') }}" method="GET" class="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto_auto]">
@@ -51,10 +50,10 @@
                 <select name="status" class="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 hover:cursor-pointer">
                     <option value="">Semua Status</option>
                     <option value="Menunggu Konfirmasi" @selected(($filters['status'] ?? '') === 'Menunggu Konfirmasi')>Menunggu Konfirmasi</option>
-                    <option value="Menunggu Pembayaran" @selected(($filters['status'] ?? '') === 'Menunggu Pembayaran')>Menunggu Pembayaran</option>
+                    <option value="Dikonfirmasi" @selected(($filters['status'] ?? '') === 'Dikonfirmasi')>Dikonfirmasi</option>
                     <option value="Diproses" @selected(($filters['status'] ?? '') === 'Diproses')>Diproses</option>
-                    <option value="Ditolak" @selected(($filters['status'] ?? '') === 'Ditolak')>Ditolak</option>
                     <option value="Dibatalkan" @selected(($filters['status'] ?? '') === 'Dibatalkan')>Dibatalkan</option>
+                    <option value="Selesai" @selected(($filters['status'] ?? '') === 'Selesai')>Selesai</option>
                 </select>
                 <button type="submit" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer">Filter</button>
                 <a href="{{ route('admin.transaksi') }}" class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-50 hover:cursor-pointer">Reset</a>
@@ -72,19 +71,19 @@
             <p class="mt-3 text-3xl font-bold text-sky-600">{{ $transaksi->where('status_pesanan', 'Menunggu Konfirmasi')->count() }}</p>
         </div>
         <div class="rounded-[1.75rem] border border-slate-200 bg-white px-6 py-5 shadow-lg shadow-slate-100/70">
-            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Perlu Diproses</p>
-            <p class="mt-3 text-3xl font-bold text-emerald-600">{{ $transaksi->where('status_pesanan', 'Diproses')->count() }}</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Dikonfirmasi</p>
+            <p class="mt-3 text-3xl font-bold text-amber-600">{{ $transaksi->where('status_pesanan', 'Dikonfirmasi')->count() }}</p>
         </div>
         <div class="rounded-[1.75rem] border border-slate-200 bg-white px-6 py-5 shadow-lg shadow-slate-100/70">
-            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Ditolak</p>
-            <p class="mt-3 text-3xl font-bold text-rose-600">{{ $transaksi->where('status_pesanan', 'Ditolak')->count() }}</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Diproses</p>
+            <p class="mt-3 text-3xl font-bold text-emerald-600">{{ $transaksi->where('status_pesanan', 'Diproses')->count() }}</p>
         </div>
     </section>
 
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100/80">
         <div class="border-b border-slate-200 px-6 py-5">
             <h2 class="text-lg font-semibold text-slate-900">Daftar Transaksi Masuk</h2>
-            <p class="mt-1 text-sm text-slate-500">Pesanan berstatus <span class="font-semibold text-sky-700">Menunggu Konfirmasi</span> siap kamu review sekarang. Setelah diterima, user baru bisa lanjut ke pembayaran.</p>
+            <p class="mt-1 text-sm text-slate-500">Pesanan berstatus <span class="font-semibold text-sky-700">Menunggu Konfirmasi</span> siap kamu review sekarang. Setelah dikonfirmasi, user baru bisa lanjut ke pembayaran.</p>
         </div>
 
         @if ($transaksi->isEmpty())
@@ -112,9 +111,11 @@
                         <tbody class="divide-y divide-slate-100">
                             @foreach($transaksi as $item)
                                 @php
-                                    $paymentLabel = $paymentTypeLabels[$item->payment_type] ?? Str::headline($item->payment_type ?? '-');
+                                    $metodePembayaranValue = $item->metodePembayaran->nama_metode_pembayaran ?? $item->metode_pembayaran;
+                                    $paymentLabel = $paymentTypeLabels[$metodePembayaranValue] ?? Str::headline($metodePembayaranValue ?? '-');
                                     $statusLabel = $item->status_pesanan ?: '-';
                                     $statusClass = $statusClasses[$statusLabel] ?? 'bg-slate-100 text-slate-700 ring-slate-200';
+                                    $tanggalTransaksi = $item->tanggal_transaksi;
                                 @endphp
                                 <tr class="align-top transition duration-300 hover:bg-slate-50/80">
                                     <td class="px-6 py-5">
@@ -122,12 +123,12 @@
                                         <p class="mt-1 text-xs uppercase tracking-[0.16em] text-slate-500">{{ $item->midtrans_order_id ?? 'Order lokal' }}</p>
                                     </td>
                                     <td class="px-6 py-5">
-                                        <p class="text-sm font-semibold text-slate-900">{{ $item->user->name ?? 'User' }}</p>
+                                        <p class="text-sm font-semibold text-slate-900">{{ $item->user->nama_lengkap ?? 'User' }}</p>
                                         <p class="mt-1 text-xs text-slate-500">{{ $item->nama_penerima }}</p>
                                     </td>
                                     <td class="px-6 py-5">
-                                        <p class="text-sm font-semibold text-slate-800">{{ $item->created_at->format('d M Y') }}</p>
-                                        <p class="mt-1 text-xs text-slate-500">{{ $item->created_at->format('H:i') }} WIB</p>
+                                        <p class="text-sm font-semibold text-slate-800">{{ $tanggalTransaksi?->format('d M Y') ?? '-' }}</p>
+                                        <p class="mt-1 text-xs text-slate-500">{{ $tanggalTransaksi?->format('H:i') ? $tanggalTransaksi->format('H:i') . ' WIB' : '-' }}</p>
                                     </td>
                                     <td class="px-6 py-5">
                                         <p class="text-sm font-semibold text-slate-900">Rp {{ number_format($item->total_bayar, 0, ',', '.') }}</p>
@@ -143,10 +144,10 @@
                                     <td class="px-6 py-5">
                                         <div class="space-y-2">
                                             <span class="inline-flex rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] ring-1 {{ $statusClass }}">
-                                                {{ $statusLabel === 'Diproses' ? 'Perlu Diproses' : $statusLabel }}
+                                                {{ $statusLabel }}
                                             </span>
                                             @if ($item->alasan_penolakan)
-                                                <p class="max-w-xs text-xs leading-5 text-rose-600">Alasan: {{ $item->alasan_penolakan }}</p>
+                                                <p class="max-w-xs text-xs leading-5 text-rose-600">Catatan: {{ $item->alasan_penolakan }}</p>
                                             @endif
                                         </div>
                                     </td>
@@ -170,7 +171,7 @@
                                                     data-reject-action="{{ route('admin.transaksi.reject', $item) }}"
                                                     data-order-id="{{ $item->id }}"
                                                 >
-                                                    Tolak
+                                                    Batalkan
                                                 </button>
                                             @endif
                                         </div>
@@ -190,9 +191,9 @@
     <div id="rejectModalPanel" class="relative w-full max-w-lg scale-95 rounded-[2rem] bg-white px-6 py-6 opacity-0 shadow-2xl transition duration-300">
         <div class="flex items-start justify-between gap-4">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-rose-600">Tolak Pesanan</p>
-                <h2 class="mt-2 text-2xl font-bold text-slate-900">Konfirmasi Penolakan</h2>
-                <p id="rejectModalDescription" class="mt-2 text-sm leading-6 text-slate-600">Tulis alasan penolakan untuk pesanan ini.</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-rose-600">Batalkan Pesanan</p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">Konfirmasi Pembatalan</h2>
+                <p id="rejectModalDescription" class="mt-2 text-sm leading-6 text-slate-600">Tulis alasan pembatalan untuk pesanan ini.</p>
             </div>
             <button type="button" id="closeRejectModal" class="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600 transition duration-300 hover:bg-slate-200 hover:cursor-pointer">&times;</button>
         </div>
@@ -200,8 +201,8 @@
         <form id="rejectModalForm" action="" method="POST" class="mt-6 space-y-4">
             @csrf
             <div>
-                <label for="rejectReason" class="mb-2 block text-sm font-medium text-slate-700">Alasan Penolakan</label>
-                <textarea id="rejectReason" name="alasan_penolakan" rows="4" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100" placeholder="Tulis alasan penolakan pesanan ini..." required></textarea>
+                <label for="rejectReason" class="mb-2 block text-sm font-medium text-slate-700">Alasan Pembatalan</label>
+                <textarea id="rejectReason" name="alasan_penolakan" rows="4" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100" placeholder="Tulis alasan pembatalan pesanan ini..." required></textarea>
             </div>
 
             <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
@@ -235,7 +236,7 @@
         const openRejectModal = (button) => {
             rejectModalForm.action = button.dataset.rejectAction || '';
             rejectReason.value = '';
-            rejectModalDescription.textContent = `Tulis alasan penolakan untuk pesanan #${button.dataset.orderId}.`;
+            rejectModalDescription.textContent = `Tulis alasan pembatalan untuk pesanan #${button.dataset.orderId}.`;
             rejectModal.classList.remove('hidden');
             rejectModal.classList.add('flex');
 

@@ -8,10 +8,10 @@
     data-harga="{{ number_format($produk->harga, 0, ',', '.') }}"
     data-deskripsi="{{ $produk->deskripsi ?: 'Belum ada deskripsi produk.' }}"
     data-berat="{{ number_format($produk->berat ?? 0, 0, ',', '.') }}"
-    data-foto="{{ $produk->foto ? asset('storage/' . $produk->foto) : '' }}"
+    data-foto="{{ $produk->foto_produk ? asset('storage/' . $produk->foto_produk) : '' }}"
 >
-    @if ($produk->foto)
-        <img src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama_produk }}" class="h-48 w-full object-cover rounded-t-2xl">
+    @if ($produk->foto_produk)
+        <img src="{{ asset('storage/' . $produk->foto_produk) }}" alt="{{ $produk->nama_produk }}" class="h-48 w-full object-cover rounded-t-2xl">
     @else
         <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
             <span class="text-gray-500">No Image</span>
@@ -40,13 +40,13 @@
         <div class="mt-4 grid grid-cols-2 gap-3">
             <form action="{{ route('user.keranjang.tambah') }}" method="POST">
                 @csrf
-                <input type="hidden" name="id_produk" value="{{ $produk->id }}">
+                <input type="hidden" name="produk_id" value="{{ $produk->id }}">
                 <input type="hidden" name="jumlah_produk" value="{{ $produk->stok > 0 ? 1 : 0 }}" class="quantityInput">
                 <button type="submit" class="w-full rounded-2xl border border-slate-300 bg-white px-2 py-1 text-sm font-semibold text-slate-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-100 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400" {{ $produk->stok < 1 ? 'disabled' : '' }}>Add to Cart</button>
             </form>
             <form action="{{ route('user.keranjang.tambah') }}" method="POST">
                 @csrf
-                <input type="hidden" name="id_produk" value="{{ $produk->id }}">
+                <input type="hidden" name="produk_id" value="{{ $produk->id }}">
                 <input type="hidden" name="jumlah_produk" value="{{ $produk->stok > 0 ? 1 : 0 }}" class="quantityInput">
                 <input type="hidden" name="redirect_to_checkout" value="1">
                 <button type="submit" class="w-full rounded-2xl bg-blue-900 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none" {{ $produk->stok < 1 ? 'disabled' : '' }}>Checkout</button>

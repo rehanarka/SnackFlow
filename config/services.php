@@ -38,7 +38,7 @@ return [
         'base_url' => env('RAJAONGKIR_BASE_URL', 'https://rajaongkir.komerce.id/api/v1'),
         'api_key' => env('RAJAONGKIR_API_KEY'),
         'origin_search' => env('RAJAONGKIR_ORIGIN_SEARCH'),
-        'couriers' => env('RAJAONGKIR_COURIERS', 'jne:sicepat:jnt:gojek'),
+        'couriers' => env('RAJAONGKIR_COURIERS', 'jne'),
     ],
 
     'google' => [

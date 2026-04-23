@@ -51,9 +51,9 @@
                         <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-500"></div>
 
                         <div class="flex items-center gap-4">
-                            <img src="{{ $avatarUrl }}" alt="Avatar {{ $user->name }}" class="h-16 w-16 rounded-2xl object-cover shadow-md ring-2 ring-white">
+                                <img src="{{ $avatarUrl }}" alt="Avatar {{ $user->nama_lengkap }}" class="h-16 w-16 rounded-2xl object-cover shadow-md ring-2 ring-white">
                             <div class="min-w-0">
-                                <p class="truncate text-base font-semibold text-slate-900">{{ $user->name }}</p>
+                                <p class="truncate text-base font-semibold text-slate-900">{{ $user->nama_lengkap }}</p>
                                 <p class="truncate text-sm text-slate-500">{{ $user->email }}</p>
                                 <span class="mt-2 inline-flex rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white">{{ $roleLabel }}</span>
                             </div>
@@ -63,7 +63,7 @@
                     <div class="space-y-3 px-5 py-4">
                         <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                             <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Profile</p>
-                            <p class="mt-2 text-sm text-slate-700">Masuk sebagai <span class="font-semibold text-slate-900">{{ $user->name }}</span>. Kelola sesi akunmu sepenuhnya difitur profile.</p>
+                            <p class="mt-2 text-sm text-slate-700">Masuk sebagai <span class="font-semibold text-slate-900">{{ $user->nama_lengkap }}</span>. Kelola sesi akunmu sepenuhnya difitur profile.</p>
                         </div>
 
                         <a href="{{ $profileRoute }}" class="flex w-full items-center justify-between rounded-2xl bg-sky-500 px-4 py-3 text-left text-white shadow-lg shadow-sky-200 transition duration-300 hover:-translate-y-0.5 hover:bg-sky-600">

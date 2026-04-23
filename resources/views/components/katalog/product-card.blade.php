@@ -1,8 +1,8 @@
 @props(['produk'])
 
 <div class="productCard bg-white overflow-hidden rounded-2xl border border-gray-200 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl" data-search="{{ \Illuminate\Support\Str::lower(trim($produk->nama_produk . ' ' . ($produk->kategori ?? ''))) }}">
-    @if ($produk->foto)
-        <img src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama_produk }}" class="h-48 w-full object-cover rounded-t-2xl">
+    @if ($produk->foto_produk)
+        <img src="{{ asset('storage/' . $produk->foto_produk) }}" alt="{{ $produk->nama_produk }}" class="h-48 w-full object-cover rounded-t-2xl">
     @else
         <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
             <span class="text-gray-500">No Image</span>

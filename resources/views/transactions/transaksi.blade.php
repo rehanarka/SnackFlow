@@ -15,12 +15,11 @@
     ];
 
     $statusClasses = [
-        'Menunggu Pembayaran' => 'bg-amber-50 text-amber-700 ring-amber-200',
         'Menunggu Konfirmasi' => 'bg-sky-50 text-sky-700 ring-sky-200',
+        'Dikonfirmasi' => 'bg-amber-50 text-amber-700 ring-amber-200',
         'Diproses' => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
         'Dibatalkan' => 'bg-rose-50 text-rose-700 ring-rose-200',
-        'Ditolak' => 'bg-rose-50 text-rose-700 ring-rose-200',
-        'Menunggu Verifikasi' => 'bg-sky-50 text-sky-700 ring-sky-200',
+        'Selesai' => 'bg-slate-100 text-slate-700 ring-slate-200',
     ];
 @endphp
 
@@ -72,9 +71,11 @@
                     <tbody class="divide-y divide-slate-100">
                         @foreach($transaksi as $item)
                             @php
-                                $paymentLabel = $paymentTypeLabels[$item->payment_type] ?? Str::headline($item->payment_type ?? '-');
+                                $metodePembayaranValue = $item->metodePembayaran->nama_metode_pembayaran ?? $item->metode_pembayaran;
+                                $paymentLabel = $paymentTypeLabels[$metodePembayaranValue] ?? Str::headline($metodePembayaranValue ?? '-');
                                 $statusLabel = $item->status_pesanan ?: '-';
                                 $statusClass = $statusClasses[$statusLabel] ?? 'bg-slate-100 text-slate-700 ring-slate-200';
+                                $tanggalTransaksi = $item->tanggal_transaksi;
                             @endphp
                             <tr class="transition duration-300 hover:bg-slate-100/50">
                                 <td class="px-6 py-5">
@@ -84,8 +85,8 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-5">
-                                    <p class="text-sm font-semibold text-slate-800">{{ $item->created_at->format('d M Y') }}</p>
-                                    <p class="mt-1 text-xs text-slate-500">{{ $item->created_at->format('H:i') }} WIB</p>
+                                    <p class="text-sm font-semibold text-slate-800">{{ $tanggalTransaksi?->format('d M Y') ?? '-' }}</p>
+                                    <p class="mt-1 text-xs text-slate-500">{{ $tanggalTransaksi?->format('H:i') ? $tanggalTransaksi->format('H:i') . ' WIB' : '-' }}</p>
                                 </td>
                                 <td class="px-6 py-5">
                                     <p class="text-sm font-semibold text-slate-900">Rp {{ number_format($item->total_bayar, 0, ',', '.') }}</p>

@@ -4,7 +4,7 @@
 @php
     $isAdminView = $isAdminView ?? false;
     $canPay = !$isAdminView
-        && $transaksi->status_pesanan === 'Menunggu Pembayaran'
+        && $transaksi->status_pesanan === 'Dikonfirmasi'
         && !in_array($transaksi->status_pembayaran, ['paid', 'settlement'], true);
     $paymentTypeLabels = [
         'bank_transfer' => 'Bank Transfer',
@@ -15,11 +15,13 @@
         'cstore' => 'Convenience Store',
         'akulaku' => 'Akulaku',
     ];
+    $metodePembayaranValue = $transaksi->metodePembayaran->nama_metode_pembayaran ?? $transaksi->metode_pembayaran;
     $statusNotice = match ($transaksi->status_pesanan) {
         'Menunggu Konfirmasi' => 'Pesanan sudah diterima sistem dan sekarang menunggu konfirmasi dari admin. Pembayaran akan dibuka setelah admin menerima pesanan ini.',
-        'Menunggu Pembayaran' => 'Pesanan sudah diterima admin. Kamu bisa lanjut ke pembayaran dari halaman ini.',
+        'Dikonfirmasi' => 'Pesanan sudah dikonfirmasi admin. Silakan lanjutkan pembayaran dalam waktu 24 jam sebelum otomatis dibatalkan.',
         'Diproses' => 'Pembayaran sudah diterima dan pesanan sedang diproses.',
-        'Ditolak' => 'Pesanan ditolak oleh admin. Silakan cek alasan penolakan di bawah.',
+        'Dibatalkan' => 'Pesanan dibatalkan. Silakan cek catatan pembatalan di bawah bila tersedia.',
+        'Selesai' => 'Pesanan sudah diterima dan transaksi selesai.',
         default => 'Lihat detail penerima, pengiriman, item pesanan, dan status pembayarannya dalam satu halaman.',
     };
 @endphp
@@ -66,20 +68,17 @@
                         </div>
                     </div>
 
-                    @if ($transaksi->payment_type)
+                    @if ($metodePembayaranValue)
                         <div class="rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4">
                             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Metode Pembayaran</p>
-                            <p class="mt-2 text-base font-semibold text-slate-900">{{ $paymentTypeLabels[$transaksi->payment_type] ?? \Illuminate\Support\Str::headline($transaksi->payment_type) }}</p>
-                            @if ($transaksi->payment_code)
-                                <p class="mt-1 text-sm text-slate-600">Kode Pembayaran: {{ $transaksi->payment_code }}</p>
-                            @endif
+                            <p class="mt-2 text-base font-semibold text-slate-900">{{ $paymentTypeLabels[$metodePembayaranValue] ?? \Illuminate\Support\Str::headline($metodePembayaranValue) }}</p>
                             <p class="mt-1 text-sm text-slate-500">Status pembayaran: {{ $transaksi->status_pembayaran }}</p>
                         </div>
                     @endif
 
-                    <div class="{{ $transaksi->status_pesanan === 'Ditolak' ? '' : 'hidden ' }}rounded-[1.5rem] border border-rose-200 bg-rose-50 px-4 py-4">
-                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">Alasan Penolakan</p>
-                            <p class="mt-2 text-sm leading-6 text-rose-700">{{ $transaksi->alasan_penolakan ?: 'Pesanan ini ditolak oleh admin.' }}</p>
+                    <div class="{{ $transaksi->status_pesanan === 'Dibatalkan' ? '' : 'hidden ' }}rounded-[1.5rem] border border-rose-200 bg-rose-50 px-4 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">Catatan Pembatalan</p>
+                            <p class="mt-2 text-sm leading-6 text-rose-700">{{ $transaksi->alasan_penolakan ?: 'Pesanan ini dibatalkan.' }}</p>
                         </div>
 
                     <div class="rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4">
@@ -87,9 +86,6 @@
                         <p class="mt-2 text-base font-semibold text-slate-900">{{ $transaksi->nama_penerima }}</p>
                         <p class="mt-1 text-sm text-slate-600">{{ $transaksi->no_telp_penerima }}</p>
                         <p class="mt-3 text-sm leading-6 text-slate-600">{{ $transaksi->alamat_penerima }}</p>
-                        @if ($transaksi->rajaongkir_destination_label)
-                            <p class="mt-3 text-sm font-semibold text-slate-900">{{ $transaksi->rajaongkir_destination_label }}</p>
-                        @endif
                         @if ($transaksi->kode_pos_penerima)
                             <p class="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Kode Pos {{ $transaksi->kode_pos_penerima }}</p>
                         @endif
@@ -97,9 +93,8 @@
 
                     <div class="rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4">
                         <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Pengiriman</p>
-                        <p class="mt-2 text-base font-semibold text-slate-900">{{ $transaksi->kurir }}</p>
-                        <p class="mt-1 text-sm text-slate-600">{{ $transaksi->service_pengiriman }}</p>
-                        <p class="mt-1 text-sm text-slate-600">Estimasi {{ $transaksi->estimasi_pengiriman ?: '-' }}</p>
+                        <p class="mt-2 text-base font-semibold text-slate-900">Biaya Pengiriman</p>
+                        <p class="mt-1 text-sm text-slate-600">Ongkir yang tercatat pada transaksi ini adalah Rp {{ number_format($transaksi->ongkir, 0, ',', '.') }}</p>
                     </div>
                 </div>
             </section>
@@ -142,17 +137,26 @@
                             <div class="rounded-[1.5rem] border border-sky-200 bg-sky-50 px-5 py-4 text-sm font-medium text-sky-700">
                                 Pesanan ini belum bisa dibayar karena masih menunggu konfirmasi dari admin.
                             </div>
-                        @elseif (!$isAdminView && $transaksi->status_pesanan === 'Ditolak')
+                        @elseif (!$isAdminView && $transaksi->status_pesanan === 'Dibatalkan')
                             <div class="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-medium text-rose-700">
-                                Pesanan ditolak oleh admin dan tidak bisa dilanjutkan ke pembayaran.
+                                Pesanan dibatalkan dan tidak bisa dilanjutkan ke pembayaran.
                             </div>
                         @endif
 
-                        @if (!$isAdminView && $transaksi->status_pesanan === 'Menunggu Pembayaran')
+                        @if (!$isAdminView && $transaksi->status_pesanan === 'Dikonfirmasi')
                         <form action="{{ route('user.checkout.payment.refresh-status', $transaksi) }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full rounded-[1.5rem] border border-slate-300 bg-white px-5 py-4 text-base font-semibold text-slate-800 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-slate-50 hover:cursor-pointer">
                                 Cek Status Pembayaran
+                            </button>
+                        </form>
+                        @endif
+
+                        @if (!$isAdminView && $transaksi->status_pesanan === 'Diproses')
+                        <form action="{{ route('user.transaksi.received', $transaksi) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full rounded-[1.5rem] bg-emerald-600 px-5 py-4 text-base font-semibold text-white shadow-xl shadow-emerald-100 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:cursor-pointer">
+                                Pesanan Diterima
                             </button>
                         </form>
                         @endif

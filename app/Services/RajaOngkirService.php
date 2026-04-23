@@ -45,7 +45,7 @@ class RajaOngkirService
     {
         $origin = $this->getConfiguredOrigin();
         $weight = max(1, (int) $keranjangItems->sum(fn ($item) => ($item->produk->berat ?? 0) * $item->jumlah_produk));
-        $courier = config('services.rajaongkir.couriers', 'jne:sicepat:jnt:gojek');
+        $courier = config('services.rajaongkir.couriers', 'jne');
 
         $response = $this->baseRequest()
             ->asForm()
@@ -67,7 +67,16 @@ class RajaOngkirService
             $data['calculate_cargo'] ?? [],
             $data['calculate_instant'] ?? [],
             is_array($data) ? $data : [],
-        ])->flatten(1)->filter(fn ($item) => is_array($item) && !empty($item))->values()->all();
+        ])->flatten(1)
+            ->filter(fn ($item) => is_array($item) && !empty($item))
+            ->filter(function (array $item) {
+                $code = strtolower((string) ($item['code'] ?? ''));
+                $service = strtoupper((string) ($item['service'] ?? $item['service_name'] ?? ''));
+
+                return $code === 'jne' && $service === 'REG';
+            })
+            ->values()
+            ->all();
 
         Log::info('RajaOngkir calculate response', [
             'origin_id' => $origin['id'] ?? null,

@@ -10,12 +10,9 @@ return new class extends Migration
     {
         Schema::create('keranjang', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('id_produk')->constrained('katalog_produks')->cascadeOnDelete();
-            $table->unsignedInteger('jumlah_produk');
-            $table->timestamps();
+            $table->foreignId('user_id')->constrained('user')->cascadeOnDelete();
 
-            $table->unique(['id_user', 'id_produk']);
+            $table->unique('user_id');
         });
     }
 

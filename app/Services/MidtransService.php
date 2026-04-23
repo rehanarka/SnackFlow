@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\MetodePembayaran;
 use App\Models\Transaksi;
 use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
@@ -62,7 +63,7 @@ class MidtransService
 
         $itemDetails = $transaksi->detailTransaksi->map(function ($detail) {
             return [
-                'id' => 'PRODUK-' . $detail->id_produk,
+                'id' => 'PRODUK-' . $detail->produk_id,
                 'price' => (int) $detail->harga_produk,
                 'quantity' => (int) $detail->jumlah_produk,
                 'name' => substr($detail->produk->nama_produk ?? 'Produk', 0, 50),
@@ -93,6 +94,11 @@ class MidtransService
                 ],
             ],
             'item_details' => $itemDetails,
+            'expiry' => [
+                'start_time' => now()->format('Y-m-d H:i:s O'),
+                'unit' => 'day',
+                'duration' => 1,
+            ],
         ];
 
         $transaction = Snap::createTransaction($params);
@@ -118,7 +124,7 @@ class MidtransService
         Log::info('Midtrans notification received', [
             'order_id' => $orderId,
             'transaction_status' => $notification->transaction_status ?? null,
-            'payment_type' => $notification->payment_type ?? null,
+            'metode_pembayaran' => $notification->payment_type ?? null,
         ]);
 
         if (!$orderId) {
@@ -134,7 +140,7 @@ class MidtransService
         return $this->applyTransactionStatus($transaksi, [
             'transaction_status' => $notification->transaction_status ?? null,
             'fraud_status' => $notification->fraud_status ?? null,
-            'payment_type' => $notification->payment_type ?? null,
+            'metode_pembayaran' => $notification->payment_type ?? null,
             'transaction_id' => $notification->transaction_id ?? null,
             'permata_va_number' => $notification->permata_va_number ?? null,
             'bill_key' => $notification->bill_key ?? null,
@@ -153,7 +159,7 @@ class MidtransService
         return $this->applyTransactionStatus($transaksi, [
             'transaction_status' => $status->transaction_status ?? null,
             'fraud_status' => $status->fraud_status ?? null,
-            'payment_type' => $status->payment_type ?? null,
+            'metode_pembayaran' => $status->payment_type ?? null,
             'transaction_id' => $status->transaction_id ?? null,
             'permata_va_number' => $status->permata_va_number ?? null,
             'bill_key' => $status->bill_key ?? null,
@@ -164,50 +170,37 @@ class MidtransService
     private function applyTransactionStatus(Transaksi $transaksi, array $payload): Transaksi
     {
         $transactionStatus = $payload['transaction_status'] ?? null;
-        $fraudStatus = $payload['fraud_status'] ?? null;
-        $paymentType = $payload['payment_type'] ?? null;
-        $transactionId = $payload['transaction_id'] ?? null;
-        $vaNumbers = $payload['va_numbers'] ?? [];
-        $paymentCode = ($payload['permata_va_number'] ?? null)
-            ?? ($payload['bill_key'] ?? null)
-            ?? (($vaNumbers[0]->va_number ?? null))
-            ?? null;
+        $metodePembayaran = $payload['metode_pembayaran'] ?? null;
 
         $statusPembayaran = 'pending';
-        $statusPesanan = 'Menunggu Pembayaran';
-        $paidAt = null;
+        $statusPesanan = 'Dikonfirmasi';
+        $metodePembayaranRecord = null;
+
+        if ($metodePembayaran) {
+            $metodePembayaranRecord = MetodePembayaran::firstOrCreate([
+                'nama_metode_pembayaran' => $metodePembayaran,
+            ]);
+        }
 
         if ($transactionStatus === 'capture') {
-            if ($fraudStatus === 'challenge') {
-                $statusPembayaran = 'challenge';
-                $statusPesanan = 'Menunggu Verifikasi';
-            } else {
-                $statusPembayaran = 'paid';
-                $statusPesanan = 'Diproses';
-                $paidAt = now();
-            }
+            $statusPembayaran = 'paid';
+            $statusPesanan = 'Diproses';
         } elseif ($transactionStatus === 'settlement') {
             $statusPembayaran = 'paid';
             $statusPesanan = 'Diproses';
-            $paidAt = now();
         } elseif ($transactionStatus === 'pending') {
             $statusPembayaran = 'pending';
-            $statusPesanan = 'Menunggu Pembayaran';
+            $statusPesanan = 'Dikonfirmasi';
         } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire'], true)) {
             $statusPembayaran = 'dibatalkan';
             $statusPesanan = 'Dibatalkan';
         }
 
         $transaksi->update([
-            'midtrans_transaction_id' => $transactionId,
-            'midtrans_transaction_status' => $transactionStatus,
-            'midtrans_fraud_status' => $fraudStatus,
-            'payment_type' => $paymentType,
-            'payment_code' => $paymentCode,
+            'metode_pembayaran_id' => $metodePembayaranRecord?->id,
             'status_pembayaran' => $statusPembayaran,
-            'status_pesanan' => $statusPesanan,
-            'alasan_penolakan' => $statusPesanan === 'Dibatalkan' ? ($transaksi->alasan_penolakan ?: 'Pembayaran dibatalkan atau kedaluwarsa.') : null,
-            'paid_at' => $paidAt ?: $transaksi->paid_at,
+            'status_transaksi' => $statusPesanan,
+            'catatan_admin' => $statusPesanan === 'Dibatalkan' ? ($transaksi->catatan_admin ?: 'Pembayaran dibatalkan atau kedaluwarsa.') : null,
         ]);
 
         return $transaksi->fresh();

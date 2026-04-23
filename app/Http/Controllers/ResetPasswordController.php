@@ -21,7 +21,7 @@ class ResetPasswordController extends Controller
 
         $user = User::where('email', $request->email)->first();
         if (!$user){
-            return back()->withErrors(['email' => 'Akun tidak ditemukan.'])->onlyInput('email');
+            return back()->withErrors(['email' => 'Email anda tidak ditemukan.'])->onlyInput('email');
         }
         
         $otp = random_int(100000, 999999);
@@ -50,13 +50,13 @@ class ResetPasswordController extends Controller
             'otp' => 'required|digits:6',
         ],
         [
-            'digits' => 'Kode OTP harus terdiri dari 6 digit.',
-            'required' => 'Kode OTP wajib diisi.',
+            'digits' => 'Kode OTP hanya terdiri dari 6 digit.',
+            'required' => 'Kode OTP salah.',
         ]);
         
         $user = User::where('email', $request->email)->first();
         if ($user->otp_expired_at->isPast()){
-            return back()->withErrors(['otp' => 'Kode OTP telah kedaluwarsa.'])
+            return back()->withErrors(['otp' => 'Kode OTP salah.'])
             ->withInput($request->only('email'));
         }
 

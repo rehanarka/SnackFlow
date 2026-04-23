@@ -15,7 +15,7 @@
     <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg shadow-slate-100">
         <div class="bg-gradient-to-r from-sky-100 via-white to-cyan-50 px-6 py-5">
             <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Profile</p>
-            <h2 class="mt-2 text-2xl font-bold text-slate-900">{{ $user->name }}</h2>
+            <h2 class="mt-2 text-2xl font-bold text-slate-900">{{ $user->nama_lengkap }}</h2>
             <p class="mt-2 text-sm text-slate-600">Informasi akun aktif yang sedang digunakan di SnackFlow.</p>
         </div>
 
@@ -29,7 +29,7 @@
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
                     <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Nama</p>
-                    <p class="mt-2 text-base font-semibold text-slate-900">{{ $user->name }}</p>
+                    <p class="mt-2 text-base font-semibold text-slate-900">{{ $user->nama_lengkap }}</p>
                 </div>
 
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
@@ -45,15 +45,15 @@
 
             <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">No. Telp</p>
-                <p class="mt-2 text-base font-semibold text-slate-900">{{ $user->no_telp ?: '-' }}</p>
+                <p class="mt-2 text-base font-semibold text-slate-900">{{ $user->no_telepon ?: '-' }}</p>
             </div>
         </div>
     </section>
 
     <aside class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg shadow-slate-100">
         <div class="flex flex-col items-center px-6 py-8 text-center">
-            <img src="{{ $avatarUrl }}" alt="Avatar {{ $user->name }}" class="h-28 w-28 rounded-[2rem] object-cover shadow-lg ring-4 ring-sky-100">
-            <h3 class="mt-5 text-xl font-bold text-slate-900">{{ $user->name }}</h3>
+            <img src="{{ $avatarUrl }}" alt="Avatar {{ $user->nama_lengkap }}" class="h-28 w-28 rounded-[2rem] object-cover shadow-lg ring-4 ring-sky-100">
+            <h3 class="mt-5 text-xl font-bold text-slate-900">{{ $user->nama_lengkap }}</h3>
             <p class="mt-1 text-sm text-slate-500">{{ $user->email }}</p>
             <span class="mt-4 inline-flex rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white">{{ ucfirst($user->role) }}</span>
         </div>
@@ -81,9 +81,9 @@
                 </div>
 
                 <div>
-                    <label for="name" class="mb-1 block text-sm font-medium text-slate-700">Nama</label>
-                    <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 outline-none transition duration-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
-                    @error('name')
+                    <label for="nama_lengkap" class="mb-1 block text-sm font-medium text-slate-700">Nama</label>
+                    <input id="nama_lengkap" name="nama_lengkap" type="text" value="{{ old('nama_lengkap', $user->nama_lengkap) }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 outline-none transition duration-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
+                    @error('nama_lengkap')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                 </div>
@@ -97,9 +97,9 @@
                 </div>
 
                 <div>
-                    <label for="no_telp" class="mb-1 block text-sm font-medium text-slate-700">No. Telp</label>
-                    <input id="no_telp" name="no_telp" type="text" value="{{ old('no_telp', $user->no_telp) }}" placeholder="Masukkan nomor telepon" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 outline-none transition duration-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
-                    @error('no_telp')
+                    <label for="no_telepon" class="mb-1 block text-sm font-medium text-slate-700">No. Telp</label>
+                    <input id="no_telepon" name="no_telepon" type="text" value="{{ old('no_telepon', $user->no_telepon) }}" placeholder="Masukkan nomor telepon" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 outline-none transition duration-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
+                    @error('no_telepon')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                 </div>

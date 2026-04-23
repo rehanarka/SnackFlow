@@ -10,8 +10,8 @@
             <form action="/register" method="post">
                 @csrf
                 <div class="flex flex-col ">
-                <input autocomplete="off" type="name" placeholder="Nama" class="border mb-4 border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="name">
-                <input autocomplete="off" type="email" placeholder="email@example.com" class="border border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="email">
+                <input autocomplete="off" type="text" placeholder="Nama" value="{{ old('nama_lengkap') }}" class="border mb-4 border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="nama_lengkap">
+                <input autocomplete="off" type="email" placeholder="email@example.com" value="{{ old('email') }}" class="border border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="email">
                 <input autocomplete="off" type="password" placeholder="Password" class="border mt-4 border-black rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black w-96" name="password">
                 <div class="flex justify-center items-center">
                     <button type="submit" class=" transition duration-150 hover:scale-110 hover:bg-blue-400 active:scale-90 cursor-pointer rounded-3xl bg-blue-300 w-32 py-2 mt-2">Sign Up</button>
