@@ -34,7 +34,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'user',
         ]);
-        return redirect('/')->with('success', 'Registration successful. Please Login.');
+        return redirect('/registrasi')->with('success', 'Registration successful. Please Login.');
     }
 
     public function login(Request $request)

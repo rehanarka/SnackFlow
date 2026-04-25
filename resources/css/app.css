@@ -9,3 +9,18 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@keyframes floatAtas{
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100%{
+        transform: translateY(0px)
+    }
+}
+.ngambang {
+    animation: floatAtas 5s ease-in-out infinite;
+}

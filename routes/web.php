@@ -9,8 +9,18 @@ use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\TransaksiController;
 
 Route::get('/', function () {
-    return view('registrasi');
+    return view('landingPage');
 });
+
+Route::get('/tentangKami', function () {
+    return view('tentangKami');
+});
+
+Route::get('/registrasi', function () {
+    return view('auth-view.registrasi');
+});
+
+
 Route::get('/login', function(){
     return view('authView.login');})->name('login');
 
