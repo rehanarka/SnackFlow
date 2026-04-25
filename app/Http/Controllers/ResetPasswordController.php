@@ -82,7 +82,7 @@ class ResetPasswordController extends Controller
             $waktuSisa = now()->diffInSeconds($user->otp_expired_at, false);
             $waktuSisa = max(0, (int) $waktuSisa);
         }
-        return view('resetPassword.SendOtp', ['countdown' => $waktuSisa]);
+        return view('resetPassword.sendOtp', ['countdown' => $waktuSisa]);
     }
     public function resetPassword(Request $request)
     {

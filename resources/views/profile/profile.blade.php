@@ -3,7 +3,7 @@
 @section('content')
 @php
     $user = auth()->user();
-    $avatarUrl = '/images/avatar-default.png';
+    $avatarUrl = '/images/avatar-default-opt.png';
     $updateProfileRoute = route(($user->role === 'admin' ? 'admin' : 'user') . '.profile.update');
 
     if (!empty($user->avatar)) {

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('nama_lengkap');
             $table->string('email')->unique();
-            $table->string('google_id')->nullable()->unique();
             $table->string('password')->nullable();
             $table->string('avatar')->nullable();
             $table->string('no_telepon')->nullable();

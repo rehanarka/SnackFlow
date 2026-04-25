@@ -10,14 +10,14 @@ use App\Http\Controllers\TransaksiController;
 
 Route::get('/', function () {
     return view('landingPage');
-});
+})->name('landingPage');
 
 Route::get('/tentangKami', function () {
     return view('tentangKami');
 });
 
 Route::get('/registrasi', function () {
-    return view('auth-view.registrasi');
+    return view('authView.registrasi');
 });
 
 
@@ -26,14 +26,10 @@ Route::get('/login', function(){
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
-    
-Route::get('/auth/google', [AuthController::class, 'redirect'])->name('google.login');
-Route::get('/auth/google/callback', [AuthController::class, 'callback']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     
 Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
-    Route::get('/dashboard', function(){return view('dashboard.dashboardAdmin');})->name('admin.dashboard');
     Route::get('/profile', function(){return view('profile.profile');})->name('admin.profile');
     Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('admin.profile.update');
     Route::post('/katalog/tambah', [KatalogController::class, 'tambahProduk'])->name('admin.katalog.tambah');
@@ -46,7 +42,6 @@ Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
     Route::post('/transaksi/{transaksi}/reject', [TransaksiController::class, 'rejectByAdmin'])->name('admin.transaksi.reject');
 });
 Route::middleware(['auth'])->prefix('user')->group(function(){
-        Route::get('/dashboard', function(){return view('dashboard.dashboardUser');})->name('user.dashboard');
         Route::get('/profile', function(){return view('profile.profile');})->name('user.profile');
         Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');
         Route::get('/katalog', [KatalogController::class, 'viewKatalogUser'])->name('user.katalog');

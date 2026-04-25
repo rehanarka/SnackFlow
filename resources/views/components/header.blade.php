@@ -1,6 +1,6 @@
 @php
     $user = auth()->user();
-    $avatarUrl = '/images/avatar-default.png';
+    $avatarUrl = '/images/avatar-default-opt.png';
     $profileRoute = route(($user->role === 'admin' ? 'admin' : 'user') . '.profile');
 
     if (!empty($user->avatar)) {
@@ -14,10 +14,7 @@
     $pageTitle = 'Profile';
     $pageDescription = 'Kelola informasi akun anda';
 
-    if (str_ends_with($routeName, '.dashboard')) {
-        $pageTitle = 'Dashboard';
-        $pageDescription = $user->role === 'admin' ? 'Pantau aktivitas toko dan ringkasan operasional.' : 'Lihat ringkasan akun dan aktivitas belanja anda.';
-    } elseif (str_ends_with($routeName, '.katalog')) {
+    if (str_ends_with($routeName, '.katalog')) {
         $pageTitle = 'Produk';
         $pageDescription = $user->role === 'admin' ? 'Kelola katalog produk dan stok yang tersedia.' : 'Jelajahi produk yang tersedia untuk dipesan.';
     } elseif (str_contains($routeName, 'transaksi') || str_contains($routeName, 'checkout') || str_contains($requestPath, 'transaksi') || str_contains($requestPath, 'checkout') || str_contains($requestPath, 'keranjang')) {
@@ -31,7 +28,7 @@
 
 <div class="fixed top-0 left-64 right-0 z-20 h-[122px] rounded-2xl shadow-xl">
     <div class="absolute inset-0 overflow-hidden rounded-2xl">
-        <img src="/images/header.png" class="h-full w-full shadow-2xl" alt="">
+        <img src="/images/header-opt.jpg" class="h-full w-full shadow-2xl" alt="" width="1200" height="94" fetchpriority="high" decoding="async">
     </div>
 
     <div class="relative z-10 flex h-full items-center justify-between px-6">
@@ -42,7 +39,7 @@
 
         <div class="relative">
             <button id="profileDropdownToggle" type="button" aria-expanded="false" class=" flex items-center rounded-full border border-white bg-white/75 shadow-lg backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:cursor-pointer">
-                <img src="{{ $avatarUrl }}" alt="" class="h-[60px] w-[60px] rounded-full object-cover transition duration-300 group-hover:ring-blue-200">
+                <img src="{{ $avatarUrl }}" alt="" class="h-[60px] w-[60px] rounded-full object-cover transition duration-300 group-hover:ring-blue-200" width="60" height="60" decoding="async">
             </button>
 
             <div id="profileDropdownMenu" class="pointer-events-none absolute right-0  hidden w-80 translate-y-2 opacity-0 transition duration-200">
@@ -51,7 +48,7 @@
                         <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-500"></div>
 
                         <div class="flex items-center gap-4">
-                                <img src="{{ $avatarUrl }}" alt="Avatar {{ $user->nama_lengkap }}" class="h-16 w-16 rounded-2xl object-cover shadow-md ring-2 ring-white">
+                                <img src="{{ $avatarUrl }}" alt="Avatar {{ $user->nama_lengkap }}" class="h-16 w-16 rounded-2xl object-cover shadow-md ring-2 ring-white" width="64" height="64" decoding="async">
                             <div class="min-w-0">
                                 <p class="truncate text-base font-semibold text-slate-900">{{ $user->nama_lengkap }}</p>
                                 <p class="truncate text-sm text-slate-500">{{ $user->email }}</p>

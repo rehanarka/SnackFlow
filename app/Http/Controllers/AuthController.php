@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Laravel\Socialite\Facades\Socialite;
-use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -53,46 +50,15 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
             if ($user->role === 'admin'){
-                return redirect()->route('admin.dashboard');
+                return redirect()->route('admin.katalog');
             }
             else{
-                return redirect()->route('user.dashboard');
+                return redirect()->route('user.katalog');
             }
         }
         return back()->withErrors([
             'email' => 'Email atau password salah.',
         ])->onlyInput('email');
-    }
-    public function redirect()
-    {
-        return Socialite::driver('google')->redirect();
-    }
-    public function callback(Request $request)
-    {
-        $googleUser = Socialite::driver('google')->user();
-        $availUser = User::where('email', $googleUser->getEmail())->first();
-        if ($availUser){
-            if (! $availUser->google_id){
-                $availUser->google_id = $googleUser->getId();
-                $availUser->save();
-            }
-        } else {
-            $availUser = User::create([
-                'email' => $googleUser->getEmail(),
-                'google_id' => $googleUser->getId(),
-                'nama_lengkap' => $googleUser->getName(),
-                'avatar' => $googleUser->getAvatar(),
-                'password' => Hash::make(Str::random(24)),
-                'role' => 'user',
-            ]);
-        }
-        Auth::login($availUser);
-        if ($availUser->role === 'admin'){
-            return redirect()->route('admin.dashboard');
-        }
-        else{
-            return redirect()->route('user.dashboard');
-        }
     }
 
     public function logout(Request $request)
@@ -101,7 +67,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('landingPage');
     }
 
     public function updateProfile(Request $request)

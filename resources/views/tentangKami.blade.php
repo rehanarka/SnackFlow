@@ -2,17 +2,26 @@
 
 @section('content')
     <x-headerLanding/>
-            <div class=" relative min-h-[calc(100vh-97px)] w-full bg-top bg-no-repeat" style="background-image: url('{{ asset('images/backgroundLanding.jpg') }}'); background-size: 100% auto;">
-                <div class="flex justify-between">
+            <div class="relative min-h-[calc(100vh-97px)] w-full overflow-hidden">
+                <img
+                    src="/images/backgroundLanding-opt.jpg"
+                    alt=""
+                    class="absolute inset-0 h-full w-full object-cover object-top"
+                    width="1400"
+                    height="661"
+                    fetchpriority="high"
+                    decoding="async"
+                >
+                <div class="relative z-10 flex justify-between">
                     <div class="bg-white/55 flex flex-col p-10 w-92 h-fit mt-20 ml-40 rounded-lg">
                         <h1 class="font-serif font-bold text-4xl text-center mb-8">Tentang Kami</h1>
                         <p class="text-justify mb-7">UD. Matrix Jaya, usaha lokal dari Kabupaten Jember yang menghadirkan cemilan sehat, lezat, dan berkualitas untuk keluarga Indonesia.</p>
-                        <img class="w-92" src="/images/produk.png" alt="">
+                        <img class="w-92" src="/images/produk-opt.jpg" alt="" loading="lazy">
                     </div>
                     <div class="bg-[#273356]/90 p-10 w-210 mt-20 h-fit mr-20 rounded-lg">
                         <p class="text-white text-lg font-semibold mb-5 ">UD. Matrix Jaya, usaha lokal dari Kabupaten Jember yang menghadirkan cemilan sehat, lezat, dan berkualitas untuk keluarga Indonesia.</p>
                         <div class="relative">
-                            <img src="/images/awan.png" class="h-64 w-full" alt="">
+                            <img src="/images/awan-opt.jpg" class="h-64 w-full" alt="" loading="lazy">
                             <div class="absolute inset-y-0">
                                 <div class="flex flex-col">
                                     <div class="inline-flex mt-3 ml-3 gap-3">
