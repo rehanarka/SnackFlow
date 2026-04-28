@@ -27,6 +27,7 @@ Route::get('/login', function(){
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/midtrans/notification', [MidtransController::class, 'notification'])->name('midtrans.notification');
 
     
 Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){

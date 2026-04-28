@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\MetodePembayaran;
 use App\Models\Transaksi;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Notification;
 use Midtrans\Snap;
@@ -99,6 +99,7 @@ class MidtransService
                 'unit' => 'day',
                 'duration' => 1,
             ],
+            'enabled_payments' => ['gopay'],
         ];
 
         $transaction = Snap::createTransaction($params);
@@ -167,6 +168,15 @@ class MidtransService
         ]);
     }
 
+    private function generateUniqueResi(): string
+    {
+        do {
+            $resi = 'JNE-' . strtoupper(Str::random(10));
+        } while (Transaksi::where('resi', $resi)->exists());
+
+        return $resi;
+    }
+
     private function applyTransactionStatus(Transaksi $transaksi, array $payload): Transaksi
     {
         $transactionStatus = $payload['transaction_status'] ?? null;
@@ -174,20 +184,16 @@ class MidtransService
 
         $statusPembayaran = 'pending';
         $statusPesanan = 'Dikonfirmasi';
-        $metodePembayaranRecord = null;
-
-        if ($metodePembayaran) {
-            $metodePembayaranRecord = MetodePembayaran::firstOrCreate([
-                'nama_metode_pembayaran' => $metodePembayaran,
-            ]);
-        }
+        $resi = $transaksi->resi;
 
         if ($transactionStatus === 'capture') {
             $statusPembayaran = 'paid';
             $statusPesanan = 'Diproses';
+            $resi ??= $this->generateUniqueResi();
         } elseif ($transactionStatus === 'settlement') {
             $statusPembayaran = 'paid';
             $statusPesanan = 'Diproses';
+            $resi ??= $this->generateUniqueResi();
         } elseif ($transactionStatus === 'pending') {
             $statusPembayaran = 'pending';
             $statusPesanan = 'Dikonfirmasi';
@@ -197,9 +203,10 @@ class MidtransService
         }
 
         $transaksi->update([
-            'metode_pembayaran_id' => $metodePembayaranRecord?->id,
+            'metode_pembayaran' => $metodePembayaran ?? $transaksi->metode_pembayaran,
             'status_pembayaran' => $statusPembayaran,
             'status_transaksi' => $statusPesanan,
+            'resi' => $resi,
             'catatan_admin' => $statusPesanan === 'Dibatalkan' ? ($transaksi->catatan_admin ?: 'Pembayaran dibatalkan atau kedaluwarsa.') : null,
         ]);
 

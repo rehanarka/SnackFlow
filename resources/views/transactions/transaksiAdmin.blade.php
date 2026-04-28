@@ -111,7 +111,7 @@
                         <tbody class="divide-y divide-slate-100">
                             @foreach($transaksi as $item)
                                 @php
-                                    $metodePembayaranValue = $item->metodePembayaran->nama_metode_pembayaran ?? $item->metode_pembayaran;
+                                    $metodePembayaranValue = $item->metode_pembayaran;
                                     $paymentLabel = $paymentTypeLabels[$metodePembayaranValue] ?? Str::headline($metodePembayaranValue ?? '-');
                                     $statusLabel = $item->status_pesanan ?: '-';
                                     $statusClass = $statusClasses[$statusLabel] ?? 'bg-slate-100 text-slate-700 ring-slate-200';

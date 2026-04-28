@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('user')->cascadeOnDelete();
             $table->timestamp('tanggal_transaksi')->nullable();
+            $table->string('metode_pembayaran')->nullable();
             $table->string('status_transaksi')->default('draft');
             $table->string('status_pembayaran')->default('pending');
             $table->text('catatan_admin')->nullable();

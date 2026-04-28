@@ -15,7 +15,7 @@
         'cstore' => 'Convenience Store',
         'akulaku' => 'Akulaku',
     ];
-    $metodePembayaranValue = $transaksi->metodePembayaran->nama_metode_pembayaran ?? $transaksi->metode_pembayaran;
+    $metodePembayaranValue = $transaksi->metode_pembayaran;
     $statusNotice = match ($transaksi->status_pesanan) {
         'Menunggu Konfirmasi' => 'Pesanan sudah diterima sistem dan sekarang menunggu konfirmasi dari admin. Pembayaran akan dibuka setelah admin menerima pesanan ini.',
         'Dikonfirmasi' => 'Pesanan sudah dikonfirmasi admin. Silakan lanjutkan pembayaran dalam waktu 24 jam sebelum otomatis dibatalkan.',
@@ -73,6 +73,14 @@
                             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Metode Pembayaran</p>
                             <p class="mt-2 text-base font-semibold text-slate-900">{{ $paymentTypeLabels[$metodePembayaranValue] ?? \Illuminate\Support\Str::headline($metodePembayaranValue) }}</p>
                             <p class="mt-1 text-sm text-slate-500">Status pembayaran: {{ $transaksi->status_pembayaran }}</p>
+                        </div>
+                    @endif
+
+                    @if ($transaksi->resi)
+                        <div class="rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-4 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Nomor Resi</p>
+                            <p class="mt-2 text-base font-bold text-emerald-900">{{ $transaksi->resi }}</p>
+                            <p class="mt-1 text-sm text-emerald-700">Simpan nomor resi ini untuk memantau pengiriman pesanan kamu.</p>
                         </div>
                     @endif
 
@@ -144,7 +152,7 @@
                         @endif
 
                         @if (!$isAdminView && $transaksi->status_pesanan === 'Dikonfirmasi')
-                        <form action="{{ route('user.checkout.payment.refresh-status', $transaksi) }}" method="POST">
+                        <form id="refreshPaymentStatusForm" action="{{ route('user.checkout.payment.refresh-status', $transaksi) }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full rounded-[1.5rem] border border-slate-300 bg-white px-5 py-4 text-base font-semibold text-slate-800 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-slate-50 hover:cursor-pointer">
                                 Cek Status Pembayaran
@@ -181,25 +189,35 @@
     <script>
         (() => {
             const payButton = document.getElementById('payButton');
+            const refreshStatusForm = document.getElementById('refreshPaymentStatusForm');
             const snapToken = @json($snapToken);
 
             if (!payButton || !snapToken || typeof window.snap === 'undefined') {
                 return;
             }
 
+            const syncPaymentStatus = () => {
+                if (refreshStatusForm) {
+                    refreshStatusForm.submit();
+                    return;
+                }
+
+                window.location.reload();
+            };
+
             payButton.addEventListener('click', () => {
                 window.snap.pay(snapToken, {
                     onSuccess: function () {
-                        window.location.href = @json(route('user.transaksi'));
+                        syncPaymentStatus();
                     },
                     onPending: function () {
-                        window.location.reload();
+                        syncPaymentStatus();
                     },
                     onError: function () {
-                        window.location.reload();
+                        syncPaymentStatus();
                     },
                     onClose: function () {
-                        window.location.reload();
+                        syncPaymentStatus();
                     },
                 });
             });

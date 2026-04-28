@@ -13,8 +13,8 @@ class Transaksi extends Model
     protected $fillable = [
         'user_id',
         'penerima_id',
-        'metode_pembayaran_id',
         'tanggal_transaksi',
+        'metode_pembayaran',
         'status_transaksi',
         'catatan_admin',
         'resi',
@@ -42,11 +42,6 @@ class Transaksi extends Model
     public function penerima()
     {
         return $this->belongsTo(Penerima::class, 'penerima_id');
-    }
-
-    public function metodePembayaran()
-    {
-        return $this->belongsTo(MetodePembayaran::class, 'metode_pembayaran_id');
     }
 
     public function getNamaPenerimaAttribute(): ?string
@@ -99,15 +94,4 @@ class Transaksi extends Model
         $this->attributes['catatan_admin'] = $value;
     }
 
-    public function getMetodePembayaranAttribute(): ?string
-    {
-        return $this->metodePembayaranRelation?->nama_metode_pembayaran;
-    }
-
-    protected function getMetodePembayaranRelationAttribute()
-    {
-        return $this->relationLoaded('metodePembayaran')
-            ? $this->getRelation('metodePembayaran')
-            : $this->metodePembayaran()->first();
-    }
 }

@@ -11,7 +11,7 @@ class TransaksiController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        $transaksi = Transaksi::with('metodePembayaran')
+        $transaksi = Transaksi::query()
             ->where('user_id', $user->id)
             ->when($request->filled('start_date'), function ($query) use ($request) {
                 $query->whereDate('tanggal_transaksi', '>=', $request->string('start_date')->toString());
@@ -33,7 +33,7 @@ class TransaksiController extends Controller
 
     public function adminIndex(Request $request)
     {
-        $transaksi = Transaksi::with(['user', 'metodePembayaran'])
+        $transaksi = Transaksi::with('user')
             ->when($request->filled('start_date'), function ($query) use ($request) {
                 $query->whereDate('tanggal_transaksi', '>=', $request->string('start_date')->toString());
             })
@@ -58,7 +58,7 @@ class TransaksiController extends Controller
 
     public function adminShow(Transaksi $transaksi)
     {
-        $transaksi->load(['detailTransaksi.produk', 'user', 'metodePembayaran']);
+        $transaksi->load(['detailTransaksi.produk', 'user']);
 
         return view('transactions.payment', [
             'transaksi' => $transaksi,
