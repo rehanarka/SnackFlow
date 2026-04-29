@@ -1,25 +1,23 @@
-        <header class="relative z-10">
-            <div class="relative">
-                <img class="h-[6.25] w-full" src="/images/headerLanding.png" alt="" width="1920" height="65" fetchpriority="high" decoding="async">
-                <div class="absolute inset-y-0 right-6 flex items-center gap-4">
-                    <a href="https://maps.app.goo.gl/Lz2xwQD3p16hbf3c6">
-                        <img src="{{ asset('images/Place Marker.png') }}" alt="Lokasi" class="h-7 w-7 object-contain">
-                    </a>
-                    <a href="https://www.instagram.com/matrixjaya?igsh=M2ltaG1hd3Rudmkx">
-                        <img src="{{ asset('images/Instagram Circle.png') }}" alt="Instagram" class="h-7 w-7 object-contain">
-                    </a>
-                    <a href="https://www.facebook.com/matrixjaya">
-                        <img src="{{ asset('images/Facebook.png') }}" alt="Facebook" class="h-7 w-7 object-contain">
-                    </a>
-                </div>
+<header class="sticky top-0 z-30 border-b border-white/12 bg-[#08111c]/72 text-white shadow-[0_18px_50px_rgba(2,6,23,0.24)] backdrop-blur-xl">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-10">
+        <a href="#home" class="group flex items-center gap-4">
+            <img src="/images/logoBersih-opt.png" alt="Logo SnackFlow" class="h-12 w-auto object-contain transition duration-300 group-hover:-translate-y-0.5" width="220" height="146" fetchpriority="high" decoding="async">
+            <div class="hidden border-l border-white/12 pl-4 sm:block">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/50">Matrix Jaya</p>
+                <p class="mt-1 text-sm font-medium text-white/78">Camilan lokal, alur transaksi digital</p>
             </div>
-            
-            <div class="flex h-18 w-screen justify-between bg-white px-6">
-                <img src="/images/logoGambar-opt.png" alt="Logo" class="size-24 object-cover pb-3" width="180" height="141" fetchpriority="high" decoding="async">
-                <div class="items-center justify-center flex gap-10 text-xl">
-                    <a class="font-bold hover:cursor-pointer hover:scale-105 transition duration-300" href="/">Home</a>
-                    <a class="font-bold hover:cursor-pointer hover:scale-105 transition duration-300" href="/tentangKami">Tentang Kami</a>
-                    <a class="font-bold hover:cursor-pointer hover:scale-105 transition duration-300" href="https://wa.me/6281515400001">Kontak</a>
-                </div>
-            </div>
-        </header>
+        </a>
+
+        <nav class="hidden items-center gap-2 md:flex">
+            <a href="#home" class="rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-white/75 transition duration-300 hover:bg-white/10 hover:text-white">
+                Home
+            </a>
+            <a href="#tentang" class="rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-white/75 transition duration-300 hover:bg-white/10 hover:text-white">
+                Tentang Kami
+            </a>
+            <a href="#kontak" class="rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-white/75 transition duration-300 hover:bg-white/10 hover:text-white">
+                Kontak
+            </a>
+        </nav>
+    </div>
+</header>

@@ -55,11 +55,6 @@ class CheckoutController extends Controller
         $selectedShippingCode = strtolower((string) ($selectedShipping['code'] ?? $selectedShipping['courier_code'] ?? 'jne'));
         $selectedShippingService = strtoupper((string) ($selectedShipping['service_pengiriman'] ?? $selectedShipping['service'] ?? ''));
 
-        if ($selectedShipping && !($selectedShippingCode === 'jne' && $selectedShippingService === 'REG')) {
-            $selectedShipping = null;
-            $request->session()->forget('rajaongkir_selected_shipping');
-        }
-
         $estimatedTotal = $subtotal + (int) ($selectedShipping['ongkir'] ?? 0);
         $originLocation = null;
 
