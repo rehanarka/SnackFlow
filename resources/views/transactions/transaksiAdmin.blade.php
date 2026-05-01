@@ -12,6 +12,7 @@
         'echannel' => 'Mandiri Bill',
         'cstore' => 'Convenience Store',
         'akulaku' => 'Akulaku',
+        'cod' => 'COD',
     ];
 
     $statusClasses = [
@@ -36,28 +37,36 @@
         </div>
     @enderror
 
+    @if ($errors->any() && !$errors->has('checkout'))
+        <div class="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
     <section class="rounded-[2rem] border border-slate-200/80 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.12),_transparent_30%),linear-gradient(135deg,_#ffffff_0%,_#f8fbff_55%,_#eefbf7_100%)] px-8 py-8 shadow-xl shadow-emerald-100/50">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Transaksi Admin</p>
                 <h1 class="mt-3 text-3xl font-bold text-slate-900">Kelola Pesanan Masuk</h1>
-                <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Lihat semua transaksi, cek detail pesanan, lalu konfirmasi atau batalkan pesanan yang masih menunggu konfirmasi.</p>
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Lihat transaksi online, catat pembelian offline toko, lalu kelola status pesanan dari satu halaman yang sama.</p>
             </div>
 
-            <form action="{{ route('admin.transaksi') }}" method="GET" class="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto_auto]">
-                <input type="date" name="start_date" value="{{ $filters['start_date'] ?? '' }}" class="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 hover:cursor-pointer">
-                <input type="date" name="end_date" value="{{ $filters['end_date'] ?? '' }}" class="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 hover:cursor-pointer">
-                <select name="status" class="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 hover:cursor-pointer">
-                    <option value="">Semua Status</option>
-                    <option value="Menunggu Konfirmasi" @selected(($filters['status'] ?? '') === 'Menunggu Konfirmasi')>Menunggu Konfirmasi</option>
-                    <option value="Dikonfirmasi" @selected(($filters['status'] ?? '') === 'Dikonfirmasi')>Dikonfirmasi</option>
-                    <option value="Diproses" @selected(($filters['status'] ?? '') === 'Diproses')>Diproses</option>
-                    <option value="Dibatalkan" @selected(($filters['status'] ?? '') === 'Dibatalkan')>Dibatalkan</option>
-                    <option value="Selesai" @selected(($filters['status'] ?? '') === 'Selesai')>Selesai</option>
-                </select>
-                <button type="submit" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer">Filter</button>
-                <a href="{{ route('admin.transaksi') }}" class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-50 hover:cursor-pointer">Reset</a>
-            </form>
+            <div class="flex flex-col gap-3 lg:min-w-[44rem]">
+                <form action="{{ route('admin.transaksi') }}" method="GET" class="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto_auto]">
+                    <input type="date" name="start_date" value="{{ $filters['start_date'] ?? '' }}" class="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 hover:cursor-pointer">
+                    <input type="date" name="end_date" value="{{ $filters['end_date'] ?? '' }}" class="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 hover:cursor-pointer">
+                    <select name="status" class="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 hover:cursor-pointer">
+                        <option value="">Semua Status</option>
+                        <option value="Menunggu Konfirmasi" @selected(($filters['status'] ?? '') === 'Menunggu Konfirmasi')>Menunggu Konfirmasi</option>
+                        <option value="Dikonfirmasi" @selected(($filters['status'] ?? '') === 'Dikonfirmasi')>Dikonfirmasi</option>
+                        <option value="Diproses" @selected(($filters['status'] ?? '') === 'Diproses')>Diproses</option>
+                        <option value="Dibatalkan" @selected(($filters['status'] ?? '') === 'Dibatalkan')>Dibatalkan</option>
+                        <option value="Selesai" @selected(($filters['status'] ?? '') === 'Selesai')>Selesai</option>
+                    </select>
+                    <button type="submit" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer">Filter</button>
+                    <a href="{{ route('admin.transaksi') }}" class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-50 hover:cursor-pointer">Reset</a>
+                </form>
+            </div>
         </div>
     </section>
 
@@ -81,9 +90,16 @@
     </section>
 
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100/80">
-        <div class="border-b border-slate-200 px-6 py-5">
-            <h2 class="text-lg font-semibold text-slate-900">Daftar Transaksi Masuk</h2>
-            <p class="mt-1 text-sm text-slate-500">Pesanan berstatus <span class="font-semibold text-sky-700">Menunggu Konfirmasi</span> siap kamu review sekarang. Setelah dikonfirmasi, user baru bisa lanjut ke pembayaran.</p>
+        <div class="border-b border-slate-200 px-6 py-5 flex justify-between">
+            <div flex flex-col>
+                <h2 class="text-lg font-semibold text-slate-900">Daftar Transaksi Masuk</h2>
+                <p class="mt-1 text-sm text-slate-500">Pesanan berstatus <span class="font-semibold text-sky-700">Menunggu Konfirmasi</span> siap kamu review sekarang. Setelah dikonfirmasi, user baru bisa lanjut ke pembayaran.</p>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" id="openOfflineTransactionModal" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:cursor-pointer">
+                    Tambah Transaksi
+                </button>
+            </div>
         </div>
 
         @if ($transaksi->isEmpty())
@@ -116,14 +132,18 @@
                                     $statusLabel = $item->status_pesanan ?: '-';
                                     $statusClass = $statusClasses[$statusLabel] ?? 'bg-slate-100 text-slate-700 ring-slate-200';
                                     $tanggalTransaksi = $item->tanggal_transaksi;
+                                    $isOffline = empty($item->midtrans_order_id);
                                 @endphp
                                 <tr class="align-top transition duration-300 hover:bg-slate-50/80">
                                     <td class="px-6 py-5">
                                         <p class="text-sm font-semibold text-slate-900">#{{ $item->id }}</p>
-                                        <p class="mt-1 text-xs uppercase tracking-[0.16em] text-slate-500">{{ $item->midtrans_order_id ?? 'Order lokal' }}</p>
+                                        <p class="mt-1 text-xs uppercase tracking-[0.16em] text-slate-500">{{ $item->midtrans_order_id ?? 'Offline Toko' }}</p>
+                                        <span class="mt-2 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] {{ $isOffline ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' : 'bg-sky-50 text-sky-700 ring-1 ring-sky-200' }}">
+                                            {{ $isOffline ? 'Offline' : 'Online' }}
+                                        </span>
                                     </td>
                                     <td class="px-6 py-5">
-                                        <p class="text-sm font-semibold text-slate-900">{{ $item->user->nama_lengkap ?? 'User' }}</p>
+                                        <p class="text-sm font-semibold text-slate-900">{{ $isOffline ? 'Offline Toko' : ($item->user->nama_lengkap ?? 'User') }}</p>
                                         <p class="mt-1 text-xs text-slate-500">{{ $item->nama_penerima }}</p>
                                     </td>
                                     <td class="px-6 py-5">
@@ -186,6 +206,153 @@
     </section>
 </div>
 
+@php
+    $oldItems = old('items', [['produk_id' => '', 'jumlah_produk' => 1]]);
+@endphp
+
+<div id="offlineTransactionModal" class="fixed inset-0 z-[76] hidden items-center justify-center px-4">
+    <div id="offlineTransactionModalOverlay" class="absolute inset-0 bg-slate-950/45 opacity-0 transition-opacity duration-300"></div>
+    <div id="offlineTransactionModalPanel" class="relative max-h-[92vh] w-full max-w-5xl scale-95 overflow-hidden rounded-[2rem] bg-white opacity-0 shadow-2xl transition duration-300">
+        <div class="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">Tambah Transaksi Offline</p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">Catat Pembelian Toko</h2>
+                <p class="mt-2 text-sm leading-6 text-slate-600">Transaksi offline tidak memakai Midtrans. Metode pembayaran bisa dipilih langsung dan status pesanan otomatis selesai.</p>
+            </div>
+            <button type="button" id="closeOfflineTransactionModal" class="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600 transition duration-300 hover:bg-slate-200 hover:cursor-pointer">&times;</button>
+        </div>
+
+        <form action="{{ route('admin.transaksi.store-offline') }}" method="POST" class="max-h-[calc(92vh-96px)] overflow-y-auto px-6 py-6">
+            @csrf
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label for="offlineNamaPenerima" class="mb-2 block text-sm font-medium text-slate-700">Nama Penerima</label>
+                    <input id="offlineNamaPenerima" type="text" name="nama_penerima" value="{{ old('nama_penerima') }}" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                </div>
+                <div>
+                    <label for="offlineTanggalTransaksi" class="mb-2 block text-sm font-medium text-slate-700">Tanggal Transaksi</label>
+                    <input id="offlineTanggalTransaksi" type="datetime-local" name="tanggal_transaksi" value="{{ old('tanggal_transaksi', now()->format('Y-m-d\TH:i')) }}" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                </div>
+                <div>
+                    <label for="offlineMetodePembayaran" class="mb-2 block text-sm font-medium text-slate-700">Metode Pembayaran</label>
+                    <select id="offlineMetodePembayaran" name="metode_pembayaran" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                        <option value="">Pilih metode pembayaran</option>
+                        <option value="qris" @selected(old('metode_pembayaran') === 'qris')>QRIS</option>
+                        <option value="cod" @selected(old('metode_pembayaran') === 'cod')>COD</option>
+                        <option value="bank_transfer" @selected(old('metode_pembayaran') === 'bank_transfer')>Transfer</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="offlineNoTelpPenerima" class="mb-2 block text-sm font-medium text-slate-700">No. Telp Penerima</label>
+                    <input id="offlineNoTelpPenerima" type="text" name="no_telp_penerima" value="{{ old('no_telp_penerima') }}" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="offlineDetailAlamat" class="mb-2 block text-sm font-medium text-slate-700">Detail Alamat</label>
+                    <textarea id="offlineDetailAlamat" name="detail_alamat" rows="3" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>{{ old('detail_alamat') }}</textarea>
+                </div>
+                <div>
+                    <label for="offlineNomorKodePos" class="mb-2 block text-sm font-medium text-slate-700">Kode Pos</label>
+                    <input id="offlineNomorKodePos" type="text" name="nomor_kode_pos" value="{{ old('nomor_kode_pos') }}" maxlength="5" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                </div>
+                <div>
+                    <label for="offlineNamaKecamatan" class="mb-2 block text-sm font-medium text-slate-700">Kecamatan</label>
+                    <input id="offlineNamaKecamatan" type="text" name="nama_kecamatan" value="{{ old('nama_kecamatan') }}" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                </div>
+                <div>
+                    <label for="offlineNamaKabupaten" class="mb-2 block text-sm font-medium text-slate-700">Kabupaten</label>
+                    <input id="offlineNamaKabupaten" type="text" name="nama_kabupaten" value="{{ old('nama_kabupaten') }}" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                </div>
+                <div>
+                    <label for="offlineNamaProvinsi" class="mb-2 block text-sm font-medium text-slate-700">Provinsi</label>
+                    <input id="offlineNamaProvinsi" type="text" name="nama_provinsi" value="{{ old('nama_provinsi') }}" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                </div>
+                <div>
+                    <label for="offlineResi" class="mb-2 block text-sm font-medium text-slate-700">Resi</label>
+                    <input id="offlineResi" type="text" name="resi" value="{{ old('resi') }}" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" placeholder="Kosongkan jika tidak ada">
+                </div>
+                <div>
+                    <label for="offlineOngkir" class="mb-2 block text-sm font-medium text-slate-700">Ongkir</label>
+                    <input id="offlineOngkir" type="number" min="0" name="ongkir" value="{{ old('ongkir', 0) }}" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                </div>
+            </div>
+
+            <div class="mt-8 rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900">Produk yang Dibeli</p>
+                        <p class="mt-1 text-xs text-slate-500">Gunakan tombol tambah baris jika pembeli membeli lebih dari satu produk. Produk yang sama akan otomatis digabung saat disimpan.</p>
+                    </div>
+                    <button type="button" id="addOfflineItemRow" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-slate-800 hover:cursor-pointer">
+                        Tambah Produk
+                    </button>
+                </div>
+
+                <div id="offlineItemsContainer" class="mt-5 space-y-4">
+                    @foreach ($oldItems as $index => $oldItem)
+                        <div class="offlineItemRow grid gap-3 rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4 md:grid-cols-[1.4fr_0.8fr_auto]">
+                            <div>
+                                <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Produk</label>
+                                <select name="items[{{ $index }}][produk_id]" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                                    <option value="">Pilih produk</option>
+                                    @foreach ($produkOptions as $produk)
+                                        <option value="{{ $produk->id }}" @selected((string) ($oldItem['produk_id'] ?? '') === (string) $produk->id)>
+                                            {{ $produk->nama_produk }} - Rp {{ number_format($produk->harga, 0, ',', '.') }} (Stok {{ $produk->stok }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Jumlah</label>
+                                <input type="number" min="1" max="9999" inputmode="numeric" name="items[{{ $index }}][jumlah_produk]" value="{{ $oldItem['jumlah_produk'] ?? 1 }}" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" class="removeOfflineItemRow inline-flex w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 transition duration-300 hover:bg-rose-100 hover:cursor-pointer">
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <button type="button" id="cancelOfflineTransactionModal" class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-50 hover:cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-emerald-500 hover:cursor-pointer">
+                    Simpan Transaksi Offline
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<template id="offlineItemRowTemplate">
+    <div class="offlineItemRow grid gap-3 rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4 md:grid-cols-[1.4fr_0.8fr_auto]">
+        <div>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Produk</label>
+            <select data-field="produk_id" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+                <option value="">Pilih produk</option>
+                @foreach ($produkOptions as $produk)
+                    <option value="{{ $produk->id }}">
+                        {{ $produk->nama_produk }} - Rp {{ number_format($produk->harga, 0, ',', '.') }} (Stok {{ $produk->stok }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Jumlah</label>
+            <input type="number" min="1" max="9999" inputmode="numeric" value="1" data-field="jumlah_produk" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" required>
+        </div>
+        <div class="flex items-end">
+            <button type="button" class="removeOfflineItemRow inline-flex w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 transition duration-300 hover:bg-rose-100 hover:cursor-pointer">
+                Hapus
+            </button>
+        </div>
+    </div>
+</template>
+
 <div id="rejectModal" class="fixed inset-0 z-[75] hidden items-center justify-center px-4">
     <div id="rejectModalOverlay" class="absolute inset-0 bg-slate-950/45 opacity-0 transition-opacity duration-300"></div>
     <div id="rejectModalPanel" class="relative w-full max-w-lg scale-95 rounded-[2rem] bg-white px-6 py-6 opacity-0 shadow-2xl transition duration-300">
@@ -219,6 +386,15 @@
 
 <script>
     (() => {
+        const offlineModal = document.getElementById('offlineTransactionModal');
+        const offlineModalOverlay = document.getElementById('offlineTransactionModalOverlay');
+        const offlineModalPanel = document.getElementById('offlineTransactionModalPanel');
+        const openOfflineModalButton = document.getElementById('openOfflineTransactionModal');
+        const closeOfflineModalButton = document.getElementById('closeOfflineTransactionModal');
+        const cancelOfflineModalButton = document.getElementById('cancelOfflineTransactionModal');
+        const offlineItemsContainer = document.getElementById('offlineItemsContainer');
+        const addOfflineItemRowButton = document.getElementById('addOfflineItemRow');
+        const offlineItemRowTemplate = document.getElementById('offlineItemRowTemplate');
         const rejectModal = document.getElementById('rejectModal');
         const rejectModalOverlay = document.getElementById('rejectModalOverlay');
         const rejectModalPanel = document.getElementById('rejectModalPanel');
@@ -229,7 +405,135 @@
         const cancelRejectModal = document.getElementById('cancelRejectModal');
         const rejectButtons = document.querySelectorAll('.openRejectModal');
 
+        const openOfflineModal = () => {
+            if (!offlineModal || !offlineModalOverlay || !offlineModalPanel) {
+                return;
+            }
+
+            offlineModal.classList.remove('hidden');
+            offlineModal.classList.add('flex');
+
+            requestAnimationFrame(() => {
+                offlineModalOverlay.classList.remove('opacity-0');
+                offlineModalOverlay.classList.add('opacity-100');
+                offlineModalPanel.classList.remove('opacity-0', 'scale-95');
+                offlineModalPanel.classList.add('opacity-100', 'scale-100');
+            });
+        };
+
+        const closeOfflineModal = () => {
+            if (!offlineModal || !offlineModalOverlay || !offlineModalPanel) {
+                return;
+            }
+
+            offlineModalOverlay.classList.remove('opacity-100');
+            offlineModalOverlay.classList.add('opacity-0');
+            offlineModalPanel.classList.remove('opacity-100', 'scale-100');
+            offlineModalPanel.classList.add('opacity-0', 'scale-95');
+
+            setTimeout(() => {
+                offlineModal.classList.add('hidden');
+                offlineModal.classList.remove('flex');
+            }, 200);
+        };
+
+        const renumberOfflineRows = () => {
+            if (!offlineItemsContainer) {
+                return;
+            }
+
+            const rows = offlineItemsContainer.querySelectorAll('.offlineItemRow');
+
+            rows.forEach((row, index) => {
+                const productSelect = row.querySelector('select');
+                const qtyInput = row.querySelector('input[type="number"]');
+                const removeButton = row.querySelector('.removeOfflineItemRow');
+
+                if (productSelect) {
+                    productSelect.name = `items[${index}][produk_id]`;
+                }
+
+                if (qtyInput) {
+                    qtyInput.name = `items[${index}][jumlah_produk]`;
+                }
+
+                if (removeButton) {
+                    removeButton.disabled = rows.length === 1;
+                    removeButton.classList.toggle('opacity-50', rows.length === 1);
+                    removeButton.classList.toggle('cursor-not-allowed', rows.length === 1);
+                }
+            });
+        };
+
+        const attachOfflineRowEvents = (row) => {
+            const removeButton = row.querySelector('.removeOfflineItemRow');
+
+            if (!removeButton) {
+                return;
+            }
+
+            removeButton.addEventListener('click', () => {
+                const rows = offlineItemsContainer?.querySelectorAll('.offlineItemRow') ?? [];
+
+                if (rows.length <= 1) {
+                    return;
+                }
+
+                row.remove();
+                renumberOfflineRows();
+            });
+        };
+
+        const addOfflineRow = () => {
+            if (!offlineItemsContainer || !offlineItemRowTemplate) {
+                return;
+            }
+
+            const fragment = offlineItemRowTemplate.content.cloneNode(true);
+            const newRow = fragment.querySelector('.offlineItemRow');
+
+            if (!newRow) {
+                return;
+            }
+
+            offlineItemsContainer.appendChild(fragment);
+            attachOfflineRowEvents(offlineItemsContainer.lastElementChild);
+            renumberOfflineRows();
+        };
+
+        if (offlineItemsContainer) {
+            offlineItemsContainer.querySelectorAll('.offlineItemRow').forEach((row) => {
+                attachOfflineRowEvents(row);
+            });
+
+            renumberOfflineRows();
+        }
+
+        if (openOfflineModalButton) {
+            openOfflineModalButton.addEventListener('click', openOfflineModal);
+        }
+
+        if (closeOfflineModalButton) {
+            closeOfflineModalButton.addEventListener('click', closeOfflineModal);
+        }
+
+        if (cancelOfflineModalButton) {
+            cancelOfflineModalButton.addEventListener('click', closeOfflineModal);
+        }
+
+        if (offlineModalOverlay) {
+            offlineModalOverlay.addEventListener('click', closeOfflineModal);
+        }
+
+        if (addOfflineItemRowButton) {
+            addOfflineItemRowButton.addEventListener('click', addOfflineRow);
+        }
+
         if (!rejectModal || !rejectModalOverlay || !rejectModalPanel || !rejectModalForm || !rejectReason || !rejectModalDescription || !closeRejectModal || !cancelRejectModal || !rejectButtons.length) {
+            if (@json($errors->any() && !$errors->has('checkout'))) {
+                openOfflineModal();
+            }
+
             return;
         }
 
@@ -269,10 +573,18 @@
         rejectModalOverlay.addEventListener('click', closeModal);
 
         document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && offlineModal && !offlineModal.classList.contains('hidden')) {
+                closeOfflineModal();
+            }
+
             if (event.key === 'Escape' && !rejectModal.classList.contains('hidden')) {
                 closeModal();
             }
         });
+
+        if (@json($errors->any() && !$errors->has('checkout'))) {
+            openOfflineModal();
+        }
     })();
 </script>
 @endsection

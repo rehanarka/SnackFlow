@@ -38,6 +38,7 @@ Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
     Route::put('/katalog/update/{id}', [KatalogController::class, 'updateProduk'])->name('admin.katalog.update');
     Route::delete('/katalog/hapus/{id}', [KatalogController::class, 'hapusProduk'])->name('admin.katalog.hapus');
     Route::get('/transaksi', [TransaksiController::class, 'adminIndex'])->name('admin.transaksi');
+    Route::post('/transaksi/offline', [TransaksiController::class, 'storeOffline'])->name('admin.transaksi.store-offline');
     Route::get('/transaksi/{transaksi}', [TransaksiController::class, 'adminShow'])->name('admin.transaksi.show');
     Route::post('/transaksi/{transaksi}/approve', [TransaksiController::class, 'approveByAdmin'])->name('admin.transaksi.approve');
     Route::post('/transaksi/{transaksi}/reject', [TransaksiController::class, 'rejectByAdmin'])->name('admin.transaksi.reject');
