@@ -79,23 +79,16 @@
     </div>
 </div>
 
-<div id="logoutModal" class="fixed inset-0 z-[70] hidden items-center justify-center px-4">
-    <div id="logoutModalOverlay" class="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300 ease-out"></div>
-
-    <div id="logoutModalContent" class="relative w-full max-w-md rounded-3xl bg-white opacity-0 scale-95 shadow-2xl transition-all duration-300 ease-out">
-        <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-            <h2 class="text-lg font-semibold text-slate-900">Konfirmasi Logout</h2>
-            <button type="button" id="closeLogoutModal" class="text-xl text-slate-400 transition duration-300 hover:text-slate-800 hover:cursor-pointer">&times;</button>
-        </div>
-
-        <div class="px-6 py-5">
-            <p class="text-sm text-slate-600">Apakah kamu yakin ingin keluar dari akun ini? Kamu perlu login kembali untuk melanjutkan aktivitas di SnackFlow.</p>
-
-            <form action="{{ route('logout') }}" method="POST" class="mt-6 flex justify-end gap-3">
-                @csrf
-                <button type="button" id="cancelLogoutModal" class="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-200 hover:cursor-pointer">Batal</button>
-                <button type="submit" class="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-red-200 transition duration-300 hover:-translate-y-0.5 hover:bg-red-600 hover:cursor-pointer">Logout</button>
-            </form>
-        </div>
-    </div>
-</div>
+<x-modal.confirm
+    modal-id="logoutModal"
+    overlay-id="logoutModalOverlay"
+    panel-id="logoutModalContent"
+    title="Konfirmasi Logout"
+    message="Apakah Anda yakin ingin keluar?"
+    close-button-id="closeLogoutModal"
+    cancel-button-id="cancelLogoutModal"
+    cancel-label="Batal"
+    submit-label="Logout"
+    form-action="{{ route('logout') }}"
+    submit-class="bg-red-500 text-white shadow-lg shadow-red-200 hover:bg-red-600"
+/>

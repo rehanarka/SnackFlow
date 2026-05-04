@@ -23,13 +23,8 @@ class KatalogController extends Controller
             'foto_produk' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ],
         [
-            'nama_produk.required' => 'Nama produk tidak boleh kosong.',
-            'harga.required' => 'Harga produk tidak boleh kosong.',
-            'harga.numeric' => 'Harga produk harus berupa angka.',
-            'stok.required' => 'Stok produk tidak boleh kosong.',
-            'stok.integer' => 'Stok produk harus berupa angka bulat.',
-            'berat.required' => 'Berat produk tidak boleh kosong.',
-            'berat.integer' => 'Berat produk harus berupa angka bulat.',
+            'required'=> 'Data tidak sesuai.',
+            'berat.integer' => 'Data tidak sesuai.',
             'berat.min' => 'Berat produk minimal 1 gram.',
             'foto_produk.required' => 'Harap tambahkan foto produk.',
             'foto_produk.image' => 'Foto produk harus berupa gambar.',
@@ -47,7 +42,7 @@ class KatalogController extends Controller
             $data['foto_produk'] = $request->file('foto_produk')->store('produk', 'public');
         }
         KatalogProduk::create($data);
-        return back()->with('success', 'Produk berhasil ditambahkan.');
+        return back()->with('success', 'Data berhasil dibuat.');
     }
 
  public function updateProduk(Request $request, $id)
@@ -61,7 +56,24 @@ class KatalogController extends Controller
         'berat' => 'required|integer|min:1',
         'deskripsi' => 'nullable|string',
         'foto_produk' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
+        'produk_id_edit' => 'nullable|integer',
+    ], [
+        'nama_produk.required' => 'Data tidak sesuai.',
+        'nama_produk.max' => 'Data tidak sesuai.',
+        'harga.required' => 'Data tidak sesuai.',
+        'harga.numeric' => 'Data tidak sesuai.',
+        'stok.required' => 'Data tidak sesuai.',
+        'stok.integer' => 'Data tidak sesuai.',
+        'berat.required' => 'Data tidak sesuai.',
+        'berat.integer' => 'Data tidak sesuai.',
+        'berat.min' => 'Berat produk minimal 1 gram.',
+        'deskripsi.string' => 'Data tidak sesuai.',
+        'foto_produk.image' => 'Data tidak sesuai.',
+        'foto_produk.mimes' => 'Data tidak sesuai.',
+        'foto_produk.max' => 'Foto produk tidak boleh lebih dari 2MB.',
     ]);
+
+    unset($validated['produk_id_edit']);
 
     if ($request->hasFile('foto_produk')) {
         $validated['foto_produk'] = $request->file('foto_produk')->store('produk', 'public');
@@ -69,7 +81,7 @@ class KatalogController extends Controller
 
     $produk->update($validated);
 
-    return back()->with('success', 'Produk berhasil diupdate');
+    return back()->with('update_success', 'Data berhasil diedit.');
 }
 
     public function hapusProduk($id)
@@ -82,7 +94,7 @@ class KatalogController extends Controller
 
         $produk->delete();
 
-        return back()->with('success', 'Produk berhasil dihapus.');
+        return back()->with('delete_success', 'Data berhasil dihapus.');
     }
     public function viewKatalog()
     {

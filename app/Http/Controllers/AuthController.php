@@ -41,9 +41,9 @@ class AuthController extends Controller
             'password' => 'required|string',
         ],
         [
-            'email.required' => 'Email tidak boleh kosong.',
+            'email.required' => 'Input tidak boleh kosong.',
             'email.email' => 'Email tidak valid.',
-            'password.required' => 'Password tidak boleh kosong.',
+            'password.required' => 'Input tidak boleh kosong.',
         ]);
 
         if (Auth::attempt($pengecekan)){
@@ -80,9 +80,9 @@ class AuthController extends Controller
             'no_telepon' => 'nullable|string|max:20',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
-            'nama_lengkap.required' => 'Nama tidak boleh kosong.',
-            'email.required' => 'Email tidak boleh kosong.',
-            'email.email' => 'Format email tidak valid.',
+            'nama_lengkap.required' => 'Data Tidak Sesuai.',
+            'email.required' => 'Data Tidak Sesuai.',
+            'email.email' => 'Data Tidak Sesuai.',
             'email.unique' => 'Email sudah digunakan akun lain.',
             'no_telepon.max' => 'Nomor telepon maksimal 20 karakter.',
             'avatar.image' => 'Foto profile harus berupa gambar.',
@@ -100,6 +100,6 @@ class AuthController extends Controller
 
         $user->update($validated);
 
-        return back()->with('success', 'Profile berhasil diperbarui.');
+        return back()->with('success', 'Data berhasil diubah.');
     }
 }

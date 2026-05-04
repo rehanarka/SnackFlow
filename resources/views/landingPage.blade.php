@@ -77,9 +77,6 @@
                         <a href="/login" class="rounded-full bg-[linear-gradient(90deg,#38bdf8_0%,#2563eb_100%)] px-7 py-3 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-[0_18px_40px_rgba(37,99,235,0.32)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_46px_rgba(37,99,235,0.40)]">
                             Masuk Sekarang
                         </a>
-                        <a href="#tentang" class="rounded-full border border-white/35 bg-white/10 px-7 py-3 text-sm font-bold uppercase tracking-[0.18em] text-white backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/20">
-                            Lihat Tentang Kami
-                        </a>
                     </div>
                 </div>
 
