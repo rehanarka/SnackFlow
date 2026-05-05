@@ -13,6 +13,7 @@ use App\Services\MidtransService;
 use App\Services\RajaOngkirService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Throwable;
 
 class CheckoutController extends Controller
@@ -43,17 +44,9 @@ class CheckoutController extends Controller
         $keranjangItems = $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
         $subtotal = $keranjangItems->sum(fn ($item) => ($item->produk->harga ?? 0) * $item->jumlah_produk);
         $totalBerat = $keranjangItems->sum(fn ($item) => ($item->produk->berat ?? 0) * $item->jumlah_produk);
-        $rajaongkirRates = $this->filterJneRegularRates(session('rajaongkir_rates', []));
         $selectedDestination = session('rajaongkir_selected_destination');
         $selectedShipping = session('rajaongkir_selected_shipping');
         $checkoutForm = session('checkout_form', []);
-
-        if ($rajaongkirRates !== session('rajaongkir_rates', [])) {
-            $request->session()->put('rajaongkir_rates', $rajaongkirRates);
-        }
-
-        $selectedShippingCode = strtolower((string) ($selectedShipping['code'] ?? $selectedShipping['courier_code'] ?? 'jne'));
-        $selectedShippingService = strtoupper((string) ($selectedShipping['service_pengiriman'] ?? $selectedShipping['service'] ?? ''));
 
         $estimatedTotal = $subtotal + (int) ($selectedShipping['ongkir'] ?? 0);
         $originLocation = null;
@@ -64,11 +57,10 @@ class CheckoutController extends Controller
             $originLocation = null;
         }
 
-        return view('transactions.checkout', compact(
+        return view('transactions.FormPesanan', compact(
             'keranjangItems',
             'subtotal',
             'totalBerat',
-            'rajaongkirRates',
             'selectedDestination',
             'selectedShipping',
             'checkoutForm',
@@ -143,9 +135,6 @@ class CheckoutController extends Controller
             ]);
         }
 
-        $request->session()->put('rajaongkir_rates', $rates);
-        $request->session()->forget('rajaongkir_selected_shipping');
-
         if (empty($rates)) {
             $message = 'Tidak ada layanan pengiriman yang tersedia untuk origin, tujuan, dan berat paket ini.';
 
@@ -162,15 +151,26 @@ class CheckoutController extends Controller
             ]);
         }
 
+        $selectedShipping = [
+            'ongkir' => (int) ($rates[0]['cost'] ?? ($rates[0]['shipping_cost'] ?? 0)),
+            'kurir' => $rates[0]['name'] ?? ($rates[0]['courier'] ?? 'JNE'),
+            'service_pengiriman' => $rates[0]['service'] ?? ($rates[0]['service_name'] ?? 'REG'),
+            'estimasi_pengiriman' => $rates[0]['etd'] ?? '-',
+        ];
+
+        $request->session()->put('rajaongkir_selected_shipping', $selectedShipping);
+
         if ($request->expectsJson()) {
             return response()->json([
-                'message' => 'Opsi pengiriman berhasil dimuat. Sekarang pilih kurir yang paling cocok.',
+                'message' => 'Ongkir JNE Reguler berhasil dipasang otomatis.',
                 'rates' => $rates,
                 'selected_destination' => $selectedDestination,
+                'selected_shipping' => $selectedShipping,
+                'estimated_total' => $keranjangItems->sum(fn ($item) => ($item->produk->harga ?? 0) * $item->jumlah_produk) + (int) $selectedShipping['ongkir'],
             ]);
         }
 
-        return back()->withInput()->with('success', 'Opsi pengiriman berhasil dimuat. Sekarang pilih kurir yang paling cocok.');
+        return back()->withInput()->with('success', 'Ongkir JNE Reguler berhasil dipasang otomatis.');
     }
 
     public function autocompleteDestination(Request $request)
@@ -212,52 +212,6 @@ class CheckoutController extends Controller
         return response()->json([
             'data' => $formatted,
         ]);
-    }
-
-    public function selectShipping(Request $request)
-    {
-        $validated = $request->validate([
-            'ongkir' => 'required|integer|min:0',
-            'kurir' => 'required|string|max:100',
-            'service_pengiriman' => 'required|string|max:150',
-            'estimasi_pengiriman' => 'nullable|string|max:100',
-        ], [
-            'ongkir.required' => 'Nilai ongkir wajib ada.',
-            'kurir.required' => 'Kurir wajib dipilih.',
-            'service_pengiriman.required' => 'Layanan pengiriman wajib dipilih.',
-        ]);
-
-        $checkoutForm = $request->session()->get('checkout_form');
-        $selectedDestination = $request->session()->get('rajaongkir_selected_destination');
-        $keranjangItems = $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
-
-        if (!$checkoutForm) {
-            return redirect()->route('user.checkout')->withErrors([
-                'checkout' => 'Isi data penerima dan cek ongkir dulu sebelum memilih kurir.',
-            ]);
-        }
-
-        if (!$selectedDestination) {
-            return redirect()->route('user.checkout')->withErrors([
-                'checkout' => 'Pilih tujuan pengiriman dulu sebelum memilih kurir.',
-            ]);
-        }
-
-        if ($keranjangItems->isEmpty()) {
-            return redirect()->route('user.checkout')->withErrors([
-                'checkout' => 'Keranjang masih kosong. Tambahkan produk terlebih dahulu sebelum memilih kurir.',
-            ]);
-        }
-
-        $request->session()->put('rajaongkir_selected_shipping', [
-            'ongkir' => $validated['ongkir'],
-            'kurir' => $validated['kurir'],
-            'service_pengiriman' => $validated['service_pengiriman'],
-            'estimasi_pengiriman' => $validated['estimasi_pengiriman'] ?? '-',
-        ]);
-        $request->session()->forget('rajaongkir_rates');
-
-        return redirect()->route('user.checkout')->with('success', 'Kurir berhasil dipilih. Lanjutkan dengan tombol Checkout untuk mengirim pesanan ke admin.');
     }
 
     public function proceedToPayment(Request $request)
@@ -338,6 +292,7 @@ class CheckoutController extends Controller
                 'penerima_id' => $penerima->id,
                 'ongkir' => $selectedShipping['ongkir'],
                 'tanggal_transaksi' => now(),
+                'midtrans_order_id' => 'SNACKFLOW-' . Str::upper(Str::random(6)) . '-' . now()->format('YmdHis'),
                 'status_transaksi' => 'Menunggu Konfirmasi',
                 'status_pembayaran' => 'pending',
             ]);
@@ -362,7 +317,6 @@ class CheckoutController extends Controller
             'checkout_form',
             'rajaongkir_selected_destination',
             'rajaongkir_selected_shipping',
-            'rajaongkir_rates',
         ]);
 
         return redirect()
@@ -393,7 +347,7 @@ class CheckoutController extends Controller
             }
         }
 
-        return view('transactions.payment', [
+        return view('transactions.InvoicePembayaran', [
             'transaksi' => $transaksi,
             'snapToken' => $snapToken,
             'snapRedirectUrl' => $snapRedirectUrl,

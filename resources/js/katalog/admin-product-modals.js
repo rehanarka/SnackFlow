@@ -1,6 +1,7 @@
 import { closeAnimatedModal, openAnimatedModal } from './helpers';
 
 export function initAdminProductModals() {
+    const productCards = document.querySelectorAll('.productCard');
     const addButton = document.getElementById('addProductBtn');
     const addModal = document.getElementById('addProductModal');
     const addOverlay = document.getElementById('addModalOverlay');
@@ -47,26 +48,27 @@ export function initAdminProductModals() {
     const ackFeedbackButton = document.getElementById('ackUpdateProductFeedbackModal');
     const updateModalState = document.getElementById('updateProductModalState');
 
-    const deleteModal = document.getElementById('hapusProductModal');
-    const deleteOverlay = document.getElementById('hapusModalOverlay');
-    const deleteContent = document.getElementById('hapusProductModalContent');
-    const deleteForm = document.getElementById('hapusProductForm');
-    const deleteButtons = document.querySelectorAll('.hapusProductBtn');
-    const closeDeleteButton = document.getElementById('closeHapusProductModal');
-    const cancelDeleteButton = document.getElementById('cancelHapusProductModal');
-    const triggerConfirmDeleteButton = document.getElementById('triggerConfirmDeleteProductModal');
-    const deletePreviewImage = document.getElementById('hapusProductPreviewImage');
-    const deletePreviewPlaceholder = document.getElementById('hapusProductPreviewPlaceholder');
-    const deleteDetailNama = document.getElementById('hapusDetailNama');
-    const deleteDetailHarga = document.getElementById('hapusDetailHarga');
-    const deleteDetailStok = document.getElementById('hapusDetailStok');
-    const deleteDetailDeskripsi = document.getElementById('hapusDetailDeskripsi');
+    const detailModal = document.getElementById('productDetailModal');
+    const detailOverlay = document.getElementById('productDetailOverlay');
+    const detailContent = document.getElementById('productDetailContent');
+    const closeDetailButton = document.getElementById('closeProductDetailModal');
+    const detailPreviewImage = document.getElementById('productDetailPreviewImage');
+    const detailPreviewPlaceholder = document.getElementById('productDetailPreviewPlaceholder');
+    const detailNama = document.getElementById('productDetailNama');
+    const detailHarga = document.getElementById('productDetailHarga');
+    const detailStok = document.getElementById('productDetailStok');
+    const detailBerat = document.getElementById('productDetailBerat');
+    const detailDeskripsi = document.getElementById('productDetailDeskripsi');
+    const detailActionEditButton = document.getElementById('detailActionEditProduct');
+    const detailActionDeleteButton = document.getElementById('detailActionDeleteProduct');
 
+    const deleteForm = document.getElementById('hapusProductForm');
     const confirmDeleteModal = document.getElementById('confirmDeleteProductModal');
     const confirmDeleteOverlay = document.getElementById('confirmDeleteProductOverlay');
     const confirmDeletePanel = document.getElementById('confirmDeleteProductPanel');
     const closeConfirmDeleteButton = document.getElementById('closeConfirmDeleteProductModal');
     const cancelConfirmDeleteButton = document.getElementById('cancelConfirmDeleteProductModal');
+    const confirmDeleteMessage = document.getElementById('confirmDeleteProductMessage');
 
     const deleteFeedbackModal = document.getElementById('deleteProductFeedbackModal');
     const deleteFeedbackOverlay = document.getElementById('deleteProductFeedbackOverlay');
@@ -88,14 +90,14 @@ export function initAdminProductModals() {
 
     const openAddModal = () => openAnimatedModal(addModal, addOverlay, addContent);
     const closeAddModal = () => closeAnimatedModal(addModal, addOverlay, addContent);
+    const openDetailModal = () => openAnimatedModal(detailModal, detailOverlay, detailContent);
+    const closeDetailModal = () => closeAnimatedModal(detailModal, detailOverlay, detailContent);
     const openUpdateModal = () => openAnimatedModal(updateModal, updateOverlay, updateContent);
     const closeUpdateModal = () => closeAnimatedModal(updateModal, updateOverlay, updateContent);
     const openConfirmUpdateModal = () => openAnimatedModal(confirmUpdateModal, confirmUpdateOverlay, confirmUpdatePanel);
     const closeConfirmUpdateModal = () => closeAnimatedModal(confirmUpdateModal, confirmUpdateOverlay, confirmUpdatePanel);
     const openFeedbackModal = () => openAnimatedModal(feedbackModal, feedbackOverlay, feedbackPanel);
     const closeFeedbackModal = (callback) => closeAnimatedModal(feedbackModal, feedbackOverlay, feedbackPanel, callback);
-    const openDeleteModal = () => openAnimatedModal(deleteModal, deleteOverlay, deleteContent);
-    const closeDeleteModal = () => closeAnimatedModal(deleteModal, deleteOverlay, deleteContent);
     const openConfirmDeleteModal = () => openAnimatedModal(confirmDeleteModal, confirmDeleteOverlay, confirmDeletePanel);
     const closeConfirmDeleteModal = () => closeAnimatedModal(confirmDeleteModal, confirmDeleteOverlay, confirmDeletePanel);
     const openDeleteFeedbackModal = () => openAnimatedModal(deleteFeedbackModal, deleteFeedbackOverlay, deleteFeedbackPanel);
@@ -122,6 +124,23 @@ export function initAdminProductModals() {
         updatePreviewPlaceholder.classList.remove('hidden');
     };
 
+    const setDetailPreviewImage = (src) => {
+        if (!detailPreviewImage || !detailPreviewPlaceholder) {
+            return;
+        }
+
+        if (src) {
+            detailPreviewImage.src = src;
+            detailPreviewImage.classList.remove('hidden');
+            detailPreviewPlaceholder.classList.add('hidden');
+            return;
+        }
+
+        detailPreviewImage.removeAttribute('src');
+        detailPreviewImage.classList.add('hidden');
+        detailPreviewPlaceholder.classList.remove('hidden');
+    };
+
     const fillUpdateSummary = ({ nama, harga, stok, berat, deskripsi, foto }) => {
         updateDetailNama.textContent = nama || '-';
         updateDetailHarga.textContent = formatRupiah(harga);
@@ -140,29 +159,13 @@ export function initAdminProductModals() {
         openFeedbackModal();
     };
 
-    const setDeletePreviewImage = (src) => {
-        if (!deletePreviewImage || !deletePreviewPlaceholder) {
-            return;
-        }
-
-        if (src) {
-            deletePreviewImage.src = src;
-            deletePreviewImage.classList.remove('hidden');
-            deletePreviewPlaceholder.classList.add('hidden');
-            return;
-        }
-
-        deletePreviewImage.removeAttribute('src');
-        deletePreviewImage.classList.add('hidden');
-        deletePreviewPlaceholder.classList.remove('hidden');
-    };
-
-    const fillDeleteSummary = ({ nama, harga, stok, deskripsi, foto }) => {
-        if (deleteDetailNama) deleteDetailNama.textContent = nama || '-';
-        if (deleteDetailHarga) deleteDetailHarga.textContent = formatRupiah(harga);
-        if (deleteDetailStok) deleteDetailStok.textContent = stok ? `${stok} pcs` : '-';
-        if (deleteDetailDeskripsi) deleteDetailDeskripsi.textContent = deskripsi || 'Belum ada deskripsi produk.';
-        setDeletePreviewImage(foto);
+    const fillDetailSummary = ({ nama, harga, stok, berat, deskripsi, foto }) => {
+        if (detailNama) detailNama.textContent = nama || '-';
+        if (detailHarga) detailHarga.textContent = formatRupiah(harga);
+        if (detailStok) detailStok.textContent = stok ? `${stok} pcs` : '-';
+        if (detailBerat) detailBerat.textContent = berat ? `${berat} gram` : '-';
+        if (detailDeskripsi) detailDeskripsi.textContent = deskripsi || 'Belum ada deskripsi produk.';
+        setDetailPreviewImage(foto);
     };
 
     const showDeleteFeedback = (message) => {
@@ -181,6 +184,46 @@ export function initAdminProductModals() {
     addModal.addEventListener('click', (event) => {
         if (event.target === addModal || event.target === addOverlay) {
             closeAddModal();
+        }
+    });
+
+    productCards.forEach((card) => {
+        card.addEventListener('click', () => {
+            const productPayload = {
+                id: card.dataset.id,
+                nama: card.dataset.nama || '',
+                harga: card.dataset.harga || '',
+                stok: card.dataset.stok || '',
+                berat: card.dataset.berat || '',
+                deskripsi: card.dataset.deskripsi || '',
+                foto: card.dataset.foto || '',
+            };
+
+            fillDetailSummary(productPayload);
+
+            if (detailActionEditButton) {
+                detailActionEditButton.dataset.id = productPayload.id;
+                detailActionEditButton.dataset.nama = productPayload.nama;
+                detailActionEditButton.dataset.harga = productPayload.harga;
+                detailActionEditButton.dataset.stok = productPayload.stok;
+                detailActionEditButton.dataset.berat = productPayload.berat;
+                detailActionEditButton.dataset.deskripsi = productPayload.deskripsi;
+                detailActionEditButton.dataset.foto = productPayload.foto;
+            }
+
+            if (detailActionDeleteButton) {
+                detailActionDeleteButton.dataset.id = productPayload.id;
+                detailActionDeleteButton.dataset.nama = productPayload.nama;
+            }
+
+            openDetailModal();
+        });
+    });
+
+    closeDetailButton?.addEventListener('click', closeDetailModal);
+    detailModal?.addEventListener('click', (event) => {
+        if (event.target === detailModal || event.target === detailOverlay) {
+            closeDetailModal();
         }
     });
 
@@ -211,6 +254,37 @@ export function initAdminProductModals() {
 
             openUpdateModal();
         });
+    });
+
+    detailActionEditButton?.addEventListener('click', () => {
+        closeDetailModal();
+
+        const payloadSource = detailActionEditButton.dataset;
+        updateForm.action = `/admin/katalog/update/${payloadSource.id}`;
+        updateNama.value = payloadSource.nama || '';
+        updateHarga.value = payloadSource.harga || '';
+        updateStok.value = payloadSource.stok || '';
+        updateBerat.value = payloadSource.berat || '';
+        updateDeskripsi.value = payloadSource.deskripsi || '';
+        if (updateFoto) {
+            updateFoto.value = '';
+        }
+        if (updateProductIdEdit) {
+            updateProductIdEdit.value = payloadSource.id || '';
+        }
+
+        fillUpdateSummary({
+            nama: payloadSource.nama || '',
+            harga: payloadSource.harga || '',
+            stok: payloadSource.stok || '',
+            berat: payloadSource.berat || '',
+            deskripsi: payloadSource.deskripsi || '',
+            foto: payloadSource.foto || '',
+        });
+
+        window.setTimeout(() => {
+            openUpdateModal();
+        }, 180);
     });
 
     closeUpdateButton?.addEventListener('click', closeUpdateModal);
@@ -259,41 +333,25 @@ export function initAdminProductModals() {
         }
     });
 
-    deleteButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            const id = button.dataset.id;
-            const nama = button.dataset.nama || 'produk ini';
-            const harga = button.dataset.harga || '';
-            const stok = button.dataset.stok || '';
-            const deskripsi = button.dataset.deskripsi || '';
-            const foto = button.dataset.foto || '';
+    detailActionDeleteButton?.addEventListener('click', () => {
+        const id = detailActionDeleteButton.dataset.id;
+        const nama = detailActionDeleteButton.dataset.nama || 'produk ini';
 
-            deleteForm.action = `/admin/katalog/hapus/${id}`;
-            fillDeleteSummary({ nama, harga, stok, deskripsi, foto });
-            openConfirmDeleteModal()();
-        });
-    });
+        deleteForm.action = `/admin/katalog/hapus/${id}`;
 
-    closeDeleteButton?.addEventListener('click', closeDeleteModal);
-    cancelDeleteButton?.addEventListener('click', closeDeleteModal);
-
-    triggerConfirmDeleteButton?.addEventListener('click', () => {
-        openConfirmDeleteModal();
-    });
-
-    deleteModal?.addEventListener('click', (event) => {
-        if (event.target === deleteModal || event.target === deleteOverlay) {
-            closeDeleteModal();
+        if (confirmDeleteMessage) {
+            confirmDeleteMessage.textContent = `Yakin ingin menghapus produk "${nama}"?`;
         }
+
+        closeDetailModal();
+
+        window.setTimeout(() => {
+            openConfirmDeleteModal();
+        }, 180);
     });
 
     closeConfirmDeleteButton?.addEventListener('click', closeConfirmDeleteModal);
-    cancelConfirmDeleteButton?.addEventListener('click', () => {
-        closeConfirmDeleteModal();
-        window.setTimeout(() => {
-            openDeleteModal();
-        }, 180);
-    });
+    cancelConfirmDeleteButton?.addEventListener('click', closeConfirmDeleteModal);
 
     confirmDeleteModal?.addEventListener('click', (event) => {
         if (event.target === confirmDeleteModal || event.target === confirmDeleteOverlay) {

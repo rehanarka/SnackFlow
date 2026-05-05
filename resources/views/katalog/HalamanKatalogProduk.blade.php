@@ -5,7 +5,8 @@
 
 <x-katalog.toolbar-pencarian-produk />
 
-<x-katalog.modal-tambah-produk />
+@include('components.katalog.FormKatalogProduk')
+@include('components.katalog.HalamanDetailKatalogProduk')
 
 <div class="mt-10">
     @if ($produks->count())

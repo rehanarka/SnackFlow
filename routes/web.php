@@ -5,7 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\ResetPasswordController;
-use App\Http\Controllers\KatalogController;
+use App\Http\Controllers\KatalogProdukController;
 use App\Http\Controllers\TransaksiController;
 
 Route::get('/', function () {
@@ -17,12 +17,12 @@ Route::get('/tentangKami', function () {
 });
 
 Route::get('/registrasi', function () {
-    return view('authView.registrasi');
+    return view('authView.FormRegister');
 });
 
 
 Route::get('/login', function(){
-    return view('authView.login');})->name('login');
+    return view('authView.FormLogin');})->name('login');
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -31,44 +31,44 @@ Route::post('/midtrans/notification', [MidtransController::class, 'notification'
 
     
 Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
-    Route::get('/profile', function(){return view('profile.profile');})->name('admin.profile');
+    Route::get('/profile', function(){return view('profile.HalProfil');})->name('admin.profile');
     Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('admin.profile.update');
-    Route::post('/katalog/tambah', [KatalogController::class, 'tambahProduk'])->name('admin.katalog.tambah');
-    Route::get('/katalog', [KatalogController::class, 'viewKatalog'])->name('admin.katalog');
-    Route::put('/katalog/update/{id}', [KatalogController::class, 'updateProduk'])->name('admin.katalog.update');
-    Route::delete('/katalog/hapus/{id}', [KatalogController::class, 'hapusProduk'])->name('admin.katalog.hapus');
+    Route::post('/katalog/tambah', [KatalogProdukController::class, 'tambahProduk'])->name('admin.katalog.tambah');
+    Route::get('/katalog', [KatalogProdukController::class, 'viewKatalog'])->name('admin.katalog');
+    Route::put('/katalog/update/{id}', [KatalogProdukController::class, 'updateProduk'])->name('admin.katalog.update');
+    Route::delete('/katalog/hapus/{id}', [KatalogProdukController::class, 'hapusProduk'])->name('admin.katalog.hapus');
     Route::get('/transaksi', [TransaksiController::class, 'adminIndex'])->name('admin.transaksi');
     Route::post('/transaksi/offline', [TransaksiController::class, 'storeOffline'])->name('admin.transaksi.store-offline');
+    Route::put('/transaksi/offline/{transaksi}', [TransaksiController::class, 'updateOffline'])->name('admin.transaksi.update-offline');
     Route::get('/transaksi/{transaksi}', [TransaksiController::class, 'adminShow'])->name('admin.transaksi.show');
     Route::post('/transaksi/{transaksi}/approve', [TransaksiController::class, 'approveByAdmin'])->name('admin.transaksi.approve');
     Route::post('/transaksi/{transaksi}/reject', [TransaksiController::class, 'rejectByAdmin'])->name('admin.transaksi.reject');
 });
 Route::middleware(['auth'])->prefix('user')->group(function(){
-        Route::get('/profile', function(){return view('profile.profile');})->name('user.profile');
+        Route::get('/profile', function(){return view('profile.HalProfil');})->name('user.profile');
         Route::patch('/profile', [AuthController::class, 'updateProfile'])->name('user.profile.update');
-        Route::get('/katalog', [KatalogController::class, 'viewKatalogUser'])->name('user.katalog');
+        Route::get('/katalog', [KatalogProdukController::class, 'viewKatalogUser'])->name('user.katalog');
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('user.checkout');
         Route::get('/checkout/destination-autocomplete', [CheckoutController::class, 'autocompleteDestination'])->name('user.checkout.destination.autocomplete');
         Route::post('/checkout/rates', [CheckoutController::class, 'rates'])->name('user.checkout.rates');
-        Route::post('/checkout/shipping', [CheckoutController::class, 'selectShipping'])->name('user.checkout.shipping');
         Route::post('/checkout/proceed', [CheckoutController::class, 'proceedToPayment'])->name('user.checkout.proceed');
         Route::get('/checkout/payment/{transaksi}', [CheckoutController::class, 'payment'])->name('user.checkout.payment');
         Route::post('/checkout/payment/{transaksi}/refresh-status', [CheckoutController::class, 'refreshPaymentStatus'])->name('user.checkout.payment.refresh-status');
         Route::post('/transaksi/{transaksi}/received', [TransaksiController::class, 'markAsReceived'])->name('user.transaksi.received');
-        Route::post('/keranjang', [KatalogController::class, 'tambahKeKeranjang'])->name('user.keranjang.tambah');
-        Route::patch('/keranjang/{id}', [KatalogController::class, 'updateJumlahKeranjang'])->name('user.keranjang.update');
-        Route::delete('/keranjang/{id}', [KatalogController::class, 'hapusDariKeranjang'])->name('user.keranjang.hapus');
+        Route::post('/keranjang', [KatalogProdukController::class, 'tambahKeKeranjang'])->name('user.keranjang.tambah');
+        Route::patch('/keranjang/{id}', [KatalogProdukController::class, 'updateJumlahKeranjang'])->name('user.keranjang.update');
+        Route::delete('/keranjang/{id}', [KatalogProdukController::class, 'hapusDariKeranjang'])->name('user.keranjang.hapus');
         Route::get('/transaksi', [TransaksiController::class, 'index'])->name('user.transaksi');
     });
 
-Route::get('/send-email', function(){return view('resetPassword.sendEmail');});
+Route::get('/send-email', function(){return view('resetPassword.FormResetPassword');});
 Route::post('/send-email', [ResetPasswordController::class, 'sendOtp']);
 
 Route::middleware('otp.access')->group(function(){
     Route::get('/otp', [ResetPasswordController::class, 'showOtp'])->name('otp.page');
     Route::post('/verify-otp', [ResetPasswordController::class, 'verifikasiOtp']);
     Route::get('/resetPassword', function(){
-        return view('resetPassword.inputPassword');
+        return view('resetPassword.FormPasswordBaru');
     });
     Route::post('/sendResetPassword', [ResetPasswordController::class, 'resetPassword']);
 });

@@ -37,7 +37,7 @@ class TransaksiController extends Controller
             'end_date' => $request->string('end_date')->toString(),
         ];
 
-        return view('transactions.transaksi', compact('transaksi', 'filters'));
+        return view('transactions.HalamanRiwayatTransaksiU', compact('transaksi', 'filters'));
     }
 
     public function adminIndex(Request $request)
@@ -46,7 +46,7 @@ class TransaksiController extends Controller
             ->orderBy('nama_produk')
             ->get(['id', 'nama_produk', 'harga', 'stok']);
 
-        $transaksi = Transaksi::with('user')
+        $transaksi = Transaksi::with(['user', 'penerima.kodePos', 'penerima.kecamatan', 'penerima.kabupaten', 'penerima.provinsi', 'detailTransaksi.produk'])
             ->when($request->filled('start_date'), function ($query) use ($request) {
                 $query->whereDate('tanggal_transaksi', '>=', $request->string('start_date')->toString());
             })
@@ -66,14 +66,14 @@ class TransaksiController extends Controller
             'status' => $request->string('status')->toString(),
         ];
 
-        return view('transactions.transaksiAdmin', compact('transaksi', 'filters', 'produkOptions'));
+        return view('transactions.HalamanRiwayatTransaksi', compact('transaksi', 'filters', 'produkOptions'));
     }
 
     public function adminShow(Transaksi $transaksi)
     {
         $transaksi->load(['detailTransaksi.produk', 'user']);
 
-        return view('transactions.payment', [
+        return view('transactions.InvoicePembayaran', [
             'transaksi' => $transaksi,
             'snapToken' => null,
             'snapRedirectUrl' => null,
@@ -142,7 +142,35 @@ class TransaksiController extends Controller
 
     public function storeOffline(Request $request)
     {
-        $validated = $request->validate([
+        $validated = $this->validateOfflinePayload($request);
+        $groupedItems = $this->normalizeOfflineItems($validated['items']);
+        $transaksi = $this->persistOfflineTransaction($request, $validated, $groupedItems);
+
+        return redirect()
+            ->route('admin.transaksi')
+            ->with('success', 'Transaksi offline berhasil dicatat dengan nomor pesanan #' . $transaksi->id . '.');
+    }
+
+    public function updateOffline(Request $request, Transaksi $transaksi)
+    {
+        if (!$transaksi->is_offline) {
+            return back()->withErrors([
+                'checkout' => 'Transaksi online tidak bisa diedit dari form offline.',
+            ]);
+        }
+
+        $validated = $this->validateOfflinePayload($request);
+        $groupedItems = $this->normalizeOfflineItems($validated['items']);
+        $updatedTransaksi = $this->persistOfflineTransaction($request, $validated, $groupedItems, $transaksi);
+
+        return redirect()
+            ->route('admin.transaksi')
+            ->with('success', 'Transaksi offline #' . $updatedTransaksi->id . ' berhasil diperbarui.');
+    }
+
+    private function validateOfflinePayload(Request $request): array
+    {
+        return $request->validate([
             'nama_penerima' => 'required|string|max:100',
             'tanggal_transaksi' => 'required|date',
             'metode_pembayaran' => 'required|in:qris,cod,bank_transfer',
@@ -172,17 +200,20 @@ class TransaksiController extends Controller
             'items.*.produk_id.required' => 'Produk wajib dipilih.',
             'items.*.jumlah_produk.required' => 'Jumlah produk wajib diisi.',
         ]);
+    }
 
-        $normalizedItems = collect($validated['items'])
+    private function normalizeOfflineItems(array $items)
+    {
+        $normalizedItems = collect($items)
             ->map(fn (array $item) => [
                 'produk_id' => (int) $item['produk_id'],
                 'jumlah_produk' => (int) $item['jumlah_produk'],
             ]);
 
-        $groupedItems = $normalizedItems
+        return $normalizedItems
             ->groupBy(fn (array $item) => $item['produk_id'])
-            ->map(function ($items, $produkId) {
-                $jumlahProduk = (int) $items->sum(fn (array $item) => (int) $item['jumlah_produk']);
+            ->map(function ($groupedItems, $produkId) {
+                $jumlahProduk = (int) $groupedItems->sum(fn (array $item) => (int) $item['jumlah_produk']);
 
                 if ($jumlahProduk < 1 || $jumlahProduk > 9999) {
                     throw ValidationException::withMessages([
@@ -196,13 +227,36 @@ class TransaksiController extends Controller
                 ];
             })
             ->values();
+    }
 
-        $transaksi = DB::transaction(function () use ($request, $validated, $groupedItems) {
+    private function persistOfflineTransaction(Request $request, array $validated, $groupedItems, ?Transaksi $transaksi = null): Transaksi
+    {
+        return DB::transaction(function () use ($request, $validated, $groupedItems, $transaksi) {
+            $existingDetailItems = collect();
+
+            if ($transaksi) {
+                $transaksi->load('detailTransaksi', 'penerima');
+                $existingDetailItems = $transaksi->detailTransaksi;
+            }
+
+            $produkIds = $groupedItems->pluck('produk_id')
+                ->merge($existingDetailItems->pluck('produk_id'))
+                ->unique()
+                ->values();
+
             $produkMap = KatalogProduk::query()
-                ->whereIn('id', $groupedItems->pluck('produk_id'))
+                ->whereIn('id', $produkIds)
                 ->lockForUpdate()
                 ->get()
                 ->keyBy('id');
+
+            foreach ($existingDetailItems as $existingItem) {
+                $produkLama = $produkMap->get($existingItem->produk_id);
+
+                if ($produkLama) {
+                    $produkLama->increment('stok', (int) $existingItem->jumlah_produk);
+                }
+            }
 
             foreach ($groupedItems as $item) {
                 $produk = $produkMap->get($item['produk_id']);
@@ -246,35 +300,60 @@ class TransaksiController extends Controller
                 ]);
             }
 
-            $penerima = Penerima::create([
-                'provinsi_id' => $provinsi->id,
-                'kabupaten_id' => $kabupaten->id,
-                'kecamatan_id' => $kecamatan->id,
-                'kode_pos_id' => $kodePos->id,
-                'nama_penerima' => $validated['nama_penerima'],
-                'no_telp_penerima' => $validated['no_telp_penerima'],
-                'detail_alamat' => $validated['detail_alamat'],
-            ]);
+            if ($transaksi && $transaksi->penerima) {
+                $penerima = tap($transaksi->penerima)->update([
+                    'provinsi_id' => $provinsi->id,
+                    'kabupaten_id' => $kabupaten->id,
+                    'kecamatan_id' => $kecamatan->id,
+                    'kode_pos_id' => $kodePos->id,
+                    'nama_penerima' => $validated['nama_penerima'],
+                    'no_telp_penerima' => $validated['no_telp_penerima'],
+                    'detail_alamat' => $validated['detail_alamat'],
+                ]);
+                $penerima = $transaksi->penerima->fresh();
+            } else {
+                $penerima = Penerima::create([
+                    'provinsi_id' => $provinsi->id,
+                    'kabupaten_id' => $kabupaten->id,
+                    'kecamatan_id' => $kecamatan->id,
+                    'kode_pos_id' => $kodePos->id,
+                    'nama_penerima' => $validated['nama_penerima'],
+                    'no_telp_penerima' => $validated['no_telp_penerima'],
+                    'detail_alamat' => $validated['detail_alamat'],
+                ]);
+            }
 
-            $transaksi = Transaksi::create([
-                'user_id' => $request->user()->id,
-                'penerima_id' => $penerima->id,
-                'tanggal_transaksi' => $validated['tanggal_transaksi'],
-                'metode_pembayaran' => $validated['metode_pembayaran'],
-                'status_transaksi' => 'Selesai',
-                'status_pembayaran' => 'paid',
-                'catatan_admin' => 'Transaksi offline toko',
-                'resi' => $validated['resi'] ?: null,
-                'ongkir' => (int) $validated['ongkir'],
-                'midtrans_order_id' => null,
-            ]);
+            if ($transaksi) {
+                $transaksi->update([
+                    'penerima_id' => $penerima->id,
+                    'tanggal_transaksi' => $validated['tanggal_transaksi'],
+                    'metode_pembayaran' => $validated['metode_pembayaran'],
+                    'status_transaksi' => 'Selesai',
+                    'status_pembayaran' => 'paid',
+                    'catatan_admin' => 'Transaksi offline toko',
+                    'resi' => $validated['resi'] ?: null,
+                    'ongkir' => (int) $validated['ongkir'],
+                    'midtrans_order_id' => null,
+                ]);
+
+                $transaksi->detailTransaksi()->delete();
+            } else {
+                $transaksi = Transaksi::create([
+                    'user_id' => $request->user()->id,
+                    'penerima_id' => $penerima->id,
+                    'tanggal_transaksi' => $validated['tanggal_transaksi'],
+                    'metode_pembayaran' => $validated['metode_pembayaran'],
+                    'status_transaksi' => 'Selesai',
+                    'status_pembayaran' => 'paid',
+                    'catatan_admin' => 'Transaksi offline toko',
+                    'resi' => $validated['resi'] ?: null,
+                    'ongkir' => (int) $validated['ongkir'],
+                    'midtrans_order_id' => null,
+                ]);
+            }
 
             foreach ($groupedItems as $item) {
                 $produk = $produkMap->get($item['produk_id']);
-
-                if (!$produk) {
-                    continue;
-                }
 
                 DetailTransaksi::create([
                     'transaksi_id' => $transaksi->id,
@@ -287,11 +366,7 @@ class TransaksiController extends Controller
                 $produk->decrement('stok', (int) $item['jumlah_produk']);
             }
 
-            return $transaksi;
+            return $transaksi->fresh(['detailTransaksi.produk', 'penerima']);
         });
-
-        return redirect()
-            ->route('admin.transaksi')
-            ->with('success', 'Transaksi offline berhasil dicatat dengan nomor pesanan #' . $transaksi->id . '.');
     }
 }

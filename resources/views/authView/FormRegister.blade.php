@@ -70,7 +70,7 @@
                             @endif
 
                             <button type="submit" class="w-full rounded-full bg-[linear-gradient(90deg,#0284c7_0%,#0f172a_100%)] px-5 py-3 text-sm font-bold uppercase tracking-[0.20em] text-white shadow-[0_18px_35px_rgba(2,132,199,0.25)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_40px_rgba(2,132,199,0.35)]">
-                                Create Account
+                                Daftar
                             </button>
 
                             <p class="text-center text-sm text-slate-500">

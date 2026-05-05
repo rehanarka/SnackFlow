@@ -23,7 +23,7 @@
     @endif
 </div>
 
-<x-katalog.modal-keranjang :keranjang-items="$keranjangItems" :cart-count="$cartCount" />
+@include('components.katalog.HalamanKeranjang', ['keranjangItems' => $keranjangItems, 'cartCount' => $cartCount])
 
 @if (session('checkout_success'))
     @php($checkoutSuccess = session('checkout_success'))

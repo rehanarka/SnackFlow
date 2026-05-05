@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
-class KatalogController extends Controller
+class KatalogProdukController extends Controller
 {
     public function tambahProduk(Request $request)
     {
@@ -99,7 +99,7 @@ class KatalogController extends Controller
     public function viewKatalog()
     {
         $produks = KatalogProduk::orderByDesc('id')->get();
-        return view('katalog.katalogAdmin', compact('produks'));
+        return view('katalog.HalamanKatalogProduk', compact('produks'));
     }
 
     public function viewKatalogUser()
@@ -109,7 +109,7 @@ class KatalogController extends Controller
         $cartCount = $keranjangItems->sum('jumlah_produk');
 
         
-        return view('katalog.katalogUser', compact('produks', 'keranjangItems', 'cartCount'));
+        return view('katalog.HalamanKatalogProdukU', compact('produks', 'keranjangItems', 'cartCount'));
     }
 
     public function tambahKeKeranjang(Request $request)

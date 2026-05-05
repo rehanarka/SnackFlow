@@ -94,4 +94,14 @@ class Transaksi extends Model
         $this->attributes['catatan_admin'] = $value;
     }
 
+    public function getIsOfflineAttribute(): bool
+    {
+        return ($this->attributes['catatan_admin'] ?? null) === 'Transaksi offline toko';
+    }
+
+    public function getIsOnlineAttribute(): bool
+    {
+        return !$this->is_offline;
+    }
+
 }

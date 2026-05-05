@@ -107,37 +107,34 @@
                     </div>
                 </div>
 
-                                <div id="shippingOptionsSection" class="{{ !empty($rajaongkirRates) ? '' : 'hidden ' }}overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/95 shadow-xl shadow-sky-100/40 backdrop-blur">
-                        <div class="border-b border-slate-200 px-6 py-5">
-                            <h2 class="text-lg font-semibold text-slate-900">Opsi Pengiriman</h2>
-                            <p class="mt-1 text-sm text-slate-500">Pilihan layanan JNE Reguler sudah siap. Buka modal untuk melihat opsi yang tersedia dengan tampilan yang lebih lega.</p>
-                        </div>
+                <div id="shippingOptionsSection" class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/95 shadow-xl shadow-sky-100/40 backdrop-blur">
+                    <div class="border-b border-slate-200 px-6 py-5">
+                        <h2 class="text-lg font-semibold text-slate-900">Pengiriman Otomatis</h2>
+                        <p class="mt-1 text-sm text-slate-500">Setelah tujuan pengiriman dipilih dan data penerima lengkap, sistem akan langsung memasang ongkir JNE Reguler otomatis.</p>
+                    </div>
 
-                        <div class="space-y-4 px-6 py-5">
-                            <div id="selectedShippingCard" class="{{ !empty($selectedShipping) ? '' : 'hidden ' }}rounded-[1.5rem] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white px-5 py-4">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Layanan Terpilih</p>
-                                    <div class="mt-3 flex items-start justify-between gap-4">
-                                        <div>
-                                            <p id="selectedShippingCourier" class="text-base font-semibold text-slate-900">{{ $selectedShipping['kurir'] ?? '' }}</p>
-                                            <p id="selectedShippingService" class="mt-1 text-sm text-slate-500">{{ $selectedShipping['service_pengiriman'] ?? '' }}</p>
-                                            <p id="selectedShippingEstimate" class="mt-1 text-xs text-slate-500">{{ !empty($selectedShipping) ? 'Estimasi ' . $selectedShipping['estimasi_pengiriman'] : '' }}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">Ongkir</p>
-                                            <p id="selectedShippingCost" class="mt-1 text-xl font-bold text-slate-900">{{ !empty($selectedShipping) ? 'Rp ' . number_format($selectedShipping['ongkir'], 0, ',', '.') : '' }}</p>
-                                        </div>
-                                    </div>
+                    <div class="space-y-4 px-6 py-5">
+                        <div id="selectedShippingCard" class="{{ !empty($selectedShipping) ? '' : 'hidden ' }}rounded-[1.5rem] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white px-5 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Layanan Terpasang</p>
+                            <div class="mt-3 flex items-start justify-between gap-4">
+                                <div>
+                                    <p id="selectedShippingCourier" class="text-base font-semibold text-slate-900">{{ $selectedShipping['kurir'] ?? '' }}</p>
+                                    <p id="selectedShippingService" class="mt-1 text-sm text-slate-500">{{ $selectedShipping['service_pengiriman'] ?? '' }}</p>
+                                    <p id="selectedShippingEstimate" class="mt-1 text-xs text-slate-500">{{ !empty($selectedShipping) ? 'Estimasi ' . $selectedShipping['estimasi_pengiriman'] : '' }}</p>
                                 </div>
+                                <div class="text-right">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">Ongkir</p>
+                                    <p id="selectedShippingCost" class="mt-1 text-xl font-bold text-slate-900">{{ !empty($selectedShipping) ? 'Rp ' . number_format($selectedShipping['ongkir'], 0, ',', '.') : '' }}</p>
+                                </div>
+                            </div>
+                        </div>
 
-                            <button type="button" id="openShippingOptionsModal" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:scale-105 hover:cursor-pointer transition duration-300">Lihat Opsi JNE Reguler</button>
-                            <p class="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-medium text-sky-700">Klik layanan JNE Reguler yang tersedia, lalu lanjutkan dengan tombol Checkout untuk masuk ke halaman pembayaran.</p>
+                        <div id="shippingEmptyState" class="{{ empty($selectedShipping) ? '' : 'hidden ' }}rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 px-5 py-5 text-center">
+                            <h2 class="text-base font-semibold text-slate-900">Ongkir Belum Terpasang</h2>
+                            <p id="shippingEmptyStateText" class="mt-2 text-sm text-slate-500">Lengkapi nama penerima, no. telp, alamat, lalu pilih tujuan pengiriman agar ongkir JNE Reguler dipasang otomatis.</p>
                         </div>
                     </div>
-
-                <div id="shippingEmptyState" class="{{ empty($rajaongkirRates) && $selectedDestination ? '' : 'hidden ' }}rounded-[2rem] border border-dashed border-slate-300 bg-white/90 px-6 py-8 text-center shadow-xl shadow-slate-100/70 backdrop-blur">
-                        <h2 class="text-lg font-semibold text-slate-900">Opsi JNE Reguler Belum Muncul</h2>
-                        <p id="shippingEmptyStateText" class="mt-2 text-sm text-slate-500">Setelah klik `Cek Ongkir`, layanan JNE Reguler akan tampil di panel sebelah kanan. Kalau tetap kosong, biasanya memang tidak ada layanan yang tersedia untuk kombinasi origin, tujuan, atau berat paket saat ini.</p>
-                    </div>
+                </div>
             </section>
 
             <aside class="space-y-6">
@@ -211,10 +208,8 @@
 
                             <div class="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 px-4 py-4">
                                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Alur Checkout</p>
-                                <p class="mt-2 text-sm text-slate-500">Alur checkout: isi data tujuan pengiriman, cek ongkir, lalu pilih layanan JNE Reguler. Setelah itu klik tombol Checkout untuk membuat transaksi dan lanjut ke pembayaran.</p>
+                                <p class="mt-2 text-sm text-slate-500">Alur checkout: isi data penerima, pilih tujuan dari autocomplete, lalu sistem akan langsung memasang ongkir JNE Reguler. Setelah itu klik tombol Checkout untuk membuat transaksi dan lanjut ke pembayaran.</p>
                             </div>
-
-                            <button type="submit" id="checkOngkirButton" class="w-full rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-700 shadow-sm transition duration-300 hover:scale-105 hover:cursor-pointer hover:-translate-y-0.5 hover:bg-sky-100 {{ $keranjangItems->count() ? '' : 'cursor-not-allowed opacity-50' }}" {{ $keranjangItems->count() ? '' : 'disabled' }}>Cek Ongkir</button>
                         </form>
                     </div>
                 </div>
@@ -223,80 +218,22 @@
 
 
 
-                @if (!empty($selectedShipping))
-                    <form id="checkoutProceedForm" action="{{ route('user.checkout.proceed') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="w-full rounded-[2rem] bg-emerald-600 px-5 py-4 text-base font-semibold text-white shadow-xl shadow-emerald-200 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500">Checkout</button>
-                    </form>
-                @endif
+                <form id="checkoutProceedForm" action="{{ route('user.checkout.proceed') }}" method="POST" class="{{ !empty($selectedShipping) ? '' : 'hidden' }}">
+                    @csrf
+                    <button type="submit" class="w-full rounded-[2rem] bg-emerald-600 px-5 py-4 text-base font-semibold text-white shadow-xl shadow-emerald-200 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500">Checkout</button>
+                </form>
             </aside>
         </div>
     </div>
 </div>
-
-    <div id="shippingOptionsModal" class="fixed inset-0 z-[70] hidden">
-        <div id="shippingOptionsOverlay" class="absolute inset-0 bg-slate-950/45 opacity-0 transition-opacity duration-300"></div>
-        <div class="absolute inset-x-0 bottom-0 top-auto mx-auto h-[88vh] w-full max-w-5xl translate-y-10 overflow-hidden rounded-t-[2rem] bg-white shadow-2xl transition duration-300 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:h-[82vh] sm:-translate-x-1/2 sm:-translate-y-[46%] sm:rounded-[2rem]" id="shippingOptionsPanel">
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Opsi Pengiriman</p>
-                    <h2 class="mt-2 text-2xl font-bold text-slate-900">Pilih Layanan JNE Reguler</h2>
-                    <p class="mt-1 text-sm text-slate-500">Lihat biaya dan estimasi pengiriman JNE Reguler tanpa bikin halaman checkout penuh.</p>
-                </div>
-                <button type="button" id="closeShippingOptionsModal" class="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600 transition duration-300 hover:bg-slate-200 hover:scale-105 hover:cursor-pointer transition duration-300">Tutup</button>
-            </div>
-            <div class="h-[calc(88vh-92px)] overflow-y-auto px-6 py-6 sm:h-[calc(82vh-92px)]">
-                <div id="shippingRatesGrid" class="grid gap-4 lg:grid-cols-2">
-                    @foreach ($rajaongkirRates as $rate)
-                        <div class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 px-5 py-5 shadow-sm shadow-slate-100/80 transition duration-300 hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-sky-100/80">
-                            <div class="flex items-start justify-between gap-4">
-                                <div>
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <p class="text-base font-semibold text-slate-900">{{ $rate['name'] ?? ($rate['courier'] ?? 'Kurir') }}</p>
-                                        <span class="rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">{{ $rate['service'] ?? '' }}</span>
-                                    </div>
-                                    <p class="mt-2 text-sm text-slate-500">{{ $rate['description'] ?? ($rate['service_name'] ?? 'Layanan') }}</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Ongkir</p>
-                                    <p class="mt-1 text-2xl font-bold text-slate-900">Rp {{ number_format($rate['cost'] ?? ($rate['shipping_cost'] ?? 0), 0, ',', '.') }}</p>
-                                </div>
-                            </div>
-
-                            <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                                <div class="rounded-2xl bg-slate-100 px-4 py-3">
-                                    <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Estimasi</p>
-                                    <p class="mt-1 text-sm font-semibold text-slate-900">{{ strtoupper($rate['etd'] ?? '-') }}</p>
-                                </div>
-                                <div class="rounded-2xl bg-sky-50 px-4 py-3">
-                                    <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-600">Kode Kurir</p>
-                                    <p class="mt-1 text-sm font-semibold text-sky-900">{{ strtoupper($rate['code'] ?? '-') }}</p>
-                                </div>
-                            </div>
-
-                            <form action="{{ route('user.checkout.shipping') }}" method="POST" class="mt-4">
-                                @csrf
-                                <input type="hidden" name="ongkir" value="{{ $rate['cost'] ?? ($rate['shipping_cost'] ?? 0) }}">
-                                <input type="hidden" name="kurir" value="{{ $rate['name'] ?? ($rate['courier'] ?? 'Kurir') }}">
-                                <input type="hidden" name="service_pengiriman" value="{{ $rate['service'] ?? ($rate['service_name'] ?? 'Layanan') }}">
-                                <input type="hidden" name="estimasi_pengiriman" value="{{ $rate['etd'] ?? '-' }}">
-                                <button type="submit" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800">Pilih Layanan Ini</button>
-                            </form>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
 
 <script id="checkoutPageData" type="application/json">
     {!! json_encode([
         'subtotal' => (int) $subtotal,
         'autocompleteEndpoint' => route('user.checkout.destination.autocomplete', [], false),
         'ratesEndpoint' => route('user.checkout.rates', [], false),
-        'shippingEndpoint' => route('user.checkout.shipping', [], false),
         'csrfToken' => csrf_token(),
-        'initialRates' => $rajaongkirRates,
+        'hasSelectedShipping' => !empty($selectedShipping),
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
 </script>
 @endsection

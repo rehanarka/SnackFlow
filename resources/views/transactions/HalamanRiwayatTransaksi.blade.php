@@ -96,7 +96,7 @@
                 <p class="mt-1 text-sm text-slate-500">Pesanan berstatus <span class="font-semibold text-sky-700">Menunggu Konfirmasi</span> siap kamu review sekarang. Setelah dikonfirmasi, user baru bisa lanjut ke pembayaran.</p>
             </div>
             <div class="flex justify-end">
-                <button type="button" id="openOfflineTransactionModal" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:cursor-pointer">
+                <button type="button" id="openOfflineTransactionModal" data-mode="create" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:cursor-pointer">
                     Tambah Transaksi
                 </button>
             </div>
@@ -132,12 +132,12 @@
                                     $statusLabel = $item->status_pesanan ?: '-';
                                     $statusClass = $statusClasses[$statusLabel] ?? 'bg-slate-100 text-slate-700 ring-slate-200';
                                     $tanggalTransaksi = $item->tanggal_transaksi;
-                                    $isOffline = empty($item->midtrans_order_id);
+                                    $isOffline = $item->is_offline;
                                 @endphp
                                 <tr class="align-top transition duration-300 hover:bg-slate-50/80">
                                     <td class="px-6 py-5">
                                         <p class="text-sm font-semibold text-slate-900">#{{ $item->id }}</p>
-                                        <p class="mt-1 text-xs uppercase tracking-[0.16em] text-slate-500">{{ $item->midtrans_order_id ?? 'Offline Toko' }}</p>
+                                        <p class="mt-1 text-xs uppercase tracking-[0.16em] text-slate-500">{{ $isOffline ? 'Offline Toko' : ($item->midtrans_order_id ?? 'Menunggu Midtrans') }}</p>
                                         <span class="mt-2 inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] {{ $isOffline ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' : 'bg-sky-50 text-sky-700 ring-1 ring-sky-200' }}">
                                             {{ $isOffline ? 'Offline' : 'Online' }}
                                         </span>
@@ -177,6 +177,29 @@
                                                 Lihat Detail
                                             </a>
 
+                                            @if ($isOffline)
+                                                <button
+                                                    type="button"
+                                                    class="openOfflineEditModal inline-flex w-full justify-center rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-100 hover:cursor-pointer"
+                                                    data-update-action="{{ route('admin.transaksi.update-offline', $item) }}"
+                                                    data-transaksi-id="{{ $item->id }}"
+                                                    data-nama-penerima="{{ $item->nama_penerima }}"
+                                                    data-tanggal-transaksi="{{ $tanggalTransaksi?->format('Y-m-d\TH:i') }}"
+                                                    data-metode-pembayaran="{{ $item->metode_pembayaran }}"
+                                                    data-no-telp-penerima="{{ $item->no_telp_penerima }}"
+                                                    data-detail-alamat="{{ $item->alamat_penerima }}"
+                                                    data-nomor-kode-pos="{{ $item->penerima?->kodePos?->nomor_kode_pos }}"
+                                                    data-nama-kecamatan="{{ $item->penerima?->kecamatan?->nama_kecamatan }}"
+                                                    data-nama-kabupaten="{{ $item->penerima?->kabupaten?->nama_kabupaten }}"
+                                                    data-nama-provinsi="{{ $item->penerima?->provinsi?->nama_provinsi }}"
+                                                    data-resi="{{ $item->resi }}"
+                                                    data-ongkir="{{ $item->ongkir }}"
+                                                    data-items='@json($item->detailTransaksi->map(fn ($detail) => ["produk_id" => $detail->produk_id, "jumlah_produk" => $detail->jumlah_produk])->values())'
+                                                >
+                                                    Edit
+                                                </button>
+                                            @endif
+
                                             @if ($item->status_pesanan === 'Menunggu Konfirmasi')
                                                 <form action="{{ route('admin.transaksi.approve', $item) }}" method="POST">
                                                     @csrf
@@ -215,15 +238,17 @@
     <div id="offlineTransactionModalPanel" class="relative max-h-[92vh] w-full max-w-5xl scale-95 overflow-hidden rounded-[2rem] bg-white opacity-0 shadow-2xl transition duration-300">
         <div class="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">Tambah Transaksi Offline</p>
-                <h2 class="mt-2 text-2xl font-bold text-slate-900">Catat Pembelian Toko</h2>
-                <p class="mt-2 text-sm leading-6 text-slate-600">Transaksi offline tidak memakai Midtrans. Metode pembayaran bisa dipilih langsung dan status pesanan otomatis selesai.</p>
+                <p id="offlineTransactionModalEyebrow" class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">Tambah Transaksi Offline</p>
+                <h2 id="offlineTransactionModalTitle" class="mt-2 text-2xl font-bold text-slate-900">Catat Pembelian Toko</h2>
+                <p id="offlineTransactionModalDescription" class="mt-2 text-sm leading-6 text-slate-600">Transaksi offline tidak memakai Midtrans. Metode pembayaran bisa dipilih langsung dan status pesanan otomatis selesai.</p>
             </div>
             <button type="button" id="closeOfflineTransactionModal" class="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600 transition duration-300 hover:bg-slate-200 hover:cursor-pointer">&times;</button>
         </div>
 
-        <form action="{{ route('admin.transaksi.store-offline') }}" method="POST" class="max-h-[calc(92vh-96px)] overflow-y-auto px-6 py-6">
+        <form id="offlineTransactionForm" action="{{ route('admin.transaksi.store-offline') }}" method="POST" class="max-h-[calc(92vh-96px)] overflow-y-auto px-6 py-6">
             @csrf
+            <input type="hidden" id="offlineTransactionMethod" name="_method" value="POST">
+            <input type="hidden" id="offlineTransactionId" name="transaksi_id" value="">
 
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
@@ -320,7 +345,7 @@
                 <button type="button" id="cancelOfflineTransactionModal" class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition duration-300 hover:bg-slate-50 hover:cursor-pointer">
                     Batal
                 </button>
-                <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-emerald-500 hover:cursor-pointer">
+                <button type="submit" id="offlineTransactionSubmitButton" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-emerald-500 hover:cursor-pointer">
                     Simpan Transaksi Offline
                 </button>
             </div>
@@ -390,8 +415,27 @@
         const offlineModalOverlay = document.getElementById('offlineTransactionModalOverlay');
         const offlineModalPanel = document.getElementById('offlineTransactionModalPanel');
         const openOfflineModalButton = document.getElementById('openOfflineTransactionModal');
+        const editOfflineModalButtons = document.querySelectorAll('.openOfflineEditModal');
         const closeOfflineModalButton = document.getElementById('closeOfflineTransactionModal');
         const cancelOfflineModalButton = document.getElementById('cancelOfflineTransactionModal');
+        const offlineTransactionForm = document.getElementById('offlineTransactionForm');
+        const offlineTransactionMethod = document.getElementById('offlineTransactionMethod');
+        const offlineTransactionId = document.getElementById('offlineTransactionId');
+        const offlineTransactionModalEyebrow = document.getElementById('offlineTransactionModalEyebrow');
+        const offlineTransactionModalTitle = document.getElementById('offlineTransactionModalTitle');
+        const offlineTransactionModalDescription = document.getElementById('offlineTransactionModalDescription');
+        const offlineTransactionSubmitButton = document.getElementById('offlineTransactionSubmitButton');
+        const offlineNamaPenerima = document.getElementById('offlineNamaPenerima');
+        const offlineTanggalTransaksi = document.getElementById('offlineTanggalTransaksi');
+        const offlineMetodePembayaran = document.getElementById('offlineMetodePembayaran');
+        const offlineNoTelpPenerima = document.getElementById('offlineNoTelpPenerima');
+        const offlineDetailAlamat = document.getElementById('offlineDetailAlamat');
+        const offlineNomorKodePos = document.getElementById('offlineNomorKodePos');
+        const offlineNamaKecamatan = document.getElementById('offlineNamaKecamatan');
+        const offlineNamaKabupaten = document.getElementById('offlineNamaKabupaten');
+        const offlineNamaProvinsi = document.getElementById('offlineNamaProvinsi');
+        const offlineResi = document.getElementById('offlineResi');
+        const offlineOngkir = document.getElementById('offlineOngkir');
         const offlineItemsContainer = document.getElementById('offlineItemsContainer');
         const addOfflineItemRowButton = document.getElementById('addOfflineItemRow');
         const offlineItemRowTemplate = document.getElementById('offlineItemRowTemplate');
@@ -435,6 +479,19 @@
                 offlineModal.classList.add('hidden');
                 offlineModal.classList.remove('flex');
             }, 200);
+        };
+
+        const populateOfflineRow = (row, item = {}) => {
+            const productSelect = row.querySelector('select');
+            const qtyInput = row.querySelector('input[type="number"]');
+
+            if (productSelect) {
+                productSelect.value = item.produk_id ?? '';
+            }
+
+            if (qtyInput) {
+                qtyInput.value = item.jumlah_produk ?? 1;
+            }
         };
 
         const renumberOfflineRows = () => {
@@ -497,8 +554,100 @@
             }
 
             offlineItemsContainer.appendChild(fragment);
-            attachOfflineRowEvents(offlineItemsContainer.lastElementChild);
+            const appendedRow = offlineItemsContainer.lastElementChild;
+            attachOfflineRowEvents(appendedRow);
             renumberOfflineRows();
+            return appendedRow;
+        };
+
+        const resetOfflineRows = (items = [{ produk_id: '', jumlah_produk: 1 }]) => {
+            if (!offlineItemsContainer) {
+                return;
+            }
+
+            offlineItemsContainer.innerHTML = '';
+
+            items.forEach((item) => {
+                const row = addOfflineRow();
+                populateOfflineRow(row, item);
+            });
+
+            renumberOfflineRows();
+        };
+
+        const setOfflineModalMode = (mode, payload = {}) => {
+            if (!offlineTransactionForm || !offlineTransactionMethod || !offlineTransactionSubmitButton) {
+                return;
+            }
+
+            if (mode === 'edit') {
+                offlineTransactionForm.action = payload.action || offlineTransactionForm.action;
+                offlineTransactionMethod.value = 'PUT';
+                if (offlineTransactionId) {
+                    offlineTransactionId.value = payload.transaksiId || '';
+                }
+                if (offlineTransactionModalEyebrow) offlineTransactionModalEyebrow.textContent = 'Edit Transaksi Offline';
+                if (offlineTransactionModalTitle) offlineTransactionModalTitle.textContent = 'Perbarui Pembelian Toko';
+                if (offlineTransactionModalDescription) offlineTransactionModalDescription.textContent = 'Ubah data transaksi offline beserta item produknya. Stok lama akan disesuaikan ulang otomatis.';
+                offlineTransactionSubmitButton.textContent = 'Simpan Perubahan';
+                return;
+            }
+
+            offlineTransactionForm.action = @json(route('admin.transaksi.store-offline'));
+            offlineTransactionMethod.value = 'POST';
+            if (offlineTransactionId) {
+                offlineTransactionId.value = '';
+            }
+            if (offlineTransactionModalEyebrow) offlineTransactionModalEyebrow.textContent = 'Tambah Transaksi Offline';
+            if (offlineTransactionModalTitle) offlineTransactionModalTitle.textContent = 'Catat Pembelian Toko';
+            if (offlineTransactionModalDescription) offlineTransactionModalDescription.textContent = 'Transaksi offline tidak memakai Midtrans. Metode pembayaran bisa dipilih langsung dan status pesanan otomatis selesai.';
+            offlineTransactionSubmitButton.textContent = 'Simpan Transaksi Offline';
+        };
+
+        const resetOfflineForm = () => {
+            if (offlineTransactionForm) {
+                offlineTransactionForm.reset();
+            }
+
+            if (offlineTanggalTransaksi) {
+                offlineTanggalTransaksi.value = @json(now()->format('Y-m-d\TH:i'));
+            }
+
+            if (offlineOngkir) {
+                offlineOngkir.value = 0;
+            }
+
+            resetOfflineRows();
+            setOfflineModalMode('create');
+        };
+
+        const fillOfflineFormForEdit = (button) => {
+            setOfflineModalMode('edit', {
+                action: button.dataset.updateAction,
+                transaksiId: button.dataset.transaksiId,
+            });
+
+            if (offlineNamaPenerima) offlineNamaPenerima.value = button.dataset.namaPenerima || '';
+            if (offlineTanggalTransaksi) offlineTanggalTransaksi.value = button.dataset.tanggalTransaksi || '';
+            if (offlineMetodePembayaran) offlineMetodePembayaran.value = button.dataset.metodePembayaran || '';
+            if (offlineNoTelpPenerima) offlineNoTelpPenerima.value = button.dataset.noTelpPenerima || '';
+            if (offlineDetailAlamat) offlineDetailAlamat.value = button.dataset.detailAlamat || '';
+            if (offlineNomorKodePos) offlineNomorKodePos.value = button.dataset.nomorKodePos || '';
+            if (offlineNamaKecamatan) offlineNamaKecamatan.value = button.dataset.namaKecamatan || '';
+            if (offlineNamaKabupaten) offlineNamaKabupaten.value = button.dataset.namaKabupaten || '';
+            if (offlineNamaProvinsi) offlineNamaProvinsi.value = button.dataset.namaProvinsi || '';
+            if (offlineResi) offlineResi.value = button.dataset.resi || '';
+            if (offlineOngkir) offlineOngkir.value = button.dataset.ongkir || 0;
+
+            let items = [{ produk_id: '', jumlah_produk: 1 }];
+
+            try {
+                items = JSON.parse(button.dataset.items || '[]');
+            } catch (error) {
+                items = [{ produk_id: '', jumlah_produk: 1 }];
+            }
+
+            resetOfflineRows(items.length ? items : [{ produk_id: '', jumlah_produk: 1 }]);
         };
 
         if (offlineItemsContainer) {
@@ -510,7 +659,19 @@
         }
 
         if (openOfflineModalButton) {
-            openOfflineModalButton.addEventListener('click', openOfflineModal);
+            openOfflineModalButton.addEventListener('click', () => {
+                resetOfflineForm();
+                openOfflineModal();
+            });
+        }
+
+        if (editOfflineModalButtons.length) {
+            editOfflineModalButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    fillOfflineFormForEdit(button);
+                    openOfflineModal();
+                });
+            });
         }
 
         if (closeOfflineModalButton) {

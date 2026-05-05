@@ -9,16 +9,14 @@ function initCheckoutPage() {
 
     try {
         config = JSON.parse(configElement.textContent || '{}');
-    } catch (error) {
+    } catch {
         return;
     }
 
     const subtotalValue = Number(config.subtotal ?? 0);
     const endpoint = config.autocompleteEndpoint;
     const ratesEndpoint = config.ratesEndpoint;
-    const shippingEndpoint = config.shippingEndpoint;
     const csrfToken = config.csrfToken;
-    const initialRates = Array.isArray(config.initialRates) ? config.initialRates : [];
 
     const input = document.getElementById('tujuan_pengiriman');
     const list = document.getElementById('destinationAutocompleteList');
@@ -34,22 +32,21 @@ function initCheckoutPage() {
     const selectedDestinationLabel = document.getElementById('selectedDestinationLabel');
     const selectedDestinationPostalCode = document.getElementById('selectedDestinationPostalCode');
     const ratesForm = document.getElementById('ratesForm');
-    const checkOngkirButton = document.getElementById('checkOngkirButton');
     const checkoutAjaxAlert = document.getElementById('checkoutAjaxAlert');
     const checkoutErrorAlert = document.getElementById('checkoutErrorAlert');
     const shippingEmptyState = document.getElementById('shippingEmptyState');
     const shippingEmptyStateText = document.getElementById('shippingEmptyStateText');
-    const shippingOptionsSection = document.getElementById('shippingOptionsSection');
-    const shippingRatesGrid = document.getElementById('shippingRatesGrid');
     const shippingCostSummary = document.getElementById('shippingCostSummary');
     const estimatedTotalSummary = document.getElementById('estimatedTotalSummary');
     const selectedShippingCard = document.getElementById('selectedShippingCard');
+    const selectedShippingCourier = document.getElementById('selectedShippingCourier');
+    const selectedShippingService = document.getElementById('selectedShippingService');
+    const selectedShippingEstimate = document.getElementById('selectedShippingEstimate');
+    const selectedShippingCost = document.getElementById('selectedShippingCost');
     const checkoutProceedForm = document.getElementById('checkoutProceedForm');
-    const shippingModal = document.getElementById('shippingOptionsModal');
-    const shippingOverlay = document.getElementById('shippingOptionsOverlay');
-    const shippingPanel = document.getElementById('shippingOptionsPanel');
-    const openShippingModalButton = document.getElementById('openShippingOptionsModal');
-    const closeShippingModalButton = document.getElementById('closeShippingOptionsModal');
+    const namaPenerima = document.getElementById('nama_penerima');
+    const noTelpPenerima = document.getElementById('no_telp_penerima');
+    const alamatPenerima = document.getElementById('alamat_penerima');
 
     if (
         !input ||
@@ -63,21 +60,26 @@ function initCheckoutPage() {
         !destinationDistrictInput ||
         !destinationSubdistrictInput ||
         !ratesForm ||
-        !checkOngkirButton
+        !namaPenerima ||
+        !noTelpPenerima ||
+        !alamatPenerima
     ) {
         return;
     }
 
-    let debounceTimer = null;
-    let activeRequest = 0;
+    let autocompleteTimer = null;
+    let shippingTimer = null;
+    let activeAutocompleteRequest = 0;
+    let activeShippingRequest = 0;
+    let lastShippingSignature = '';
+
+    const formatRupiah = (value) =>
+        `Rp ${new Intl.NumberFormat('id-ID').format(Number(value || 0))}`;
 
     const hideList = () => {
         list.classList.add('hidden');
         list.innerHTML = '';
     };
-
-    const formatRupiah = (value) =>
-        `Rp ${new Intl.NumberFormat('id-ID').format(Number(value || 0))}`;
 
     const showAlert = (message, type = 'success') => {
         if (!checkoutAjaxAlert) {
@@ -106,6 +108,95 @@ function initCheckoutPage() {
         checkoutAjaxAlert.textContent = '';
     };
 
+    const resetShippingState = (message) => {
+        if (selectedShippingCard) {
+            selectedShippingCard.classList.add('hidden');
+        }
+
+        if (checkoutProceedForm) {
+            checkoutProceedForm.classList.add('hidden');
+        }
+
+        if (shippingCostSummary) {
+            shippingCostSummary.textContent = 'Belum dipilih';
+        }
+
+        if (estimatedTotalSummary) {
+            estimatedTotalSummary.textContent = formatRupiah(subtotalValue);
+        }
+
+        if (shippingEmptyState && shippingEmptyStateText) {
+            shippingEmptyState.classList.remove('hidden');
+            shippingEmptyStateText.textContent = message;
+        }
+    };
+
+    const applyShippingState = (shipping, estimatedTotal) => {
+        if (!shipping) {
+            return;
+        }
+
+        if (selectedShippingCard) {
+            selectedShippingCard.classList.remove('hidden');
+        }
+
+        if (selectedShippingCourier) {
+            selectedShippingCourier.textContent = shipping.kurir || 'JNE';
+        }
+
+        if (selectedShippingService) {
+            selectedShippingService.textContent = shipping.service_pengiriman || 'REG';
+        }
+
+        if (selectedShippingEstimate) {
+            selectedShippingEstimate.textContent = shipping.estimasi_pengiriman
+                ? `Estimasi ${shipping.estimasi_pengiriman}`
+                : '';
+        }
+
+        if (selectedShippingCost) {
+            selectedShippingCost.textContent = formatRupiah(shipping.ongkir || 0);
+        }
+
+        if (shippingCostSummary) {
+            shippingCostSummary.textContent = formatRupiah(shipping.ongkir || 0);
+        }
+
+        if (estimatedTotalSummary) {
+            estimatedTotalSummary.textContent = formatRupiah(estimatedTotal ?? subtotalValue);
+        }
+
+        if (shippingEmptyState) {
+            shippingEmptyState.classList.add('hidden');
+        }
+
+        if (checkoutProceedForm) {
+            checkoutProceedForm.classList.remove('hidden');
+        }
+    };
+
+    const buildShippingSignature = () => JSON.stringify({
+        nama_penerima: namaPenerima.value.trim(),
+        no_telp_penerima: noTelpPenerima.value.trim(),
+        alamat_penerima: alamatPenerima.value.trim(),
+        selected_destination_id: destinationIdInput.value.trim(),
+        selected_destination_label: destinationLabelInput.value.trim(),
+        selected_destination_postal_code: destinationPostalCodeInput.value.trim(),
+        selected_destination_province: destinationProvinceInput.value.trim(),
+        selected_destination_city: destinationCityInput.value.trim(),
+        selected_destination_district: destinationDistrictInput.value.trim(),
+        selected_destination_subdistrict: destinationSubdistrictInput.value.trim(),
+    });
+
+    const canAutoCalculateShipping = () =>
+        Boolean(
+            namaPenerima.value.trim() &&
+            noTelpPenerima.value.trim() &&
+            alamatPenerima.value.trim() &&
+            destinationIdInput.value.trim() &&
+            destinationLabelInput.value.trim()
+        );
+
     const setSelectedDestination = (destination) => {
         input.value = destination.label;
         destinationIdInput.value = destination.id;
@@ -115,6 +206,7 @@ function initCheckoutPage() {
         destinationCityInput.value = destination.city_name || '';
         destinationDistrictInput.value = destination.district_name || '';
         destinationSubdistrictInput.value = destination.subdistrict_name || '';
+
         helpText.textContent = destination.postal_code
             ? `Tujuan dipilih: ${destination.label} (${destination.postal_code})`
             : `Tujuan dipilih: ${destination.label}`;
@@ -133,53 +225,7 @@ function initCheckoutPage() {
         }
 
         hideList();
-    };
-
-    const renderRateCard = (rate) => `
-        <div class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 px-5 py-5 shadow-sm shadow-slate-100/80 transition duration-300 hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-sky-100/80">
-            <div class="flex items-start justify-between gap-4">
-                <div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <p class="text-base font-semibold text-slate-900">${rate.name ?? rate.courier ?? 'Kurir'}</p>
-                        <span class="rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">${rate.service ?? ''}</span>
-                    </div>
-                    <p class="mt-2 text-sm text-slate-500">${rate.description ?? rate.service_name ?? 'Layanan'}</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Ongkir</p>
-                    <p class="mt-1 text-2xl font-bold text-slate-900">${formatRupiah(rate.cost ?? rate.shipping_cost ?? 0)}</p>
-                </div>
-            </div>
-
-            <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                <div class="rounded-2xl bg-slate-100 px-4 py-3">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Estimasi</p>
-                    <p class="mt-1 text-sm font-semibold text-slate-900">${String(rate.etd ?? '-').toUpperCase()}</p>
-                </div>
-                <div class="rounded-2xl bg-sky-50 px-4 py-3">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-600">Kode Kurir</p>
-                    <p class="mt-1 text-sm font-semibold text-sky-900">${String(rate.code ?? '-').toUpperCase()}</p>
-                </div>
-            </div>
-
-            <form action="${shippingEndpoint}" method="POST" class="mt-4">
-                <input type="hidden" name="_token" value="${csrfToken}">
-                <input type="hidden" name="ongkir" value="${rate.cost ?? rate.shipping_cost ?? 0}">
-                <input type="hidden" name="kurir" value="${rate.name ?? rate.courier ?? 'Kurir'}">
-                <input type="hidden" name="service_pengiriman" value="${rate.service ?? rate.service_name ?? 'Layanan'}">
-                <input type="hidden" name="estimasi_pengiriman" value="${rate.etd ?? '-'}">
-                <button type="submit" class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800">Pilih Layanan Ini</button>
-            </form>
-        </div>
-    `;
-
-    const renderRates = (rates) => {
-        if (!shippingRatesGrid || !shippingOptionsSection) {
-            return;
-        }
-
-        shippingRatesGrid.innerHTML = rates.map(renderRateCard).join('');
-        shippingOptionsSection.classList.remove('hidden');
+        triggerAutoShippingCalculation();
     };
 
     const renderItems = (items) => {
@@ -234,36 +280,68 @@ function initCheckoutPage() {
         });
     };
 
-    const openShippingModal = () => {
-        if (!shippingModal || !shippingOverlay || !shippingPanel) {
+    const triggerAutoShippingCalculation = () => {
+        window.clearTimeout(shippingTimer);
+
+        if (!canAutoCalculateShipping()) {
+            resetShippingState('Lengkapi nama penerima, no. telp, alamat, lalu pilih tujuan pengiriman agar ongkir JNE Reguler dipasang otomatis.');
             return;
         }
 
-        shippingModal.classList.remove('hidden');
+        const currentSignature = buildShippingSignature();
 
-        requestAnimationFrame(() => {
-            shippingOverlay.classList.remove('opacity-0');
-            shippingPanel.classList.remove('translate-y-10');
-            shippingPanel.classList.add('sm:-translate-y-1/2');
-        });
-    };
-
-    const closeShippingModal = () => {
-        if (!shippingModal || !shippingOverlay || !shippingPanel) {
+        if (currentSignature === lastShippingSignature) {
             return;
         }
 
-        shippingOverlay.classList.add('opacity-0');
-        shippingPanel.classList.add('translate-y-10');
-        shippingPanel.classList.remove('sm:-translate-y-1/2');
+        shippingTimer = window.setTimeout(async () => {
+            activeShippingRequest += 1;
+            const currentRequest = activeShippingRequest;
 
-        window.setTimeout(() => {
-            shippingModal.classList.add('hidden');
-        }, 250);
+            if (shippingEmptyState && shippingEmptyStateText) {
+                shippingEmptyState.classList.remove('hidden');
+                shippingEmptyStateText.textContent = 'Menghitung ongkir JNE Reguler otomatis...';
+            }
+
+            try {
+                const response = await fetch(ratesEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: new FormData(ratesForm),
+                });
+
+                const payload = await response.json();
+
+                if (currentRequest !== activeShippingRequest) {
+                    return;
+                }
+
+                if (!response.ok) {
+                    resetShippingState(payload.message || 'Gagal memasang ongkir otomatis.');
+                    showAlert(payload.message || 'Gagal memasang ongkir otomatis.', 'error');
+                    return;
+                }
+
+                lastShippingSignature = currentSignature;
+                applyShippingState(payload.selected_shipping, payload.estimated_total);
+                showAlert(payload.message || 'Ongkir JNE Reguler berhasil dipasang otomatis.');
+            } catch {
+                if (currentRequest !== activeShippingRequest) {
+                    return;
+                }
+
+                resetShippingState('Gagal terhubung ke server saat menghitung ongkir otomatis.');
+                showAlert('Gagal terhubung ke server saat menghitung ongkir otomatis.', 'error');
+            }
+        }, 450);
     };
 
     input.addEventListener('input', () => {
-        window.clearTimeout(debounceTimer);
+        window.clearTimeout(autocompleteTimer);
 
         const query = input.value.trim();
         destinationIdInput.value = '';
@@ -273,23 +351,25 @@ function initCheckoutPage() {
         destinationCityInput.value = '';
         destinationDistrictInput.value = '';
         destinationSubdistrictInput.value = '';
+        lastShippingSignature = '';
 
         if (selectedDestinationCard) {
             selectedDestinationCard.classList.add('hidden');
         }
 
+        resetShippingState('Pilih tujuan pengiriman dari hasil autocomplete agar ongkir JNE Reguler dipasang otomatis.');
+
         if (query.length < 3) {
-            helpText.textContent =
-                'Ketik nama kecamatan atau kota, lalu pilih salah satu hasil yang muncul.';
+            helpText.textContent = 'Ketik nama kecamatan atau kota, lalu pilih salah satu hasil yang muncul.';
             hideList();
             return;
         }
 
         helpText.textContent = 'Mencari tujuan pengiriman...';
 
-        debounceTimer = window.setTimeout(async () => {
-            activeRequest += 1;
-            const currentRequest = activeRequest;
+        autocompleteTimer = window.setTimeout(async () => {
+            activeAutocompleteRequest += 1;
+            const currentRequest = activeAutocompleteRequest;
 
             try {
                 const response = await fetch(`${endpoint}?q=${encodeURIComponent(query)}`, {
@@ -301,13 +381,12 @@ function initCheckoutPage() {
 
                 const payload = await response.json();
 
-                if (currentRequest !== activeRequest) {
+                if (currentRequest !== activeAutocompleteRequest) {
                     return;
                 }
 
                 if (!response.ok) {
-                    helpText.textContent =
-                        payload.message || 'Gagal mencari tujuan pengiriman.';
+                    helpText.textContent = payload.message || 'Gagal mencari tujuan pengiriman.';
                     hideList();
                     return;
                 }
@@ -317,8 +396,8 @@ function initCheckoutPage() {
                     : 'Tujuan tidak ditemukan.';
 
                 renderItems(payload.data || []);
-            } catch (error) {
-                if (currentRequest !== activeRequest) {
+            } catch {
+                if (currentRequest !== activeAutocompleteRequest) {
                     return;
                 }
 
@@ -340,96 +419,24 @@ function initCheckoutPage() {
         }
     });
 
-    ratesForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        hideAlert();
-
-        checkOngkirButton.disabled = true;
-        checkOngkirButton.classList.add('cursor-not-allowed', 'opacity-70');
-        checkOngkirButton.textContent = 'Memuat Ongkir...';
-
-        try {
-            const response = await fetch(ratesEndpoint, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-                body: new FormData(ratesForm),
-            });
-
-            const payload = await response.json();
-
-            if (!response.ok) {
-                showAlert(payload.message || 'Gagal memuat ongkir.', 'error');
-
-                if (shippingOptionsSection) {
-                    shippingOptionsSection.classList.add('hidden');
-                }
-
-                if (shippingEmptyState && shippingEmptyStateText) {
-                    shippingEmptyState.classList.remove('hidden');
-                    shippingEmptyStateText.textContent =
-                        payload.message || 'Gagal memuat ongkir.';
-                }
-
-                if (shippingCostSummary) {
-                    shippingCostSummary.textContent = 'Belum dipilih';
-                }
-
-                if (estimatedTotalSummary) {
-                    estimatedTotalSummary.textContent = formatRupiah(subtotalValue);
-                }
-
-                return;
-            }
-
-            renderRates(payload.rates || []);
-            showAlert(payload.message || 'Opsi pengiriman berhasil dimuat.');
-
-            if (shippingEmptyState) {
-                shippingEmptyState.classList.add('hidden');
-            }
-
-            if (selectedShippingCard) {
-                selectedShippingCard.classList.add('hidden');
-            }
-
-            if (checkoutProceedForm) {
-                checkoutProceedForm.classList.add('hidden');
-            }
-
-            if (shippingCostSummary) {
-                shippingCostSummary.textContent = 'Belum dipilih';
-            }
-
-            if (estimatedTotalSummary) {
-                estimatedTotalSummary.textContent = formatRupiah(subtotalValue);
-            }
-        } catch (error) {
-            showAlert('Gagal terhubung ke server saat memuat ongkir.', 'error');
-        } finally {
-            checkOngkirButton.disabled = false;
-            checkOngkirButton.classList.remove('cursor-not-allowed', 'opacity-70');
-            checkOngkirButton.textContent = 'Cek Ongkir';
-        }
+    [namaPenerima, noTelpPenerima, alamatPenerima].forEach((field) => {
+        field.addEventListener('input', () => {
+            lastShippingSignature = '';
+            triggerAutoShippingCalculation();
+        });
     });
 
-    if (Array.isArray(initialRates) && initialRates.length) {
-        renderRates(initialRates);
-    }
+    ratesForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        triggerAutoShippingCalculation();
+    });
 
-    if (shippingModal && shippingOverlay && shippingPanel && openShippingModalButton && closeShippingModalButton) {
-        openShippingModalButton.addEventListener('click', openShippingModal);
-        closeShippingModalButton.addEventListener('click', closeShippingModal);
-        shippingOverlay.addEventListener('click', closeShippingModal);
-
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !shippingModal.classList.contains('hidden')) {
-                closeShippingModal();
-            }
-        });
+    if (config.hasSelectedShipping) {
+        if (checkoutProceedForm) {
+            checkoutProceedForm.classList.remove('hidden');
+        }
+    } else {
+        resetShippingState('Lengkapi nama penerima, no. telp, alamat, lalu pilih tujuan pengiriman agar ongkir JNE Reguler dipasang otomatis.');
     }
 }
 
