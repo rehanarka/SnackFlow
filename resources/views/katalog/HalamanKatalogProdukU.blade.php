@@ -4,6 +4,12 @@
 <x-katalog.toolbar-pencarian-produk :show-tambah-button="false" :show-cart-button="true" :cart-count="$cartCount" />
 
 <div class="mt-10">
+    @if (session('keranjang_warning'))
+        <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-medium text-amber-700">
+            {{ session('keranjang_warning') }}
+        </div>
+    @endif
+
     @if ($produks->count())
         <div id="produkGrid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @foreach ($produks as $produk)

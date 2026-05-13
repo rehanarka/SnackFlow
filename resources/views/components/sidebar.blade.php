@@ -16,11 +16,6 @@
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V6a4 4 0 1 1 8 0v1m-9 4h10m-11 9h12a1 1 0 0 0 1-1l-1-10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1L5 19a1 1 0 0 0 1 1Z"/>
             </svg>
         '],
-        ['label' => 'Riwayat Transaksi', 'route' => null, 'active' => request()->is('*/riwayat-transaksi'), 'available' => false, 'icon' => '
-            <svg class="ICON_CLASS w-5 h-5 transition duration-75" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-3.4-7"/>
-            </svg>
-        '],
     ];
 
     if ($role === 'admin') {

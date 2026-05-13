@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailKeranjang;
+use App\Services\KeranjangService;
 use Illuminate\Http\Request;
 use App\Models\Keranjang;
 use App\Models\KatalogProduk;
@@ -12,6 +13,10 @@ use RuntimeException;
 
 class KatalogProdukController extends Controller
 {
+    public function __construct(private readonly KeranjangService $keranjangService)
+    {
+    }
+
     public function tambahProduk(Request $request)
     {
         $data = $request->validate([
@@ -104,6 +109,12 @@ class KatalogProdukController extends Controller
 
     public function viewKatalogUser()
     {
+        $removedProducts = $this->keranjangService->reconcileUserCart(auth()->user());
+
+        if ($removedProducts->isNotEmpty()) {
+            session()->flash('keranjang_warning', 'Beberapa produk di keranjang dihapus karena stok sudah tidak mencukupi.');
+        }
+
         $produks = KatalogProduk::orderByDesc('id')->get();
         $keranjangItems = auth()->user()->keranjang()->with('produk')->orderByDesc('id')->get();
         $cartCount = $keranjangItems->sum('jumlah_produk');
@@ -124,6 +135,26 @@ class KatalogProdukController extends Controller
             'jumlah_produk.min' => 'Jumlah produk minimal 1.',
         ]);
 
+        if ($request->boolean('redirect_to_checkout')) {
+            $produk = KatalogProduk::findOrFail($validated['produk_id']);
+
+            if ((int) $validated['jumlah_produk'] > (int) $produk->stok) {
+                return back()->withErrors([
+                    'keranjang' => 'Jumlah produk untuk checkout langsung melebihi stok yang tersedia.',
+                ])->withInput();
+            }
+
+            $request->session()->put('direct_checkout', [
+                'produk_id' => $produk->id,
+                'jumlah_produk' => (int) $validated['jumlah_produk'],
+            ]);
+            $request->session()->put('checkout_mode', 'direct');
+
+            return redirect()
+                ->route('user.checkout', ['source' => 'direct'])
+                ->with('success', 'Produk checkout langsung sudah disiapkan sesuai jumlah yang dipilih.');
+        }
+
         try {
             DB::transaction(function () use ($validated) {
                 $produk = KatalogProduk::lockForUpdate()->findOrFail($validated['produk_id']);
@@ -142,24 +173,24 @@ class KatalogProdukController extends Controller
 
                 $jumlahBaru = ($keranjangItem?->jumlah_produk ?? 0) + $validated['jumlah_produk'];
 
+                if ($jumlahBaru > $produk->stok) {
+                    throw new RuntimeException('Jumlah produk di keranjang melebihi stok yang tersedia.');
+                }
+
                 DetailKeranjang::updateOrCreate(
                     ['keranjang_id' => $keranjang->id, 'produk_id' => $validated['produk_id']],
                     ['jumlah_produk' => $jumlahBaru]
                 );
-
-                $produk->decrement('stok', $validated['jumlah_produk']);
             });
         } catch (RuntimeException $exception) {
             return back()->withErrors([
                 'keranjang' => $exception->getMessage(),
-            ])->withInput();
+            ])->withInput()->with('open_cart', true);
         }
 
-        if ($request->boolean('redirect_to_checkout')) {
-            return redirect()->route('user.checkout')->with('success', 'Produk langsung masuk ke checkout sesuai jumlah yang dipilih.');
-        }
-
-        return back()->with('success', 'Produk berhasil dimasukkan ke keranjang.');
+        return back()
+            ->with('success', 'Produk berhasil dimasukkan ke keranjang.')
+            ->with('open_cart', true);
     }
 
     public function hapusDariKeranjang($id)
@@ -167,11 +198,6 @@ class KatalogProdukController extends Controller
         DB::transaction(function () use ($id) {
             $keranjang = Keranjang::where('user_id', auth()->id())->firstOrFail();
             $item = DetailKeranjang::where('keranjang_id', $keranjang->id)->lockForUpdate()->findOrFail($id);
-            $produk = KatalogProduk::lockForUpdate()->find($item->produk_id);
-
-            if ($produk) {
-                $produk->increment('stok', $item->jumlah_produk);
-            }
 
             $item->delete();
 
@@ -180,7 +206,9 @@ class KatalogProdukController extends Controller
             }
         });
 
-        return back()->with('success', 'Produk berhasil dihapus dari keranjang.');
+        return back()
+            ->with('success', 'Produk berhasil dihapus dari keranjang.')
+            ->with('open_cart', true);
     }
 
     public function updateJumlahKeranjang(Request $request, $id)
@@ -200,18 +228,20 @@ class KatalogProdukController extends Controller
                     ->lockForUpdate()
                     ->findOrFail($id);
                 $produk = KatalogProduk::lockForUpdate()->findOrFail($item->produk_id);
-                $jumlahLama = (int) $item->jumlah_produk;
                 $jumlahBaru = (int) $validated['jumlah_produk'];
-                $selisih = $jumlahBaru - $jumlahLama;
 
-                if ($selisih > 0) {
-                    if ($selisih > $produk->stok) {
-                        throw new RuntimeException('Jumlah produk di keranjang melebihi stok yang tersedia.');
+                if ($jumlahBaru > $produk->stok) {
+                    if ((int) $item->jumlah_produk > (int) $produk->stok) {
+                        $item->delete();
+
+                        if (!DetailKeranjang::where('keranjang_id', $keranjang->id)->exists()) {
+                            $keranjang->delete();
+                        }
+
+                        throw new RuntimeException('Produk di keranjang dihapus karena stok terbaru tidak lagi mencukupi.');
                     }
 
-                    $produk->decrement('stok', $selisih);
-                } elseif ($selisih < 0) {
-                    $produk->increment('stok', abs($selisih));
+                    throw new RuntimeException('Jumlah produk di keranjang melebihi stok yang tersedia.');
                 }
 
                 $item->update([
@@ -221,9 +251,11 @@ class KatalogProdukController extends Controller
         } catch (RuntimeException $exception) {
             return back()->withErrors([
                 'keranjang' => $exception->getMessage(),
-            ]);
+            ])->with('open_cart', true);
         }
 
-        return back()->with('success', 'Jumlah produk di keranjang berhasil diperbarui.');
+        return back()
+            ->with('success', 'Jumlah produk di keranjang berhasil diperbarui.')
+            ->with('open_cart', true);
     }
 }

@@ -4,7 +4,7 @@
     $totalHarga = $keranjangItems->sum(fn ($item) => ($item->produk->harga ?? 0) * $item->jumlah_produk);
 @endphp
 
-<div id="cartModal" class="fixed inset-0 z-[60] hidden">
+<div id="cartModal" data-auto-open="{{ session('open_cart') ? 'true' : 'false' }}" class="fixed inset-0 z-[60] hidden">
     <div id="cartModalOverlay" class="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 ease-out"></div>
 
     <div id="cartModalPanel" class="absolute right-0 top-0 h-full w-full max-w-md translate-x-full bg-white shadow-2xl transition-transform duration-300 ease-out">
@@ -21,6 +21,12 @@
                 @if (session('success'))
                     <div class="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
                         {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('keranjang_warning'))
+                    <div class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
+                        {{ session('keranjang_warning') }}
                     </div>
                 @endif
 
@@ -75,7 +81,7 @@
                     <span class="text-sm font-medium text-slate-500">Total</span>
                     <span class="text-lg font-bold text-slate-900">Rp {{ number_format($totalHarga, 0, ',', '.') }}</span>
                 </div>
-                <a href="{{ route('user.checkout') }}" class="block w-full rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 {{ $keranjangItems->count() ? '' : 'pointer-events-none opacity-50' }}">Checkout</a>
+                <a href="{{ route('user.checkout', ['source' => 'cart']) }}" class="block w-full rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 {{ $keranjangItems->count() ? '' : 'pointer-events-none opacity-50' }}">Checkout</a>
             </div>
         </div>
     </div>

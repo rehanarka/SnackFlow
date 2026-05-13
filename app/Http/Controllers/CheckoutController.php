@@ -9,17 +9,87 @@ use App\Models\KodePos;
 use App\Models\Penerima;
 use App\Models\Provinsi;
 use App\Models\Transaksi;
+use App\Services\KeranjangService;
 use App\Services\MidtransService;
 use App\Services\RajaOngkirService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 class CheckoutController extends Controller
 {
-    public function __construct(private readonly RajaOngkirService $rajaOngkirService)
+    public function __construct(
+        private readonly RajaOngkirService $rajaOngkirService,
+        private readonly KeranjangService $keranjangService
+    )
     {
+    }
+
+    private function clearDirectCheckoutState(Request $request): void
+    {
+        $request->session()->forget([
+            'direct_checkout',
+            'checkout_mode',
+        ]);
+    }
+
+    private function resolveCheckoutMode(Request $request): string
+    {
+        $source = $request->query('source');
+
+        if ($source === 'cart') {
+            $this->clearDirectCheckoutState($request);
+            $request->session()->put('checkout_mode', 'cart');
+
+            return 'cart';
+        }
+
+        if ($source === 'direct') {
+            $request->session()->put('checkout_mode', 'direct');
+
+            return 'direct';
+        }
+
+        return $request->session()->get('checkout_mode', 'cart');
+    }
+
+    private function getDirectCheckoutItems(Request $request)
+    {
+        $directCheckout = $request->session()->get('direct_checkout');
+
+        if (
+            !is_array($directCheckout) ||
+            empty($directCheckout['produk_id']) ||
+            empty($directCheckout['jumlah_produk'])
+        ) {
+            return collect();
+        }
+
+        $produk = \App\Models\KatalogProduk::find($directCheckout['produk_id']);
+
+        if (!$produk) {
+            return collect();
+        }
+
+        return collect([
+            (object) [
+                'id' => 'direct-' . $produk->id,
+                'produk_id' => $produk->id,
+                'jumlah_produk' => (int) $directCheckout['jumlah_produk'],
+                'produk' => $produk,
+            ],
+        ]);
+    }
+
+    private function getCheckoutItems(Request $request, string $mode)
+    {
+        if ($mode === 'direct') {
+            return $this->getDirectCheckoutItems($request);
+        }
+
+        return $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
     }
 
     private function filterJneRegularRates(array $rates): array
@@ -41,7 +111,26 @@ class CheckoutController extends Controller
 
     public function index(Request $request)
     {
-        $keranjangItems = $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
+        $checkoutMode = $this->resolveCheckoutMode($request);
+
+        if ($checkoutMode === 'cart') {
+            $removedProducts = $this->keranjangService->reconcileUserCart($request->user());
+
+            if ($removedProducts->isNotEmpty()) {
+                $request->session()->flash('keranjang_warning', 'Beberapa produk di keranjang dihapus karena stok sudah tidak mencukupi.');
+            }
+        }
+
+        $keranjangItems = $this->getCheckoutItems($request, $checkoutMode);
+
+        if ($checkoutMode === 'direct' && $keranjangItems->isEmpty()) {
+            $this->clearDirectCheckoutState($request);
+
+            return redirect()->route('user.katalog')->withErrors([
+                'keranjang' => 'Produk checkout langsung tidak lagi tersedia. Silakan pilih ulang produknya.',
+            ]);
+        }
+
         $subtotal = $keranjangItems->sum(fn ($item) => ($item->produk->harga ?? 0) * $item->jumlah_produk);
         $totalBerat = $keranjangItems->sum(fn ($item) => ($item->produk->berat ?? 0) * $item->jumlah_produk);
         $selectedDestination = session('rajaongkir_selected_destination');
@@ -65,19 +154,44 @@ class CheckoutController extends Controller
             'selectedShipping',
             'checkoutForm',
             'estimatedTotal',
-            'originLocation'
+            'originLocation',
+            'checkoutMode'
         ));
     }
 
     public function rates(Request $request)
     {
-        $keranjangItems = $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
+        $checkoutMode = $this->resolveCheckoutMode($request);
+
+        if ($checkoutMode === 'cart') {
+            $removedProducts = $this->keranjangService->reconcileUserCart($request->user());
+
+            if ($removedProducts->isNotEmpty()) {
+                $message = 'Beberapa produk di keranjang dihapus karena stok sudah tidak mencukupi.';
+
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => $message], 422);
+                }
+
+                return back()->withErrors([
+                    'checkout' => $message,
+                ]);
+            }
+        }
+
+        $keranjangItems = $this->getCheckoutItems($request, $checkoutMode);
 
         if ($keranjangItems->isEmpty()) {
-            $message = 'Keranjang masih kosong. Tambahkan produk terlebih dahulu sebelum cek ongkir.';
+            $message = $checkoutMode === 'direct'
+                ? 'Produk checkout langsung tidak tersedia lagi. Silakan pilih ulang produk.'
+                : 'Keranjang masih kosong. Tambahkan produk terlebih dahulu sebelum cek ongkir.';
 
             if ($request->expectsJson()) {
                 return response()->json(['message' => $message], 422);
+            }
+
+            if ($checkoutMode === 'direct') {
+                $this->clearDirectCheckoutState($request);
             }
 
             return back()->withErrors([
@@ -216,10 +330,22 @@ class CheckoutController extends Controller
 
     public function proceedToPayment(Request $request)
     {
+        $checkoutMode = $this->resolveCheckoutMode($request);
+
+        if ($checkoutMode === 'cart') {
+            $removedProducts = $this->keranjangService->reconcileUserCart($request->user());
+
+            if ($removedProducts->isNotEmpty()) {
+                return redirect()->route('user.checkout', ['source' => 'cart'])->withErrors([
+                    'checkout' => 'Beberapa produk di keranjang dihapus karena stok sudah tidak mencukupi. Silakan cek ulang pesananmu.',
+                ]);
+            }
+        }
+
         $checkoutForm = $request->session()->get('checkout_form');
         $selectedDestination = $request->session()->get('rajaongkir_selected_destination');
         $selectedShipping = $request->session()->get('rajaongkir_selected_shipping');
-        $keranjangItems = $request->user()->keranjang()->with('produk')->orderByDesc('id')->get();
+        $keranjangItems = $this->getCheckoutItems($request, $checkoutMode);
 
         if (!$checkoutForm || !$selectedDestination || !$selectedShipping) {
             return redirect()->route('user.checkout')->withErrors([
@@ -235,7 +361,35 @@ class CheckoutController extends Controller
 
         $subtotal = $keranjangItems->sum(fn ($item) => ($item->produk->harga ?? 0) * $item->jumlah_produk);
 
-        $transaksi = DB::transaction(function () use ($request, $checkoutForm, $selectedDestination, $selectedShipping, $keranjangItems, $subtotal) {
+        try {
+            $transaksi = DB::transaction(function () use ($request, $checkoutForm, $selectedDestination, $selectedShipping, $keranjangItems, $subtotal, $checkoutMode) {
+                $produkMap = collect();
+                $produkIds = $keranjangItems->pluck('produk_id')->unique()->values();
+
+                if ($produkIds->isNotEmpty()) {
+                    $produkMap = \App\Models\KatalogProduk::query()
+                        ->whereIn('id', $produkIds)
+                        ->lockForUpdate()
+                        ->get()
+                        ->keyBy('id');
+
+                    foreach ($keranjangItems as $item) {
+                        $produk = $produkMap->get($item->produk_id);
+
+                        if (!$produk || (int) $item->jumlah_produk > (int) $produk->stok) {
+                            if ($checkoutMode === 'direct') {
+                                $this->clearDirectCheckoutState($request);
+
+                                throw new RuntimeException('Stok produk checkout langsung sudah tidak mencukupi. Silakan pilih ulang produk.');
+                            }
+
+                            DetailKeranjang::whereKey($item->id)->delete();
+
+                            throw new RuntimeException('Ada produk di keranjang yang stoknya sudah tidak mencukupi. Produk tersebut sudah dihapus dari keranjang.');
+                        }
+                    }
+                }
+
             $kodePos = null;
             $provinsi = null;
             $kabupaten = null;
@@ -298,26 +452,40 @@ class CheckoutController extends Controller
             ]);
 
             foreach ($keranjangItems as $item) {
+                $produk = $produkMap->get($item->produk_id);
+
                 DetailTransaksi::create([
                     'transaksi_id' => $transaksi->id,
                     'produk_id' => $item->produk_id,
                     'jumlah_produk' => $item->jumlah_produk,
-                    'harga_produk' => $item->produk->harga ?? 0,
-                    'subtotal_produk' => ($item->produk->harga ?? 0) * $item->jumlah_produk,
+                    'harga_produk' => $produk->harga ?? ($item->produk->harga ?? 0),
+                    'subtotal_produk' => ($produk->harga ?? ($item->produk->harga ?? 0)) * $item->jumlah_produk,
                 ]);
+
+                if ($produk) {
+                    $produk->decrement('stok', (int) $item->jumlah_produk);
+                }
             }
 
-            $request->user()->keranjang()->delete();
-            $request->user()->keranjangUtama()->delete();
+            if ($checkoutMode === 'cart') {
+                $request->user()->keranjang()->delete();
+                $request->user()->keranjangUtama()->delete();
+            }
 
             return $transaksi->fresh(['detailTransaksi.produk']);
-        });
+            });
+        } catch (RuntimeException $exception) {
+            return redirect()->route('user.checkout')->withErrors([
+                'checkout' => $exception->getMessage(),
+            ]);
+        }
 
         $request->session()->forget([
             'checkout_form',
             'rajaongkir_selected_destination',
             'rajaongkir_selected_shipping',
         ]);
+        $this->clearDirectCheckoutState($request);
 
         return redirect()
             ->route('user.katalog')

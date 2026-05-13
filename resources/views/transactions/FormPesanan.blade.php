@@ -3,6 +3,7 @@
 @section('content')
 @php
     $user = auth()->user();
+    $isDirectCheckout = ($checkoutMode ?? 'cart') === 'direct';
     $oldTujuanPengiriman = old('tujuan_pengiriman', $selectedDestination['label'] ?? '');
     $namaPenerima = old('nama_penerima', $checkoutForm['nama_penerima'] ?? $user->nama_lengkap);
     $noTelpPenerima = old('no_telp_penerima', $checkoutForm['no_telp_penerima'] ?? $user->no_telepon);
@@ -14,6 +15,12 @@
         @if (session('success'))
             <div class="mb-6 rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-700">
                 {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('keranjang_warning'))
+            <div class="mb-6 rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-medium text-amber-700">
+                {{ session('keranjang_warning') }}
             </div>
         @endif
 
@@ -29,6 +36,9 @@
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Checkout</p>
                 <h1 class="mt-2 text-3xl font-bold text-slate-900">Ringkasan Pesanan</h1>
                 <p class="mt-2 text-sm text-slate-500">Cek ulang item, data penerima, dan total belanja sebelum lanjut ke pengiriman.</p>
+                <p class="mt-2 text-xs font-semibold uppercase tracking-[0.18em] {{ $isDirectCheckout ? 'text-sky-600' : 'text-slate-500' }}">
+                    {{ $isDirectCheckout ? 'Mode Checkout Langsung' : 'Mode Checkout Keranjang' }}
+                </p>
             </div>
             <a href="{{ route('user.katalog') }}" class="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-slate-50">Kembali ke Katalog</a>
         </div>

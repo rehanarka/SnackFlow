@@ -34,6 +34,10 @@ export function initCartDrawer() {
     openButton.addEventListener('click', openDrawer);
     closeButton?.addEventListener('click', closeDrawer);
 
+    if (modal.dataset.autoOpen === 'true') {
+        openDrawer();
+    }
+
     modal.addEventListener('click', (event) => {
         if (event.target === modal || event.target === overlay) {
             closeDrawer();
