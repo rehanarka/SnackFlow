@@ -6,6 +6,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\KatalogProdukController;
+use App\Http\Controllers\ReviewProdukController;
 use App\Http\Controllers\TransaksiController;
 
 Route::get('/', function () {
@@ -37,6 +38,7 @@ Route::middleware(['auth', 'RoleLogin'])->prefix('admin')->group(function(){
     Route::get('/katalog', [KatalogProdukController::class, 'viewKatalog'])->name('admin.katalog');
     Route::put('/katalog/update/{id}', [KatalogProdukController::class, 'updateProduk'])->name('admin.katalog.update');
     Route::delete('/katalog/hapus/{id}', [KatalogProdukController::class, 'hapusProduk'])->name('admin.katalog.hapus');
+    Route::get('/katalog/{produk}/review', [ReviewProdukController::class, 'adminIndex'])->name('admin.katalog.review');
     Route::get('/transaksi', [TransaksiController::class, 'adminIndex'])->name('admin.transaksi');
     Route::post('/transaksi/offline', [TransaksiController::class, 'storeOffline'])->name('admin.transaksi.store-offline');
     Route::put('/transaksi/offline/{transaksi}', [TransaksiController::class, 'updateOffline'])->name('admin.transaksi.update-offline');
@@ -55,6 +57,8 @@ Route::middleware(['auth'])->prefix('user')->group(function(){
         Route::get('/checkout/payment/{transaksi}', [CheckoutController::class, 'payment'])->name('user.checkout.payment');
         Route::post('/checkout/payment/{transaksi}/refresh-status', [CheckoutController::class, 'refreshPaymentStatus'])->name('user.checkout.payment.refresh-status');
         Route::post('/transaksi/{transaksi}/received', [TransaksiController::class, 'markAsReceived'])->name('user.transaksi.received');
+        Route::get('/transaksi/{transaksi}/review', [ReviewProdukController::class, 'create'])->name('user.transaksi.review');
+        Route::post('/transaksi/{transaksi}/review', [ReviewProdukController::class, 'store'])->name('user.transaksi.review.store');
         Route::post('/keranjang', [KatalogProdukController::class, 'tambahKeKeranjang'])->name('user.keranjang.tambah');
         Route::patch('/keranjang/{id}', [KatalogProdukController::class, 'updateJumlahKeranjang'])->name('user.keranjang.update');
         Route::delete('/keranjang/{id}', [KatalogProdukController::class, 'hapusDariKeranjang'])->name('user.keranjang.hapus');

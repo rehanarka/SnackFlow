@@ -59,6 +59,7 @@ export function initAdminProductModals() {
     const detailStok = document.getElementById('productDetailStok');
     const detailBerat = document.getElementById('productDetailBerat');
     const detailDeskripsi = document.getElementById('productDetailDeskripsi');
+    const detailActionReviewButton = document.getElementById('detailActionReviewProduct');
     const detailActionEditButton = document.getElementById('detailActionEditProduct');
     const detailActionDeleteButton = document.getElementById('detailActionDeleteProduct');
 
@@ -209,6 +210,10 @@ export function initAdminProductModals() {
                 detailActionEditButton.dataset.berat = productPayload.berat;
                 detailActionEditButton.dataset.deskripsi = productPayload.deskripsi;
                 detailActionEditButton.dataset.foto = productPayload.foto;
+            }
+
+            if (detailActionReviewButton) {
+                detailActionReviewButton.href = `/admin/katalog/${productPayload.id}/review`;
             }
 
             if (detailActionDeleteButton) {

@@ -29,4 +29,9 @@ class KatalogProduk extends Model
     {
         return $this->hasMany(DetailTransaksi::class, 'produk_id');
     }
+
+    public function reviewProduk()
+    {
+        return $this->hasMany(ReviewProduk::class, 'produk_id');
+    }
 }

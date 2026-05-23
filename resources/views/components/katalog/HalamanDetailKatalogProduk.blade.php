@@ -54,6 +54,7 @@
                 </dl>
 
                 <div class="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
+                    <a href="#" id="detailActionReviewProduct" class="inline-flex justify-center rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-amber-600 hover:cursor-pointer">Review</a>
                     <button type="button" id="detailActionEditProduct" class="rounded-2xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-sky-700 hover:cursor-pointer">Edit</button>
                     <button type="button" id="detailActionDeleteProduct" class="rounded-2xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-rose-700 hover:cursor-pointer">Hapus</button>
                 </div>

@@ -121,7 +121,7 @@
                                 <th class="px-6 py-4">Total</th>
                                 <th class="px-6 py-4">Pembayaran</th>
                                 <th class="px-6 py-4">Status</th>
-                                <th class="px-6 py-4">Aksi Admin</th>
+                                <th class="px-6 py-4">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">

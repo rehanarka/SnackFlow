@@ -44,6 +44,11 @@ class Transaksi extends Model
         return $this->belongsTo(Penerima::class, 'penerima_id');
     }
 
+    public function reviewProduk()
+    {
+        return $this->hasMany(ReviewProduk::class, 'transaksi_id');
+    }
+
     public function getNamaPenerimaAttribute(): ?string
     {
         return $this->penerima?->nama_penerima;

@@ -42,6 +42,12 @@
     </section>
 
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100/80">
+        @if (session('review_error'))
+            <div class="border-b border-rose-200 bg-rose-50 px-6 py-4 text-sm font-semibold text-rose-700">
+                {{ session('review_error') }}
+            </div>
+        @endif
+
         <div class="border-b border-slate-200 px-6 py-5">
             <h2 class="text-lg font-semibold text-slate-900">Daftar Transaksi</h2>
             <p class="mt-1 text-sm text-slate-500">Tampilan pembayaran, total belanja, dan status pesanan terbaru kamu.</p>
@@ -103,9 +109,16 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-5">
+                                    <div class="flex flex-wrap gap-2">
                                     <a href="{{ route('user.checkout.payment', $item) }}" class="inline-flex rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer">
                                         Lihat Detail
                                     </a>
+                                    @if ($item->status_pesanan === 'Selesai')
+                                        <a href="{{ route('user.transaksi.review', $item) }}" class="inline-flex rounded-2xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-amber-600 hover:cursor-pointer">
+                                            Review
+                                        </a>
+                                    @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
