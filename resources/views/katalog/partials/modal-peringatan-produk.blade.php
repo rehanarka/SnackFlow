@@ -1,4 +1,4 @@
-@props(['pesan' => null])
+@php($pesan = $pesan ?? null)
 
 <x-modal.alert
     modal-id="peringatanProdukModal"

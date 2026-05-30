@@ -10,15 +10,16 @@ Folder ini berisi dokumentasi utama program SnackFlow. Dokumentasi dibagi menjad
 
 ## Ringkasan Sistem
 
-SnackFlow adalah sistem informasi penjualan produk kuliner UMKM Matrix Jaya. Sistem ini digunakan untuk mengelola katalog produk, keranjang belanja, checkout, transaksi online, transaksi offline toko, pengiriman, pembayaran, dan riwayat pesanan.
+SnackFlow adalah sistem informasi penjualan produk kuliner UMKM Matrix Jaya. Sistem ini digunakan untuk mengelola katalog produk, keranjang belanja, checkout, transaksi online, transaksi offline toko, pengiriman, pembayaran, riwayat pesanan, review produk, artikel, serta laporan penjualan dan keuangan.
 
 Sistem memiliki dua jenis pengguna utama:
 
-- Admin, yang bertugas mengelola produk dan transaksi.
-- User, yang melakukan pemesanan produk secara online.
+- Admin, yang bertugas mengelola produk, transaksi, artikel, review, laporan penjualan, dan laporan keuangan.
+- User, yang melakukan pemesanan produk secara online, membaca artikel, dan memberi review pada transaksi selesai.
+
+Guest atau pengunjung tanpa login dapat melihat produk dan ringkasan artikel di landing page. Saat ingin membeli atau melihat seluruh artikel melalui dashboard user, pengunjung diarahkan untuk login terlebih dahulu.
 
 Integrasi eksternal yang digunakan:
 
 - RajaOngkir untuk pencarian alamat dan perhitungan ongkir.
 - Midtrans untuk pembayaran online.
-

@@ -176,6 +176,111 @@
             </div>
         </section>
 
+        <section id="produk" class="relative overflow-hidden bg-white px-6 py-20 lg:px-10">
+            <div class="relative mx-auto max-w-7xl">
+                <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="max-w-3xl">
+                        <p class="text-xs font-semibold uppercase tracking-[0.30em] text-slate-500">Produk Pilihan</p>
+                        <h2 class="mt-4 text-3xl font-black uppercase leading-tight text-slate-900 sm:text-5xl">
+                            Lihat beberapa produk unggulan Matrix Jaya yang siap menemani hari kamu
+                        </h2>
+                    </div>
+
+                </div>
+
+                @if (($produkLanding ?? collect())->isEmpty())
+                    <div class="mt-12 rounded-[2rem] border border-dashed border-slate-300 bg-slate-50 px-6 py-14 text-center">
+                        <h3 class="text-lg font-semibold text-slate-800">Produk belum tersedia</h3>
+                        <p class="mt-2 text-sm leading-6 text-slate-500">Produk dari katalog akan tampil di sini setelah admin menambahkan data produk.</p>
+                    </div>
+                @else
+                    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach ($produkLanding as $produk)
+                            <article class="group overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.09)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_58px_rgba(15,23,42,0.13)]">
+                                <div class="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                                    @if ($produk->foto_produk)
+                                        <img src="{{ asset('storage/' . $produk->foto_produk) }}" alt="{{ $produk->nama_produk }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async">
+                                    @else
+                                        <div class="flex h-full items-center justify-center text-sm font-semibold text-slate-400">No Image</div>
+                                    @endif
+                                    <div class="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-700 shadow-sm">
+                                        Stok {{ $produk->stok }}
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4 p-5">
+                                    <div>
+                                        <h3 class="text-xl font-black uppercase leading-tight text-slate-900">{{ $produk->nama_produk }}</h3>
+                                        <p class="mt-2 text-sm leading-6 text-slate-500 line-clamp-2">{{ $produk->deskripsi ?: 'Camilan Matrix Jaya siap menemani pesanan kamu.' }}</p>
+                                    </div>
+
+                                    <div class="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Harga</p>
+                                            <p class="mt-1 text-xl font-black text-sky-600">Rp {{ number_format($produk->harga, 0, ',', '.') }}</p>
+                                        </div>
+                                        <a href="{{ route('login') }}" class="shrink-0 rounded-full bg-[linear-gradient(90deg,#38bdf8_0%,#2563eb_100%)] px-5 py-3 text-sm font-bold uppercase tracking-[0.14em] text-white shadow-[0_14px_32px_rgba(37,99,235,0.24)] transition duration-300 hover:-translate-y-0.5">
+                                            Beli
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        <section id="artikel" class="relative overflow-hidden bg-[#f7f3ea] px-6 py-20 lg:px-10">
+            <div class="absolute -left-24 top-10 h-72 w-72 rounded-full bg-sky-300/14 blur-3xl"></div>
+            <div class="relative mx-auto max-w-7xl">
+                <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="max-w-3xl">
+                        <p class="text-xs font-semibold uppercase tracking-[0.30em] text-slate-500">Artikel</p>
+                        <h2 class="mt-4 text-3xl font-black uppercase leading-tight text-slate-900 sm:text-5xl">
+                            Wawasan camilan dan produk Matrix Jaya
+                        </h2>
+                        <p class="mt-5 text-base leading-8 text-slate-600">
+                            Baca ringkasan artikel dari SnackFlow tanpa perlu login. Untuk melihat semua artikel di dashboard, masuk sebagai user terlebih dahulu.
+                        </p>
+                    </div>
+
+                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-6 py-3 text-sm font-bold uppercase tracking-[0.16em] text-slate-800 shadow-sm transition duration-300 hover:-translate-y-1 hover:bg-slate-50">
+                        Lihat Semua
+                    </a>
+                </div>
+
+                @if (($artikelLanding ?? collect())->isEmpty())
+                    <div class="mt-12 rounded-[2rem] border border-dashed border-slate-300 bg-white/70 px-6 py-14 text-center">
+                        <h3 class="text-lg font-semibold text-slate-800">Artikel belum tersedia</h3>
+                        <p class="mt-2 text-sm leading-6 text-slate-500">Artikel akan tampil di sini setelah admin menambahkan konten wawasan.</p>
+                    </div>
+                @else
+                    <div class="mt-12 grid gap-6 md:grid-cols-3">
+                        @foreach ($artikelLanding as $artikel)
+                            <article class="overflow-hidden rounded-[1.6rem] border border-white/70 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.09)]">
+                                <div class="aspect-[4/3] bg-slate-100">
+                                    @if ($artikel->gambar_artikel)
+                                        <img src="{{ asset('storage/' . $artikel->gambar_artikel) }}" alt="{{ $artikel->judul }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
+                                    @else
+                                        <div class="flex h-full items-center justify-center text-sm font-semibold text-slate-400">Tidak ada gambar</div>
+                                    @endif
+                                </div>
+
+                                <div class="p-5">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-sky-600">Artikel</p>
+                                    <h3 class="mt-2 text-xl font-black leading-tight text-slate-900">{{ $artikel->judul }}</h3>
+                                    <p class="mt-3 text-sm leading-7 text-slate-600 line-clamp-4">
+                                        {{ \Illuminate\Support\Str::limit(strip_tags($artikel->konten_artikel), 180) }}
+                                    </p>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </section>
+
         <section id="kontak" class="relative overflow-hidden bg-[#0f172a] px-6 py-20 text-white lg:px-10">
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(37,99,235,0.18),transparent_30%)]"></div>
 

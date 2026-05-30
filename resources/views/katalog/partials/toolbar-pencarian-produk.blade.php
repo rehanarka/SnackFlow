@@ -1,8 +1,8 @@
-@props([
-    'showTambahButton' => true,
-    'showCartButton' => false,
-    'cartCount' => 0,
-])
+@php
+    $showTambahButton = $showTambahButton ?? true;
+    $showCartButton = $showCartButton ?? false;
+    $cartCount = $cartCount ?? 0;
+@endphp
 
 <div class="flex items-start justify-between gap-4">
     <div class="flex-1">

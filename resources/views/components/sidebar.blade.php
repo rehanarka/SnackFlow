@@ -16,15 +16,18 @@
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V6a4 4 0 1 1 8 0v1m-9 4h10m-11 9h12a1 1 0 0 0 1-1l-1-10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1L5 19a1 1 0 0 0 1 1Z"/>
             </svg>
         '],
-    ];
-
-    if ($role === 'admin') {
-        $menus[] = ['label' => 'Konten', 'route' => null, 'active' => request()->is('admin/konten'), 'available' => false, 'icon' => '
+        ['label' => 'Artikel', 'route' => $role . '.artikel', 'active' => request()->routeIs($role . '.artikel*'), 'available' => true, 'icon' => '
             <svg class="ICON_CLASS w-5 h-5 transition duration-75" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M7 4v3m10-3v3M6 11h12M6 15h8m-8 5h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2Z"/>
             </svg>
-        '];
-        $menus[] = ['label' => 'Laporan', 'route' => null, 'active' => request()->is('admin/laporan'), 'available' => false, 'icon' => '
+        '],
+    ];
+
+    if ($role === 'admin') {
+        $menus[] = ['label' => 'Laporan', 'route' => null, 'active' => request()->routeIs('admin.laporan*'), 'available' => true, 'children' => [
+            ['label' => 'Laporan Penjualan', 'route' => 'admin.laporan.penjualan', 'active' => request()->routeIs('admin.laporan.penjualan')],
+            ['label' => 'Laporan Keuangan', 'route' => 'admin.laporan.keuangan', 'active' => request()->routeIs('admin.laporan.keuangan')],
+        ], 'icon' => '
             <svg class="ICON_CLASS w-5 h-5 transition duration-75" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m3 6V7m3 10v-3m-9 7h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z"/>
             </svg>
@@ -52,7 +55,35 @@
                     @endphp
 
                     <li>
-                        @if ($menu['available'])
+                        @if ($menu['available'] && !empty($menu['children']))
+                            <details class="group" {{ $menu['active'] ? 'open' : '' }}>
+                                <summary class="{{ $itemClass }} list-none hover:cursor-pointer">
+                                    {!! $icon !!}
+                                    <span class="ml-3 {{ $textClass }}">{{ $menu['label'] }}</span>
+                                    <svg class="ml-auto h-4 w-4 {{ $textClass }} transition duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                                    </svg>
+                                </summary>
+                                <ul class="mt-2 space-y-1">
+                                    @foreach ($menu['children'] as $child)
+                                        @php
+                                            $childIconClass = $child['active'] ? 'text-blue-600' : 'text-black';
+                                            $childClass = $child['active']
+                                                ? $activeMenuClass . ' text-blue-600 shadow-sm'
+                                                : $inactiveMenuClass . ' text-black';
+                                        @endphp
+                                        <li>
+                                            <a href="{{ route($child['route']) }}" class="{{ $menuBaseClass }} {{ $childClass }}">
+                                                <span class="flex h-5 w-5 shrink-0 items-center justify-center {{ $childIconClass }}">
+                                                    <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+                                                </span>
+                                                <span class="ml-3 {{ $childIconClass }}">{{ $child['label'] }}</span>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </details>
+                        @elseif ($menu['available'])
                             <a href="{{ route($menu['route']) }}" class="{{ $itemClass }}">{!! $icon !!}<span class="ml-3 {{ $textClass }}">{{ $menu['label'] }}</span></a>
                         @else
                             <div class="{{ $itemClass }}">

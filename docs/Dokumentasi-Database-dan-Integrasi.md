@@ -2,7 +2,7 @@
 
 ## Gambaran Database
 
-Database SnackFlow menyimpan data user, produk, keranjang, transaksi, detail transaksi, penerima, wilayah pengiriman, dan data pembayaran.
+Database SnackFlow menyimpan data user, produk, keranjang, transaksi, detail transaksi, penerima, wilayah pengiriman, data pembayaran, review produk, artikel, dan pengeluaran.
 
 Nama tabel utama:
 
@@ -17,6 +17,9 @@ Nama tabel utama:
 - `kecamatan`
 - `kabupaten`
 - `provinsi`
+- `review_produk`
+- `artikel`
+- `pengeluaran`
 
 ## Tabel User
 
@@ -136,6 +139,58 @@ Keterangan:
 
 - `harga_produk` menyimpan harga produk pada saat transaksi dibuat.
 - `subtotal_produk` menyimpan hasil `harga_produk * jumlah_produk`.
+
+## Tabel Review Produk
+
+Tabel `review_produk` menyimpan review user terhadap produk pada transaksi selesai.
+
+Kolom penting:
+
+- `id`
+- `user_id`
+- `produk_id`
+- `transaksi_id`
+- `rating`
+- `review_produk`
+- `foto_review`
+
+Keterangan:
+
+- `rating` berupa integer 1 sampai 5.
+- `review_produk` wajib diisi.
+- `foto_review` opsional dan menyimpan path file foto.
+
+## Tabel Artikel
+
+Tabel `artikel` menyimpan konten wawasan untuk user dan pengunjung.
+
+Kolom penting:
+
+- `id`
+- `judul`
+- `gambar_artikel`
+- `konten_artikel`
+
+Keterangan:
+
+- `judul` maksimal 100 karakter.
+- `gambar_artikel` opsional dan menyimpan path file gambar.
+- `konten_artikel` menyimpan isi artikel.
+
+## Tabel Pengeluaran
+
+Tabel `pengeluaran` menyimpan data biaya atau pengeluaran toko.
+
+Kolom penting:
+
+- `id`
+- `nama_pengeluaran`
+- `tanggal_pengeluaran`
+- `nominal`
+
+Keterangan:
+
+- Data ini dipakai pada laporan keuangan untuk menghitung total pengeluaran dan profit.
 
 ## Tabel Penerima
 
@@ -283,6 +338,9 @@ erDiagram
     penerima ||--o{ transaksi : tujuan
     transaksi ||--o{ detail_transaksi : memiliki
     katalog_produk ||--o{ detail_transaksi : dibeli
+    user ||--o{ review_produk : menulis
+    transaksi ||--o{ review_produk : sumber
+    katalog_produk ||--o{ review_produk : direview
     provinsi ||--o{ kabupaten : memiliki
     kabupaten ||--o{ kecamatan : memiliki
     kode_pos ||--o{ kecamatan : digunakan
@@ -291,4 +349,3 @@ erDiagram
     kecamatan ||--o{ penerima : alamat
     kode_pos ||--o{ penerima : alamat
 ```
-

@@ -1,11 +1,11 @@
-@props([
-    'prefix',
-    'namaProduk' => '',
-    'harga' => '',
-    'stok' => '',
-    'berat' => '',
-    'deskripsi' => '',
-])
+@php
+    $prefix = $prefix ?? 'produk';
+    $namaProduk = $namaProduk ?? '';
+    $harga = $harga ?? '';
+    $stok = $stok ?? '';
+    $berat = $berat ?? '';
+    $deskripsi = $deskripsi ?? '';
+@endphp
 
 <div>
     <label for="{{ $prefix }}_nama_produk" class="block mb-1 text-sm font-medium text-gray-700">Nama Produk</label>

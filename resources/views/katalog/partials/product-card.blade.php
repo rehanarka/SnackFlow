@@ -1,5 +1,3 @@
-@props(['produk'])
-
 <button
     type="button"
     class="productCard w-full overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:cursor-pointer"

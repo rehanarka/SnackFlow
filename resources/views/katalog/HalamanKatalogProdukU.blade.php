@@ -1,7 +1,11 @@
 @extends('layouts.sidebar')
 
 @section('content')
-<x-katalog.toolbar-pencarian-produk :show-tambah-button="false" :show-cart-button="true" :cart-count="$cartCount" />
+@include('katalog.partials.toolbar-pencarian-produk', [
+    'showTambahButton' => false,
+    'showCartButton' => true,
+    'cartCount' => $cartCount,
+])
 
 <div class="mt-10">
     @if (session('keranjang_warning'))
@@ -13,7 +17,7 @@
     @if ($produks->count())
         <div id="produkGrid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @foreach ($produks as $produk)
-                <x-katalog.product-card-user :produk="$produk" />
+                @include('katalog.partials.product-card-user', ['produk' => $produk])
             @endforeach
         </div>
 
@@ -29,7 +33,7 @@
     @endif
 </div>
 
-@include('components.katalog.HalamanKeranjang', ['keranjangItems' => $keranjangItems, 'cartCount' => $cartCount])
+@include('katalog.partials.halaman-keranjang', ['keranjangItems' => $keranjangItems, 'cartCount' => $cartCount])
 
 @if (session('checkout_success'))
     @php($checkoutSuccess = session('checkout_success'))

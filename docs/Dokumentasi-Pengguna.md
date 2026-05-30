@@ -2,9 +2,9 @@
 
 ## Gambaran Umum
 
-SnackFlow adalah aplikasi web untuk membantu proses penjualan produk UMKM Matrix Jaya. Melalui sistem ini, pelanggan dapat melihat katalog produk, memasukkan produk ke keranjang, melakukan checkout, membayar pesanan secara online, dan melihat riwayat transaksi.
+SnackFlow adalah aplikasi web untuk membantu proses penjualan produk UMKM Matrix Jaya. Melalui sistem ini, pengunjung dapat melihat produk dari landing page, sedangkan pelanggan yang sudah login dapat melihat katalog produk, memasukkan produk ke keranjang, melakukan checkout, membayar pesanan secara online, memberi review, membaca artikel, dan melihat riwayat transaksi.
 
-Admin dapat mengelola katalog produk, memantau transaksi online, mengonfirmasi pesanan, membatalkan pesanan, dan mencatat pembelian offline toko agar tetap masuk ke data transaksi.
+Admin dapat mengelola katalog produk, memantau transaksi online, mengonfirmasi pesanan, membatalkan pesanan, mencatat pembelian offline toko, mengelola artikel, melihat review produk, dan melihat laporan penjualan serta keuangan.
 
 ## Role Pengguna
 
@@ -23,6 +23,11 @@ Admin memiliki akses untuk:
 - Menambah transaksi offline toko.
 - Mengedit transaksi offline.
 - Melihat detail transaksi.
+- Melihat review produk.
+- Mengelola artikel.
+- Melihat laporan penjualan.
+- Melihat laporan keuangan.
+- Menambah, mengedit, dan menghapus data pengeluaran dari laporan keuangan.
 
 ### User
 
@@ -42,7 +47,14 @@ User memiliki akses untuk:
 - Melakukan pembayaran.
 - Melihat riwayat transaksi.
 - Mengonfirmasi pesanan diterima.
+- Memberi, melihat, dan menghapus review pada transaksi selesai.
+- Melihat semua review dari card katalog produk.
+- Melihat daftar dan detail artikel.
 - Reset password menggunakan OTP email.
+
+### Guest
+
+Guest dapat melihat produk dan ringkasan artikel pada landing page tanpa login. Jika guest klik tombol beli atau ingin membuka seluruh artikel melalui dashboard user, sistem mengarahkan guest ke halaman login terlebih dahulu.
 
 ## Alur Katalog Produk
 
@@ -54,6 +66,7 @@ User memiliki akses untuk:
 4. Sistem menyimpan data produk ke tabel `katalog_produk`.
 5. Admin dapat klik card produk untuk melihat detail.
 6. Dari detail produk, admin dapat memilih edit atau hapus.
+7. Admin dapat klik tombol review pada detail produk untuk melihat semua review user pada produk tersebut.
 
 ### User
 
@@ -62,6 +75,7 @@ User memiliki akses untuk:
 3. User dapat klik produk untuk melihat detail produk.
 4. User memilih jumlah produk.
 5. User dapat memilih `Add to Cart` atau `Checkout`.
+6. User dapat klik `Lihat Review` pada card produk untuk melihat semua review produk.
 
 ## Alur Keranjang
 
@@ -137,6 +151,45 @@ Metode pembayaran offline yang tersedia:
 - COD
 - Transfer Bank
 
+## Alur Review Produk
+
+1. User membuka menu transaksi.
+2. User klik review pada transaksi yang statusnya `Selesai`.
+3. Jika review sudah pernah dibuat, sistem menampilkan review tersebut.
+4. Jika belum ada review, sistem menampilkan form review.
+5. User memilih rating bintang 1 sampai 5 dan mengisi review produk.
+6. Foto review boleh dikosongkan.
+7. User klik kirim.
+8. Jika berhasil, sistem menampilkan pesan `Review Produk Berhasil Dilakukan`.
+9. Jika data wajib kosong, sistem menampilkan pesan `Data Tidak Boleh Kosong`.
+10. Jika data tidak sesuai, sistem menampilkan pesan `Data Tidak Sesuai`.
+11. User dapat menghapus review dari halaman review transaksi dengan konfirmasi popup.
+
+## Alur Artikel
+
+Admin:
+
+1. Admin membuka menu artikel.
+2. Sistem menampilkan daftar artikel.
+3. Admin dapat menambah artikel dengan judul, konten artikel, dan gambar opsional.
+4. Admin dapat klik artikel untuk melihat detail.
+5. Admin dapat mengedit atau menghapus artikel dari halaman detail.
+
+User:
+
+1. User membuka menu artikel.
+2. Sistem menampilkan daftar artikel.
+3. User klik salah satu artikel untuk melihat detail artikel.
+
+## Alur Laporan Admin
+
+1. Admin klik menu laporan pada sidebar.
+2. Sistem membuka sub menu laporan penjualan dan laporan keuangan.
+3. Admin klik laporan penjualan untuk melihat grafik transaksi, penjualan produk, total transaksi, produk terlaris, dan total penjualan produk.
+4. Admin klik laporan keuangan untuk melihat grafik income, grafik pengeluaran, grafik profit, total income, total pengeluaran, profit, dan data pengeluaran.
+5. Admin dapat memilih periode bulan dan tahun pada laporan.
+6. Data pengeluaran ditambah, diedit, dan dihapus dari halaman laporan keuangan.
+
 ## Alur Reset Password OTP
 
 1. User membuka halaman reset password.
@@ -145,4 +198,3 @@ Metode pembayaran offline yang tersedia:
 4. OTP dikirim ke email user.
 5. User memasukkan OTP.
 6. Jika OTP benar dan belum kedaluwarsa, user dapat membuat password baru.
-

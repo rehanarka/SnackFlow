@@ -3,16 +3,16 @@
 @section('content')
 @php($popupPeringatan = session('popup_peringatan'))
 
-<x-katalog.toolbar-pencarian-produk />
+@include('katalog.partials.toolbar-pencarian-produk')
 
-@include('components.katalog.FormKatalogProduk')
-@include('components.katalog.HalamanDetailKatalogProduk')
+@include('katalog.partials.form-katalog-produk')
+@include('katalog.partials.halaman-detail-katalog-produk')
 
 <div class="mt-10">
     @if ($produks->count())
         <div id="produkGrid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @foreach ($produks as $produk)
-                <x-katalog.product-card :produk="$produk" />
+                @include('katalog.partials.product-card', ['produk' => $produk])
             @endforeach
         </div>
         <div id="hasilPencarianKosong" class="mt-8 hidden rounded-2xl border border-dashed border-slate-300 bg-white py-14 text-center">
@@ -27,8 +27,8 @@
     @endif
 </div>
 
-<x-katalog.modal-hapus-produk />
-<x-katalog.modal-peringatan-produk :pesan="$popupPeringatan" />
+@include('katalog.partials.modal-hapus-produk')
+@include('katalog.partials.modal-peringatan-produk', ['pesan' => $popupPeringatan])
 
-<x-katalog.modal-update-produk />
+@include('katalog.partials.modal-update-produk')
 @endsection

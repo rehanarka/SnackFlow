@@ -2,6 +2,8 @@
 
 @section('content')
 @php
+    $isAdminView = $isAdminView ?? false;
+    $backRoute = $backRoute ?? ($isAdminView ? route('admin.katalog') : route('user.katalog'));
     $reviews = $produk->reviewProduk;
     $averageRating = $reviews->count() ? round($reviews->avg('rating'), 1) : 0;
 @endphp
@@ -26,7 +28,7 @@
                         <h1 class="mt-3 text-3xl font-bold text-slate-900">{{ $produk->nama_produk }}</h1>
                         <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Halaman ini menampilkan semua ulasan user untuk produk yang dipilih dari katalog.</p>
                     </div>
-                    <a href="{{ route('admin.katalog') }}" class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition duration-300 hover:bg-slate-50">
+                    <a href="{{ $backRoute }}" class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition duration-300 hover:bg-slate-50">
                         Kembali
                     </a>
                 </div>

@@ -20,6 +20,9 @@ Controller mengatur alur request dari user.
 - `KatalogProdukController`: menangani katalog produk, tambah produk, edit produk, hapus produk, dan keranjang.
 - `CheckoutController`: menangani halaman checkout, autocomplete alamat, ongkir, pembuatan transaksi, dan halaman pembayaran.
 - `TransaksiController`: menangani riwayat transaksi user, transaksi admin, transaksi offline, konfirmasi admin, pembatalan, dan pesanan diterima.
+- `ReviewProdukController`: menangani review produk dari transaksi selesai, daftar review produk untuk admin, dan daftar review produk untuk user.
+- `ArtikelController`: menangani daftar artikel, tambah artikel, detail artikel, edit artikel, dan hapus artikel.
+- `LaporanController`: menangani laporan penjualan, laporan keuangan, grafik income, grafik pengeluaran, grafik profit, dan data pengeluaran.
 - `MidtransController`: menerima webhook atau notification dari Midtrans.
 - `ResetPasswordController`: menangani reset password melalui OTP email.
 - `MapsController`: menyediakan pencarian area melalui endpoint API.
@@ -47,6 +50,9 @@ Model menghubungkan Laravel dengan tabel database.
 - `Kecamatan`
 - `Kabupaten`
 - `Provinsi`
+- `ReviewProduk`
+- `Artikel`
+- `Pengeluaran`
 
 ### View
 
@@ -57,11 +63,18 @@ View menggunakan Blade.
 - `authView/FormRegister.blade.php`: halaman registrasi.
 - `katalog/HalamanKatalogProduk.blade.php`: katalog admin.
 - `katalog/HalamanKatalogProdukU.blade.php`: katalog user.
+- `katalog/partials/*`: bagian spesifik halaman katalog seperti card produk, toolbar pencarian, modal produk, dan keranjang.
+- `review/*`: form review transaksi dan halaman daftar review produk.
+- `artikel/*`: daftar artikel, form artikel, dan detail artikel.
+- `laporan/LaporanPenjualan.blade.php`: laporan penjualan admin.
+- `laporan/LaporanKeuangan.blade.php`: laporan keuangan admin dan data pengeluaran.
 - `transactions/FormPesanan.blade.php`: halaman checkout.
 - `transactions/InvoicePembayaran.blade.php`: halaman invoice dan pembayaran.
 - `transactions/HalamanRiwayatTransaksi.blade.php`: transaksi admin.
 - `transactions/HalamanRiwayatTransaksiU.blade.php`: riwayat transaksi user.
 - `profile/HalProfil.blade.php`: halaman profil.
+
+Komponen umum yang masih dipakai lintas halaman berada di `resources/views/components`, seperti header, sidebar, dan modal dasar. Komponen katalog yang spesifik fitur dipindahkan ke `resources/views/katalog/partials` supaya struktur view lebih sederhana.
 
 ## Route Utama
 
@@ -83,6 +96,19 @@ Prefix route: `/admin`
 - `POST /admin/katalog/tambah`: tambah produk.
 - `PUT /admin/katalog/update/{id}`: update produk.
 - `DELETE /admin/katalog/hapus/{id}`: hapus produk.
+- `GET /admin/katalog/{produk}/review`: melihat semua review pada produk.
+- `GET /admin/artikel`: daftar artikel.
+- `GET /admin/artikel/tambah`: form tambah artikel.
+- `POST /admin/artikel`: simpan artikel baru.
+- `GET /admin/artikel/{artikel}`: detail artikel.
+- `GET /admin/artikel/{artikel}/edit`: form edit artikel.
+- `PUT /admin/artikel/{artikel}`: update artikel.
+- `DELETE /admin/artikel/{artikel}`: hapus artikel.
+- `GET /admin/laporan/penjualan`: laporan penjualan.
+- `GET /admin/laporan/keuangan`: laporan keuangan dan data pengeluaran.
+- `POST /admin/laporan/keuangan/pengeluaran`: tambah pengeluaran.
+- `PUT /admin/laporan/keuangan/pengeluaran/{pengeluaran}`: edit pengeluaran.
+- `DELETE /admin/laporan/keuangan/pengeluaran/{pengeluaran}`: hapus pengeluaran.
 - `GET /admin/transaksi`: halaman transaksi admin.
 - `POST /admin/transaksi/offline`: tambah transaksi offline.
 - `PUT /admin/transaksi/offline/{transaksi}`: edit transaksi offline.
@@ -94,6 +120,9 @@ Prefix route: `/admin`
 Prefix route: `/user`
 
 - `GET /user/katalog`: halaman katalog user.
+- `GET /user/katalog/{produk}/review`: melihat semua review pada produk.
+- `GET /user/artikel`: daftar artikel user.
+- `GET /user/artikel/{artikel}`: detail artikel user.
 - `POST /user/keranjang`: tambah produk ke keranjang.
 - `PATCH /user/keranjang/{id}`: update jumlah keranjang.
 - `DELETE /user/keranjang/{id}`: hapus item keranjang.
@@ -105,6 +134,11 @@ Prefix route: `/user`
 - `POST /user/checkout/payment/{transaksi}/refresh-status`: cek ulang status pembayaran.
 - `GET /user/transaksi`: riwayat transaksi user.
 - `POST /user/transaksi/{transaksi}/received`: pesanan diterima.
+- `GET /user/transaksi/{transaksi}/review`: melihat atau membuat review dari transaksi selesai.
+- `POST /user/transaksi/{transaksi}/review`: simpan review transaksi.
+- `DELETE /user/transaksi/{transaksi}/review/{review}`: hapus review transaksi.
+
+Tidak ada route `GET /admin/laporan`. Menu laporan pada sidebar hanya berfungsi sebagai dropdown untuk membuka sub menu laporan penjualan dan laporan keuangan.
 
 ## Detail Alur Keranjang
 
@@ -221,6 +255,37 @@ Saat transaksi offline disimpan:
 7. Sistem mengurangi stok produk.
 8. `midtrans_order_id` dibuat `null` sebagai penanda transaksi offline.
 
+## Detail Alur Review Produk
+
+Review hanya dapat dibuat user dari transaksi berstatus `Selesai`. Data review terdiri dari rating integer 1 sampai 5, teks review produk, dan foto review opsional.
+
+Alur user:
+
+1. User membuka menu transaksi.
+2. User klik review pada transaksi selesai.
+3. Jika review sudah ada, sistem menampilkan review milik user pada transaksi tersebut.
+4. Jika belum ada, sistem menampilkan form rating bintang dan review produk.
+5. User dapat menghapus review dari halaman review transaksi.
+
+Admin dan user dapat membuka review dari card katalog produk untuk melihat semua review pada produk tersebut.
+
+## Detail Alur Artikel
+
+Artikel digunakan untuk memberi wawasan kepada pengunjung dan user, misalnya manfaat produk atau informasi kuliner.
+
+Admin dapat menambah, melihat detail, mengedit, dan menghapus artikel. Data artikel terdiri dari judul, konten artikel, dan gambar artikel opsional. User dapat melihat daftar artikel dan detail artikel dengan alur yang sama seperti admin, tanpa akses tambah, edit, atau hapus.
+
+## Detail Alur Laporan
+
+Menu laporan di sidebar admin berbentuk dropdown dan tidak memiliki halaman induk. Sub menu yang tersedia:
+
+- Laporan Penjualan.
+- Laporan Keuangan.
+
+Laporan penjualan menampilkan line chart jumlah transaksi, bar chart horizontal penjualan produk, total transaksi, produk terlaris, nama produk terlaris, dan total penjualan produk. Filter periode dapat dipilih berdasarkan tahun atau bulan dan tahun.
+
+Laporan keuangan menampilkan tiga line chart terpisah untuk income, pengeluaran, dan profit. Halaman ini juga berisi tabel data pengeluaran dan tombol tambah pengeluaran. Jika periode aktif tidak memiliki transaksi atau penjualan, sistem menampilkan empty state tanpa memaksa chart kosong.
+
 ## Cara Menjalankan Program
 
 Jalankan dependency PHP:
@@ -284,4 +349,3 @@ Variabel `.env` yang perlu diperhatikan:
 - `RAJAONGKIR_BASE_URL`
 - `RAJAONGKIR_ORIGIN_SEARCH`
 - `RAJAONGKIR_COURIERS`
-

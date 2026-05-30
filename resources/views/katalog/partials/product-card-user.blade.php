@@ -1,5 +1,3 @@
-@props(['produk'])
-
 <div
     class="productCard bg-white overflow-hidden rounded-2xl border border-gray-200 p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:cursor-pointer"
     data-search="{{ \Illuminate\Support\Str::lower(trim($produk->nama_produk . ' ' . ($produk->kategori ?? ''))) }}"
@@ -52,5 +50,8 @@
                 <button type="submit" class="w-full rounded-2xl bg-blue-900 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none" {{ $produk->stok < 1 ? 'disabled' : '' }}>Checkout</button>
             </form>
         </div>
+        <a href="{{ route('user.katalog.review', $produk) }}" class="mt-3 inline-flex w-full items-center justify-center rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 transition duration-300 hover:-translate-y-0.5 hover:bg-amber-100 hover:cursor-pointer">
+            Lihat Review
+        </a>
     </div>
 </div>

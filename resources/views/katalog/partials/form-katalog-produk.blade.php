@@ -9,7 +9,14 @@
 
         <form action="{{ route('admin.katalog.tambah') }}" method="POST" enctype="multipart/form-data" autocomplete="off" class="px-6 py-5 space-y-4">
             @csrf
-            <x-katalog.form-produk-fields prefix="add" :nama-produk="old('nama_produk')" :harga="old('harga')" :stok="old('stok')" :berat="old('berat')" :deskripsi="old('deskripsi')" />
+            @include('katalog.partials.form-produk-fields', [
+                'prefix' => 'add',
+                'namaProduk' => old('nama_produk'),
+                'harga' => old('harga'),
+                'stok' => old('stok'),
+                'berat' => old('berat'),
+                'deskripsi' => old('deskripsi'),
+            ])
 
             <div class="flex justify-end gap-2 pt-2">
                 <button type="button" id="cancelAddProductModal" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition hover:scale-105 hover:cursor-pointer">Batal</button>

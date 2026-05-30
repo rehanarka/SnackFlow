@@ -6,6 +6,7 @@ use App\Models\KatalogProduk;
 use App\Models\ReviewProduk;
 use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ReviewProdukController extends Controller
@@ -13,8 +14,19 @@ class ReviewProdukController extends Controller
     public function adminIndex(KatalogProduk $produk)
     {
         $produk->load(['reviewProduk.user', 'reviewProduk.transaksi']);
+        $isAdminView = true;
+        $backRoute = route('admin.katalog');
 
-        return view('review.HalamanReviewProdukAdmin', compact('produk'));
+        return view('review.HalamanReviewProdukAdmin', compact('produk', 'isAdminView', 'backRoute'));
+    }
+
+    public function userProductIndex(KatalogProduk $produk)
+    {
+        $produk->load(['reviewProduk.user', 'reviewProduk.transaksi']);
+        $isAdminView = false;
+        $backRoute = route('user.katalog');
+
+        return view('review.HalamanReviewProdukAdmin', compact('produk', 'isAdminView', 'backRoute'));
     }
 
     public function create(Request $request, Transaksi $transaksi)
@@ -25,7 +37,10 @@ class ReviewProdukController extends Controller
             return redirect()->route('user.transaksi')->with('review_error', 'Data Tidak Sesuai');
         }
 
-        $transaksi->load(['detailTransaksi.produk', 'reviewProduk']);
+        $transaksi->load([
+            'detailTransaksi.produk',
+            'reviewProduk' => fn ($query) => $query->where('user_id', $request->user()->id)->with('produk'),
+        ]);
 
         return view('review.FormReviewProduk', compact('transaksi'));
     }
@@ -86,5 +101,21 @@ class ReviewProdukController extends Controller
         return redirect()
             ->route('user.transaksi.review', $transaksi)
             ->with('review_success', 'Reiew Produk Berhasil Dilakukan');
+    }
+
+    public function destroy(Request $request, Transaksi $transaksi, ReviewProduk $review)
+    {
+        abort_unless($transaksi->user_id === $request->user()->id, 404);
+        abort_unless($review->user_id === $request->user()->id && $review->transaksi_id === $transaksi->id, 404);
+
+        if ($review->foto_review) {
+            Storage::disk('public')->delete($review->foto_review);
+        }
+
+        $review->delete();
+
+        return redirect()
+            ->route('user.transaksi.review', $transaksi)
+            ->with('review_delete_success', 'Review berhasil dihapus');
     }
 }

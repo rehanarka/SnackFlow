@@ -1,5 +1,3 @@
-@props(['keranjangItems', 'cartCount'])
-
 @php
     $totalHarga = $keranjangItems->sum(fn ($item) => ($item->produk->harga ?? 0) * $item->jumlah_produk);
 @endphp

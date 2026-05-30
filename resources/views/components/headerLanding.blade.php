@@ -15,6 +15,12 @@
             <a href="#tentang" class="rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-white/75 transition duration-300 hover:bg-white/10 hover:text-white">
                 Tentang Kami
             </a>
+            <a href="#produk" class="rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-white/75 transition duration-300 hover:bg-white/10 hover:text-white">
+                Produk
+            </a>
+            <a href="#artikel" class="rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-white/75 transition duration-300 hover:bg-white/10 hover:text-white">
+                Artikel
+            </a>
             <a href="#kontak" class="rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-white/75 transition duration-300 hover:bg-white/10 hover:text-white">
                 Kontak
             </a>

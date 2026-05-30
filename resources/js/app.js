@@ -4,3 +4,6 @@ import './header-dropdown';
 import './logout-modal';
 import './checkout';
 import './review-rating';
+import './review-delete';
+import './artikel-delete';
+import './pengeluaran-delete';
