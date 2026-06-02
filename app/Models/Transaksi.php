@@ -23,6 +23,7 @@ class Transaksi extends Model
         'snap_token',
         'snap_redirect_url',
         'status_pembayaran',
+        'foto_pesanan_selesai',
     ];
 
     protected $casts = [

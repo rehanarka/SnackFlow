@@ -18,7 +18,7 @@
     $metodePembayaranValue = $transaksi->metode_pembayaran;
     $statusNotice = match ($transaksi->status_pesanan) {
         'Menunggu Konfirmasi' => 'Pesanan sudah diterima sistem dan sekarang menunggu konfirmasi dari admin. Pembayaran akan dibuka setelah admin menerima pesanan ini.',
-        'Dikonfirmasi' => 'Pesanan sudah dikonfirmasi admin. Silakan lanjutkan pembayaran dalam waktu 24 jam sebelum otomatis dibatalkan.',
+        'Dikonfirmasi' => 'Pesanan sudah dikonfirmasi admin. Silakan lanjutkan pembayaran dalam waktu 1 jam sebelum otomatis dibatalkan.',
         'Diproses' => 'Pembayaran sudah diterima dan pesanan sedang diproses.',
         'Dibatalkan' => 'Pesanan dibatalkan. Silakan cek catatan pembatalan di bawah bila tersedia.',
         'Selesai' => 'Pesanan sudah diterima dan transaksi selesai.',
@@ -41,6 +41,12 @@
         @if ($paymentError)
             <div class="mb-6 rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
                 {{ $paymentError }}
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="mb-6 rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-semibold text-emerald-700">
+                {{ session('success') }}
             </div>
         @endif
 
@@ -81,6 +87,15 @@
                             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Nomor Resi</p>
                             <p class="mt-2 text-base font-bold text-emerald-900">{{ $transaksi->resi }}</p>
                             <p class="mt-1 text-sm text-emerald-700">Simpan nomor resi ini untuk memantau pengiriman pesanan kamu.</p>
+                        </div>
+                    @endif
+
+                    @if ($transaksi->foto_pesanan_selesai)
+                        <div class="rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Foto Penerimaan Pesanan</p>
+                            <div class="mt-3 overflow-hidden rounded-[1.25rem] bg-slate-100">
+                                <img src="{{ asset('storage/' . $transaksi->foto_pesanan_selesai) }}" alt="Foto penerimaan pesanan #{{ $transaksi->id }}" class="max-h-80 w-full object-cover">
+                            </div>
                         </div>
                     @endif
 
@@ -161,9 +176,15 @@
                         @endif
 
                         @if (!$isAdminView && $transaksi->status_pesanan === 'Diproses')
-                        <form action="{{ route('user.transaksi.received', $transaksi) }}" method="POST">
+                        <form action="{{ route('user.transaksi.received', $transaksi) }}" method="POST" enctype="multipart/form-data" class="rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-4 py-4">
                             @csrf
-                            <button type="submit" class="w-full rounded-[1.5rem] bg-emerald-600 px-5 py-4 text-base font-semibold text-white shadow-xl shadow-emerald-100 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:cursor-pointer">
+                            <label for="foto_pesanan_selesai" class="block text-sm font-semibold text-emerald-900">Foto Penerimaan Pesanan</label>
+                            <p class="mt-1 text-xs leading-5 text-emerald-700">Tambahkan foto bukti pesanan sudah diterima sebelum mengubah status menjadi selesai.</p>
+                            <input type="file" id="foto_pesanan_selesai" name="foto_pesanan_selesai" accept="image/*" class="mt-3 w-full rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-emerald-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white">
+                            @error('foto_pesanan_selesai')
+                                <p class="mt-2 text-xs font-semibold text-rose-600">{{ $message }}</p>
+                            @enderror
+                            <button type="submit" class="mt-4 w-full rounded-[1.5rem] bg-emerald-600 px-5 py-4 text-base font-semibold text-white shadow-xl shadow-emerald-100 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:cursor-pointer">
                                 Pesanan Diterima
                             </button>
                         </form>

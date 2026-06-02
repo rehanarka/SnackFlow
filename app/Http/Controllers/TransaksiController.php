@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Models\Transaksi;
 use App\Services\MidtransService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class TransaksiController extends Controller
@@ -133,8 +134,22 @@ class TransaksiController extends Controller
             ]);
         }
 
+        $validated = $request->validate([
+            'foto_pesanan_selesai' => 'required|image|mimes:jpg,jpeg,png,webp,gif|max:2048',
+        ], [
+            'foto_pesanan_selesai.required' => 'Foto penerimaan pesanan wajib diisi.',
+            'foto_pesanan_selesai.image' => 'Foto penerimaan pesanan harus berupa gambar.',
+            'foto_pesanan_selesai.mimes' => 'Foto penerimaan pesanan harus berupa JPG, JPEG, PNG, WEBP, atau GIF.',
+            'foto_pesanan_selesai.max' => 'Foto penerimaan pesanan tidak boleh lebih dari 2MB.',
+        ]);
+
+        if ($transaksi->foto_pesanan_selesai) {
+            Storage::disk('public')->delete($transaksi->foto_pesanan_selesai);
+        }
+
         $transaksi->update([
             'status_transaksi' => 'Selesai',
+            'foto_pesanan_selesai' => $request->file('foto_pesanan_selesai')->store('transaksi-selesai', 'public'),
         ]);
 
         return back()->with('success', 'Pesanan berhasil dikonfirmasi diterima.');

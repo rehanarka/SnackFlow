@@ -114,6 +114,7 @@ Kolom penting:
 - `midtrans_order_id`
 - `snap_token`
 - `snap_redirect_url`
+- `foto_pesanan_selesai`
 
 Keterangan:
 
@@ -121,6 +122,7 @@ Keterangan:
 - Transaksi offline memiliki `midtrans_order_id = null`.
 - `resi` dibuat otomatis setelah pembayaran online berhasil atau diisi admin pada transaksi offline.
 - `snap_token` dan `snap_redirect_url` digunakan untuk membuka pembayaran Midtrans.
+- `foto_pesanan_selesai` menyimpan path foto bukti penerimaan pesanan saat user mengubah status menjadi `Selesai`.
 
 ## Tabel Detail Transaksi
 

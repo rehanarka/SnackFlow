@@ -124,12 +124,12 @@ Checkout langsung tidak menghapus isi keranjang karena alurnya terpisah dari che
 4. Status transaksi berubah menjadi `Dikonfirmasi`.
 5. User membuka halaman pembayaran.
 6. Sistem membuat Snap Token Midtrans.
-7. User melakukan pembayaran melalui Midtrans.
+7. User melakukan pembayaran melalui Midtrans dalam batas waktu 1 jam.
 8. Jika pembayaran berhasil, status berubah menjadi `Diproses`.
 9. Sistem otomatis membuat nomor resi dengan format `JNE-XXXXXXXXXX`.
 10. User dapat melihat resi pada detail pesanan.
-11. Setelah pesanan diterima, user klik `Pesanan Diterima`.
-12. Status berubah menjadi `Selesai`.
+11. Setelah pesanan diterima, user menambahkan foto penerimaan pesanan lalu klik `Pesanan Diterima`.
+12. Status berubah menjadi `Selesai` dan foto penerimaan tersimpan pada transaksi.
 
 ## Alur Transaksi Offline Admin
 

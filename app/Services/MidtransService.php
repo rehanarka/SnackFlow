@@ -96,7 +96,7 @@ class MidtransService
             'item_details' => $itemDetails,
             'expiry' => [
                 'start_time' => now()->format('Y-m-d H:i:s O'),
-                'unit' => 'day',
+                'unit' => 'hour',
                 'duration' => 1,
             ],
             'enabled_payments' => ['gopay'],

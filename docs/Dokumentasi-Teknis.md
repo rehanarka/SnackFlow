@@ -213,9 +213,10 @@ Saat user membuka halaman pembayaran:
 1. Sistem mengecek apakah pesanan sudah dikonfirmasi admin.
 2. Jika sudah, sistem membuat atau mengambil Snap Token.
 3. Snap Token dipakai untuk membuka pembayaran Midtrans.
-4. Metode pembayaran yang diaktifkan adalah `gopay`.
-5. Midtrans mengirim notification ke endpoint `/midtrans/notification`.
-6. Sistem memperbarui status transaksi berdasarkan status dari Midtrans.
+4. Batas waktu pembayaran Midtrans adalah 1 jam sejak transaksi pembayaran dibuat.
+5. Metode pembayaran yang diaktifkan adalah `gopay`.
+6. Midtrans mengirim notification ke endpoint `/midtrans/notification`.
+7. Sistem memperbarui status transaksi berdasarkan status dari Midtrans.
 
 Status dari Midtrans dipetakan sebagai berikut:
 
