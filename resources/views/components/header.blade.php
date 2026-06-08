@@ -17,9 +17,24 @@
     if (str_ends_with($routeName, '.katalog')) {
         $pageTitle = 'Produk';
         $pageDescription = $user->role === 'admin' ? 'Kelola katalog produk dan stok yang tersedia.' : 'Jelajahi produk yang tersedia untuk dipesan.';
+    } elseif (str_contains($routeName, 'artikel')) {
+        $pageTitle = 'Artikel';
+        $pageDescription = $user->role === 'admin' ? 'Kelola artikel wawasan untuk pelanggan.' : 'Baca artikel wawasan dari SnackFlow.';
+    } elseif (str_contains($routeName, 'laporan.penjualan')) {
+        $pageTitle = 'Laporan Penjualan';
+        $pageDescription = 'Pantau transaksi, produk terjual, dan performa penjualan.';
+    } elseif (str_contains($routeName, 'laporan.keuangan')) {
+        $pageTitle = 'Laporan Keuangan';
+        $pageDescription = 'Pantau income, pengeluaran, profit, dan data pengeluaran.';
+    } elseif (str_contains($routeName, 'review')) {
+        $pageTitle = 'Review Produk';
+        $pageDescription = $user->role === 'admin' ? 'Lihat ulasan pelanggan pada produk.' : 'Lihat dan kelola ulasan produk anda.';
     } elseif (str_contains($routeName, 'transaksi') || str_contains($routeName, 'checkout') || str_contains($requestPath, 'transaksi') || str_contains($requestPath, 'checkout') || str_contains($requestPath, 'keranjang')) {
         $pageTitle = 'Transaksi';
         $pageDescription = $user->role === 'admin' ? 'Pantau proses pesanan dan aktivitas transaksi.' : 'Kelola keranjang, checkout, dan pesanan anda.';
+    } elseif (str_contains($routeName, 'profile')) {
+        $pageTitle = 'Profile';
+        $pageDescription = 'Kelola informasi akun anda.';
     } elseif (str_contains($requestPath, 'shipping') || str_contains($requestPath, 'kurir')) {
         $pageTitle = 'Pengiriman';
         $pageDescription = 'Atur informasi pengiriman dan status kurir.';
