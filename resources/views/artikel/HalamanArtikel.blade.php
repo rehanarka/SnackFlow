@@ -31,7 +31,7 @@
 
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100">
         <div class="border-b border-slate-200 px-6 py-5">
-            <h2 class="text-lg font-semibold text-slate-900">Data Artikel</h2>
+            <h2 class="text-lg font-semibold text-slate-900">Artikel</h2>
             <p class="mt-1 text-sm text-slate-500">Klik salah satu artikel untuk melihat detail lengkapnya.</p>
         </div>
 

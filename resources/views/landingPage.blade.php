@@ -43,6 +43,18 @@
     <div class="min-h-screen bg-[#f6f1e7] text-slate-900">
         <x-headerLanding />
 
+        <a
+            href="https://wa.me/6281515400001"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Hubungi SnackFlow lewat WhatsApp"
+            class="fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_18px_40px_rgba(37,211,102,0.36)] ring-4 ring-white/80 transition duration-300 hover:-translate-y-1 hover:bg-[#1ebe5d]"
+        >
+            <svg class="h-8 w-8" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                <path d="M16.03 3.2A12.67 12.67 0 0 0 5.2 22.43L3.6 28.8l6.52-1.52A12.67 12.67 0 1 0 16.03 3.2Zm0 2.33a10.33 10.33 0 0 1 8.78 15.78 10.33 10.33 0 0 1-13.82 3.66l-.45-.25-3.63.85.9-3.5-.3-.47A10.33 10.33 0 0 1 16.03 5.53Zm-4.4 4.98c-.25 0-.64.1-.98.47-.34.37-1.3 1.27-1.3 3.1s1.33 3.6 1.52 3.85c.19.25 2.58 4.12 6.36 5.6 3.15 1.24 3.79.99 4.47.93.68-.06 2.2-.9 2.5-1.77.31-.87.31-1.61.22-1.77-.09-.16-.34-.25-.71-.43-.37-.19-2.2-1.09-2.54-1.21-.34-.13-.59-.19-.84.18-.25.37-.96 1.21-1.18 1.46-.22.25-.43.28-.8.09-.37-.19-1.56-.58-2.98-1.84-1.1-.98-1.84-2.2-2.06-2.57-.22-.37-.02-.57.16-.75.17-.17.37-.43.56-.65.19-.22.25-.37.37-.62.13-.25.06-.47-.03-.65-.09-.19-.84-2.02-1.15-2.76-.3-.72-.61-.62-.84-.63h-.71Z"/>
+            </svg>
+        </a>
+
         <section id="home" class="relative isolate overflow-hidden">
             <img
                 src="/images/backgroundLanding-opt.jpg"
