@@ -6,7 +6,7 @@
     $artikelIndexRoute = $isAdminView ? 'admin.artikel' : 'user.artikel';
 @endphp
 
-<div class="-mt-5 space-y-6">
+<div class="space-y-6 lg:-mt-5">
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100">
         <div class="grid lg:grid-cols-[360px_1fr]">
             <div class="bg-slate-100">
@@ -23,7 +23,7 @@
                 <div class="flex flex-col gap-5 lg:h-full lg:justify-between">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-600">Detail Artikel</p>
-                        <h1 class="mt-3 text-3xl font-bold leading-tight text-slate-900">{{ $artikel->judul }}</h1>
+                        <h1 class="mt-3 text-2xl font-bold leading-tight text-slate-900 sm:text-3xl">{{ $artikel->judul }}</h1>
                     </div>
 
                     <div class="flex flex-col gap-3 sm:flex-row">

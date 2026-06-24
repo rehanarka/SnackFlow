@@ -32,13 +32,13 @@
     $hasProductSalesData = $barChart->sum('total_jumlah') > 0;
 @endphp
 
-<div class="-mt-5 space-y-6">
+<div class="space-y-6 lg:-mt-5">
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100">
         <div class="bg-[linear-gradient(135deg,_#ffffff_0%,_#eef7ff_55%,_#fff8eb_100%)] px-6 py-7">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-600">Laporan Penjualan</p>
-                    <h1 class="mt-3 text-3xl font-bold text-slate-900">Ringkasan Penjualan Produk</h1>
+                    <h1 class="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">Ringkasan Penjualan Produk</h1>
                     <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Filter periode bulan dan tahun untuk melihat laporan penjualan sesuai periode yang dipilih.</p>
                 </div>
             </div>
@@ -91,8 +91,8 @@
                     <p class="mt-2 text-sm leading-6 text-slate-500">Tidak ada transaksi selesai pada periode yang dipilih.</p>
                 </div>
             @else
-                <div class="mt-6 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-4">
-                <svg viewBox="0 0 960 380" class="h-80 w-full">
+                <div class="mt-6 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-2 sm:p-4">
+                <svg viewBox="0 0 960 380" class="h-64 w-full sm:h-80">
                     <defs>
                         <linearGradient id="lineAreaGradient" x1="0" x2="0" y1="0" y2="1">
                             <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.34" />

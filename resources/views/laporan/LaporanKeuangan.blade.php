@@ -28,11 +28,11 @@
     $hasFinanceData = $chartItems->sum('income') > 0 || $chartItems->sum('expense') > 0 || $chartItems->sum('profit') !== 0;
 @endphp
 
-<div class="-mt-5 space-y-6">
+<div class="space-y-6 lg:-mt-5">
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100">
         <div class="bg-[linear-gradient(135deg,_#ffffff_0%,_#f0fff7_55%,_#eef7ff_100%)] px-6 py-7">
             <p class="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-600">Laporan Keuangan</p>
-            <h1 class="mt-3 text-3xl font-bold text-slate-900">Grafik Income, Pengeluaran, dan Profit</h1>
+            <h1 class="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">Grafik Income, Pengeluaran, dan Profit</h1>
             <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Lihat perbandingan income, pengeluaran, dan profit berdasarkan periode bulan dan tahun.</p>
         </div>
 
@@ -87,7 +87,7 @@
             </div>
         </div>
 
-        <div class="max-h-[28rem] overflow-y-auto [scrollbar-color:#7dd3fc_#f1f5f9] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-sky-300">
+        <div class="max-h-[28rem] overflow-x-auto overflow-y-auto [scrollbar-color:#7dd3fc_#f1f5f9] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-sky-300">
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="sticky top-0 bg-slate-50">
                     <tr class="text-left text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
@@ -144,7 +144,7 @@
                             <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $series['pill'] }}">Line Chart</span>
                         </div>
                         <div class="mt-5 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-3">
-                            <svg viewBox="0 0 520 300" class="h-64 w-full">
+                            <svg viewBox="0 0 520 300" class="h-56 w-full sm:h-64">
                                 <rect x="0" y="0" width="520" height="300" rx="20" fill="#ffffff" />
                                 @for ($grid = 0; $grid <= 4; $grid++)
                                     @php

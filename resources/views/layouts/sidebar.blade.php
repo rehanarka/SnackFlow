@@ -9,12 +9,12 @@
     @stack('parti')
 </head>
 
-<body class="bg-white min-h-screen ">
+<body class="min-h-screen bg-white">
     <x-sidebar />
-    <div class="ml-64 min-h-screen">
+    <div class="min-h-screen lg:ml-64">
         <x-header />
 
-        <main class="p-10 mt-[122px]">
+        <main class="mt-[104px] px-4 pb-28 pt-5 sm:px-6 lg:mt-[122px] lg:p-10">
             @yield('content')
         </main>
     </div>

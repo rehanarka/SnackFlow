@@ -4,7 +4,7 @@
     $cartCount = $cartCount ?? 0;
 @endphp
 
-<div class="flex items-start justify-between gap-4">
+<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
     <div class="flex-1">
         @if ($errors->first())
             <p class="mb-2 text-red-500">{{ $errors->first() }}</p>
@@ -21,9 +21,9 @@
     </div>
 
     @if ($showTambahButton)
-        <button type="button" id="addProductBtn" class="h-12 rounded-2xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-200 transition duration-300 hover:-translate-y-0.5 hover:cursor-pointer hover:bg-blue-700">Tambah Produk</button>
+        <button type="button" id="addProductBtn" class="h-12 w-full rounded-2xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-200 transition duration-300 hover:-translate-y-0.5 hover:cursor-pointer hover:bg-blue-700 sm:w-auto">Tambah Produk</button>
     @elseif ($showCartButton)
-        <button type="button" id="openCartButton" class="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer" aria-label="Keranjang">
+        <button type="button" id="openCartButton" class="relative flex h-12 w-full items-center justify-center rounded-2xl bg-slate-900 text-white shadow-lg shadow-slate-200 transition duration-300 hover:-translate-y-0.5 hover:bg-slate-800 hover:cursor-pointer sm:w-12" aria-label="Keranjang">
             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"/>
             </svg>

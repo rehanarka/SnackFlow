@@ -6,7 +6,7 @@
     $formAction = $isEdit ? route('admin.artikel.update', $artikel) : route('admin.artikel.store');
 @endphp
 
-<div class="-mt-5 space-y-6">
+<div class="space-y-6 lg:-mt-5">
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100">
         <div class="bg-[linear-gradient(135deg,_#ffffff_0%,_#eef7ff_55%,_#fff8eb_100%)] px-6 py-7">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">

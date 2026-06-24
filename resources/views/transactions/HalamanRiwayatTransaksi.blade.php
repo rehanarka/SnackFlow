@@ -43,11 +43,11 @@
         </div>
     @endif
 
-    <section class="rounded-[2rem] border border-slate-200/80 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.12),_transparent_30%),linear-gradient(135deg,_#ffffff_0%,_#f8fbff_55%,_#eefbf7_100%)] px-8 py-8 shadow-xl shadow-emerald-100/50">
+    <section class="rounded-[2rem] border border-slate-200/80 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.12),_transparent_30%),linear-gradient(135deg,_#ffffff_0%,_#f8fbff_55%,_#eefbf7_100%)] px-4 py-6 shadow-xl shadow-emerald-100/50 sm:px-8 sm:py-8">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Transaksi Admin</p>
-                <h1 class="mt-3 text-3xl font-bold text-slate-900">Kelola Pesanan Masuk</h1>
+                <h1 class="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">Kelola Pesanan Masuk</h1>
                 <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Lihat transaksi online, catat pembelian offline toko, lalu kelola status pesanan dari satu halaman yang sama.</p>
             </div>
 
@@ -90,13 +90,13 @@
     </section>
 
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100/80">
-        <div class="border-b border-slate-200 px-6 py-5 flex justify-between">
-            <div flex flex-col>
+        <div class="flex flex-col gap-4 border-b border-slate-200 px-5 py-5 sm:px-6 lg:flex-row lg:justify-between">
+            <div class="flex flex-col">
                 <h2 class="text-lg font-semibold text-slate-900">Daftar Transaksi Masuk</h2>
                 <p class="mt-1 text-sm text-slate-500">Pesanan berstatus <span class="font-semibold text-sky-700">Menunggu Konfirmasi</span> siap kamu review sekarang. Setelah dikonfirmasi, user baru bisa lanjut ke pembayaran.</p>
             </div>
             <div class="flex justify-end">
-                <button type="button" id="openOfflineTransactionModal" data-mode="create" class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:cursor-pointer">
+                <button type="button" id="openOfflineTransactionModal" data-mode="create" class="inline-flex w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition duration-300 hover:-translate-y-0.5 hover:bg-emerald-500 hover:cursor-pointer sm:w-auto">
                     Tambah Transaksi
                 </button>
             </div>

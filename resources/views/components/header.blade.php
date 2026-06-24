@@ -41,23 +41,23 @@
     }
 @endphp
 
-<div class="fixed top-0 left-64 right-0 z-20 h-[122px] rounded-2xl shadow-xl">
-    <div class="absolute inset-0 overflow-hidden rounded-2xl">
+<div class="fixed left-0 right-0 top-0 z-20 h-[104px] rounded-b-3xl shadow-xl lg:left-64 lg:h-[122px] lg:rounded-2xl">
+    <div class="absolute inset-0 overflow-hidden rounded-b-3xl lg:rounded-2xl">
         <img src="/images/header-opt.jpg" class="h-full w-full shadow-2xl" alt="" width="1200" height="94" fetchpriority="high" decoding="async">
     </div>
 
-    <div class="relative z-10 flex h-full items-center justify-between px-6">
-        <div class="flex flex-col">
-            <h1 class="text-2xl font-bold text-black">{{ $pageTitle }}</h1>
-            <p class="text-sm text-black/80">{{ $pageDescription }}</p>
+    <div class="relative z-10 flex h-full items-center justify-between gap-4 px-4 sm:px-6">
+        <div class="min-w-0 flex flex-col">
+            <h1 class="truncate text-xl font-bold text-black sm:text-2xl">{{ $pageTitle }}</h1>
+            <p class="line-clamp-2 text-xs leading-5 text-black/80 sm:text-sm">{{ $pageDescription }}</p>
         </div>
 
-        <div class="relative">
+        <div class="relative shrink-0">
             <button id="profileDropdownToggle" type="button" aria-expanded="false" class=" flex items-center rounded-full border border-white bg-white/75 shadow-lg backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:cursor-pointer">
-                <img src="{{ $avatarUrl }}" alt="" class="h-[60px] w-[60px] rounded-full object-cover transition duration-300 group-hover:ring-blue-200" width="60" height="60" decoding="async">
+                <img src="{{ $avatarUrl }}" alt="" class="h-12 w-12 rounded-full object-cover transition duration-300 group-hover:ring-blue-200 sm:h-[60px] sm:w-[60px]" width="60" height="60" decoding="async">
             </button>
 
-            <div id="profileDropdownMenu" class="pointer-events-none absolute right-0  hidden w-80 translate-y-2 opacity-0 transition duration-200">
+            <div id="profileDropdownMenu" class="pointer-events-none absolute right-0 hidden w-[min(20rem,calc(100vw-2rem))] translate-y-2 opacity-0 transition duration-200">
                 <div class="overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-2xl backdrop-blur-xl">
                     <div class="relative overflow-hidden bg-gradient-to-br from-sky-100 via-white to-cyan-50 px-5 pb-5 pt-4">
                         <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-400 via-cyan-300 to-blue-500"></div>

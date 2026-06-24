@@ -8,7 +8,7 @@
     $averageRating = $reviews->count() ? round($reviews->avg('rating'), 1) : 0;
 @endphp
 
-<div class="-mt-5 space-y-6">
+<div class="space-y-6 lg:-mt-5">
     <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl shadow-slate-100">
         <div class="grid lg:grid-cols-[280px_1fr]">
             <div class="bg-slate-50">

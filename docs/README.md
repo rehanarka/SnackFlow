@@ -17,7 +17,7 @@ Sistem memiliki dua jenis pengguna utama:
 - Admin, yang bertugas mengelola produk, transaksi, artikel, review, laporan penjualan, dan laporan keuangan.
 - User, yang melakukan pemesanan produk secara online, membaca artikel, dan memberi review pada transaksi selesai.
 
-Guest atau pengunjung tanpa login dapat melihat produk dan ringkasan artikel di landing page. Saat ingin membeli atau melihat seluruh artikel melalui dashboard user, pengunjung diarahkan untuk login terlebih dahulu.
+Guest atau pengunjung tanpa login dapat melihat produk dan ringkasan artikel di landing page. Landing page juga menyediakan tombol WhatsApp mengambang di kanan bawah untuk menghubungi Matrix Jaya melalui `https://wa.me/6281515400001`. Saat ingin membeli atau melihat seluruh artikel melalui dashboard user, pengunjung diarahkan untuk login terlebih dahulu.
 
 Integrasi eksternal yang digunakan:
 

@@ -54,7 +54,14 @@ User memiliki akses untuk:
 
 ### Guest
 
-Guest dapat melihat produk dan ringkasan artikel pada landing page tanpa login. Jika guest klik tombol beli atau ingin membuka seluruh artikel melalui dashboard user, sistem mengarahkan guest ke halaman login terlebih dahulu.
+Guest dapat melihat produk dan ringkasan artikel pada landing page tanpa login. Guest juga dapat klik tombol WhatsApp mengambang di kanan bawah untuk menghubungi Matrix Jaya melalui nomor `+62 815-1540-0001`. Jika guest klik tombol beli atau ingin membuka seluruh artikel melalui dashboard user, sistem mengarahkan guest ke halaman login terlebih dahulu.
+
+## Alur Landing Page Guest
+
+1. Guest membuka landing page.
+2. Sistem menampilkan informasi Matrix Jaya, produk pilihan, ringkasan artikel, dan kontak.
+3. Guest dapat klik tombol beli pada produk, lalu sistem mengarahkan ke halaman login.
+4. Guest dapat klik tombol WhatsApp bulat di kanan bawah untuk membuka chat WhatsApp ke `https://wa.me/6281515400001`.
 
 ## Alur Katalog Produk
 

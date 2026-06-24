@@ -76,6 +76,8 @@ View menggunakan Blade.
 
 Komponen umum yang masih dipakai lintas halaman berada di `resources/views/components`, seperti header, sidebar, dan modal dasar. Komponen katalog yang spesifik fitur dipindahkan ke `resources/views/katalog/partials` supaya struktur view lebih sederhana.
 
+Landing page menampilkan produk pilihan, ringkasan artikel, dan tombol WhatsApp floating di kanan bawah. Tombol tersebut mengarah ke `https://wa.me/6281515400001` agar guest dapat langsung menghubungi Matrix Jaya tanpa login.
+
 ## Route Utama
 
 ### Public
