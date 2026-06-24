@@ -29,7 +29,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'nama_lengkap' => $request->nama_lengkap,
             'password' => Hash::make($request->password),
-            'role' => 'admin',
+            'role' => 'user',
         ]);
         return redirect('/registrasi')->with('success', 'Registration successful. Please Login.');
     }
